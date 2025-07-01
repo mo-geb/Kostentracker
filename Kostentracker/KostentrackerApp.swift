@@ -1,17 +1,20 @@
-//
-//  KostentrackerApp.swift
-//  Kostentracker
-//
-//  Created by Moritz Gebhardt on 27.06.25.
-//
-
 import SwiftUI
 
 @main
 struct KostentrackerApp: App {
+    @StateObject private var expenseTracker = ExpenseTracker()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .environmentObject(expenseTracker)
         }
+    }
+}
+
+struct KostentrackerApp_Previews: PreviewProvider {
+    static var previews: some View {
+        MainTabView()
+            .environmentObject(ExpenseTracker())
     }
 }
