@@ -1,20 +1,17 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct KostentrackerApp: App {
-    @StateObject private var expenseTracker = ExpenseTracker()
-    
     var body: some Scene {
         WindowGroup {
             MainTabView()
-                .environmentObject(expenseTracker)
-        }
+       }
+        .modelContainer(for: Expense.self)
     }
 }
 
-struct KostentrackerApp_Previews: PreviewProvider {
-    static var previews: some View {
-        MainTabView()
-            .environmentObject(ExpenseTracker())
-    }
+#Preview {
+    MainTabView()
+        .modelContainer(for: Expense.self, inMemory: true)
 }

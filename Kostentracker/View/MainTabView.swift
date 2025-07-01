@@ -2,29 +2,26 @@
 //  MainTabView.swift
 //  Kostentracker
 //
-//  Created by Moritz Gebhardt on 29.06.25.
-//
 
 import SwiftUI
 
 struct MainTabView: View {
-    @EnvironmentObject var tracker: ExpenseTracker
-    @State var searchText = ""
-    
     var body: some View {
         TabView {
             TimelineView()
                 .tabItem {
                     Label("Timeline", systemImage: "calendar")
                 }
-            
-            TimelineView()
+            ListView()
                 .tabItem {
-                    Label("Timeline", systemImage: "calendar")
+                    Label("List", systemImage: "list.bullet")
+                }
+            StatisticsView()
+                .tabItem {
+                    Label("Statistics", systemImage: "chart.bar")
                 }
         }
         .tabViewStyle(.automatic)
         .background(.thinMaterial)
-        .searchable(text: $searchText)
     }
 }
