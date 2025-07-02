@@ -2,8 +2,6 @@
 //  Expense.swift
 //  Kostentracker
 //
-//  Created by Moritz Gebhardt on 30.06.25.
-//
 
 import Foundation
 import SwiftData

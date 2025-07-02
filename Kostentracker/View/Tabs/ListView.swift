@@ -116,7 +116,7 @@ struct ListView: View {
             Text(convertCost(for: expense), format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense

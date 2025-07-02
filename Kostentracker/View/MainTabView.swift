@@ -8,18 +8,18 @@ import SwiftUI
 struct MainTabView: View {
     var body: some View {
         TabView {
-            TimelineView()
-                .tabItem {
-                    Label("Timeline", systemImage: "calendar")
-                }
-            ListView()
-                .tabItem {
-                    Label("List", systemImage: "list.bullet")
-                }
-            StatisticsView()
-                .tabItem {
-                    Label("Statistics", systemImage: "chart.bar")
-                }
+            Tab("Timeline", systemImage: "calendar") {
+                TimelineView()
+            }
+            Tab("List", systemImage: "list.bullet") {
+                ListView()
+            }
+            Tab("Statistics", systemImage: "chart.bar") {
+                StatisticsView()
+            }
+            Tab(role: .search) {
+                SearchView()
+            }
         }
         .tabViewStyle(.automatic)
         .background(.thinMaterial)

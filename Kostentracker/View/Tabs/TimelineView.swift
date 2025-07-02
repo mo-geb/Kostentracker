@@ -110,10 +110,22 @@ struct TimelineView: View {
             Text(expense.amount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 2)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense
+        }
+        .contextMenu {
+            Button {
+                selectedExpense = expense
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            Button {
+                markAsPaid(expense)
+            } label: {
+                Label("Mark as Paid", systemImage: "checkmark")
+            }
         }
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {

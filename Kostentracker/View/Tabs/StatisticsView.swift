@@ -109,7 +109,7 @@ struct StatisticsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background()
+        .background(Color(.secondarySystemBackground))
         .cornerRadius(10)
     }
     

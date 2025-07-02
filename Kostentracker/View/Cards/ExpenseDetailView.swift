@@ -15,6 +15,7 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var isEditing: Bool
+    @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
     var onSave: (() -> Void)?
     
@@ -83,9 +84,8 @@ struct ExpenseDetailView: View {
     @ViewBuilder
     private var imageDisplay: some View {
         ZStack {
-            // A background circle to maintain the shape.
             Circle()
-                .fill(Color(.systemGray5))
+                .fill(Color(.tertiarySystemBackground))
 
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
@@ -99,6 +99,8 @@ struct ExpenseDetailView: View {
         }
         .frame(width: 100, height: 100)
         .clipShape(Circle())
+        .offset(y: -10)
+        .padding(-15)
     }
     
     @ViewBuilder
@@ -109,12 +111,14 @@ struct ExpenseDetailView: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+                .padding(-10)
         } else {
             Text(expense.title)
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+                .padding(-10)
         }
     }
     
@@ -128,7 +132,7 @@ struct ExpenseDetailView: View {
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
                         .padding(8)
-                        .background(Color(.systemGray5))
+                        .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
                 } else {
                     Text(expense.amount, format: .currency(code: currencyCode))
@@ -146,7 +150,7 @@ struct ExpenseDetailView: View {
                             .multilineTextAlignment(.trailing)
                             .fixedSize()
                             .padding(8)
-                            .background(Color(.systemGray5))
+                            .background(Color(.secondarySystemBackground))
                             .cornerRadius(8)
                         
                         Picker("Unit", selection: $expense.frequencyUnit) {
@@ -176,9 +180,9 @@ struct ExpenseDetailView: View {
                         Picker("Category", selection: $expense.category) {
                             ForEach(Category.allCases, id: \.self) { category in
                                 Label(category.rawValue.capitalized, systemImage: category.iconName).tag(category)
-                                    .pickerStyle(.menu)
                             }
                         }
+                        .pickerStyle(.menu)
                     }
                 } else {
                     Label(expense.category.rawValue.capitalized, systemImage: expense.category.iconName)
@@ -190,21 +194,29 @@ struct ExpenseDetailView: View {
                 Text("Notes").font(.headline)
                 if isEditing {
                     TextEditor(text: $expense.notes)
-                        .padding(4)
+                        .padding(12)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.systemGray5), lineWidth: 1)
+                                .stroke(Color(.tertiarySystemBackground), lineWidth: 1)
                         )
                         .frame(minHeight: 100)
-                        .background()
                         .cornerRadius(16)
-                } else if !expense.notes.isEmpty {
-                    Text(expense.notes)
                 } else {
-                    Text("No notes provided.")
-                        .foregroundColor(.secondary)
+                    VStack {
+                        if !expense.notes.isEmpty {
+                            Text(expense.notes)
+                        } else {
+                            Text("No notes provided.")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+                    .background(Color(.tertiarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
             }
+            
         }
         .padding()
     }
@@ -250,19 +262,29 @@ struct ExpenseDetailView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background()
+        .background(Color(.tertiarySystemBackground))
         .cornerRadius(10)
     }
     
     @ViewBuilder
     private var deleteButton: some View {
         Button(role: .destructive) {
-            context.delete(expense)
-            dismiss()
+            showingDeleteAlert = true
         } label: {
             Label("Delete", systemImage: "trash")
         }
         .tint(.red)
+        .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
+                    Button("Delete", role: .destructive) {
+                        context.delete(expense)
+                        dismiss()
+                    }
+                    
+                    Button("Cancel", role: .cancel) { }
+                    
+                } message: {
+                    Text("Are you sure? This action cannot be undone.")
+                }
     }
     
     // MARK: - Toolbar
@@ -323,7 +345,7 @@ struct ExpenseDetailView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background()
+        .background(Color(.tertiarySystemBackground))
         .cornerRadius(25)
     }
 

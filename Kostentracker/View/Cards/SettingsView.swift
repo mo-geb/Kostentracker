@@ -2,9 +2,6 @@
 //  SettingsView.swift
 //  Kostentracker
 //
-//  Created by Moritz Gebhardt on 02.07.25.
-//
-
 
 import SwiftUI
 
