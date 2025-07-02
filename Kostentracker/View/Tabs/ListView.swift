@@ -13,6 +13,8 @@ struct ListView: View {
     @Environment(\.modelContext) private var context
     @Query private var expenses: [Expense]
     
+    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    
     // MARK: - State for User Controls
     
     @State private var selectedExpense: Expense?
@@ -81,7 +83,7 @@ struct ListView: View {
             Image(systemName: categoryData.category.iconName)
             Text(categoryData.category.rawValue.capitalized)
             Spacer()
-            Text(categoryData.totalCost, format: .currency(code: "EUR"))
+            Text(categoryData.totalCost, format: .currency(code: currencyCode))
                 .font(.headline)
         }
         .padding(.vertical, 4)
@@ -90,6 +92,19 @@ struct ListView: View {
     /// A view for a single expense row.
     private func expenseRow(for expense: Expense) -> some View {
         HStack {
+            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+            } else {
+                // Fallback to the category icon
+                Image(systemName: expense.category.iconName)
+                    .font(.title2)
+                    .frame(width: 40)
+            }
+            
             VStack(alignment: .leading) {
                 Text(expense.title)
                     .font(.headline)
@@ -98,10 +113,10 @@ struct ListView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Text(convertCost(for: expense), format: .currency(code: "EUR"))
+            Text(convertCost(for: expense), format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 5)
+        .padding(.vertical, 3)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense

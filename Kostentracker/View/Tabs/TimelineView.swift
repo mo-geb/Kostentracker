@@ -13,6 +13,8 @@ struct TimelineView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \Expense.date) private var expenses: [Expense]
     
+    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    
     // State for presenting sheets.
     @State private var selectedExpense: Expense?
     @State private var newExpense: Expense?
@@ -68,7 +70,7 @@ struct TimelineView: View {
                     HStack {
                         Text(group.month, formatter: monthFormatter)
                         Spacer()
-                        Text(group.totalAmount, format: .currency(code: "EUR"))
+                        Text(group.totalAmount, format: .currency(code: currencyCode))
                     }
                     .font(.headline)
                     .foregroundStyle(.secondary)
@@ -82,9 +84,18 @@ struct TimelineView: View {
     @ViewBuilder
     private func expenseRow(for expense: Expense) -> some View {
         HStack {
-            Image(systemName: expense.category.iconName)
-                .font(.title2)
-                .frame(width: 40)
+            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 40, height: 40)
+                    .clipShape(Circle())
+            } else {
+                // Fallback to the category icon
+                Image(systemName: expense.category.iconName)
+                    .font(.title2)
+                    .frame(width: 40)
+            }
             
             VStack(alignment: .leading) {
                 Text(expense.title)
@@ -96,7 +107,7 @@ struct TimelineView: View {
             
             Spacer()
             
-            Text(expense.amount, format: .currency(code: "EUR"))
+            Text(expense.amount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
         .padding(.vertical, 8)
@@ -151,10 +162,12 @@ struct TimelineView: View {
         return groupedByMonth.map { (month, expensesInMonth) in
             // Calculate the sum of amounts for all expenses in this month.
             let total = expensesInMonth.reduce(0) { $0 + $1.amount }
-            return MonthlyExpenseGroup(id: month, month: month, expenses: expensesInMonth, totalAmount: total)
+            let sortedExpenses = expensesInMonth.sorted { $0.date < $1.date }
+            
+            return MonthlyExpenseGroup(id: month, month: month, expenses: sortedExpenses, totalAmount: total)
         }
         // 3. Sort the groups by month, so the newest appear at the top.
-        .sorted { $0.month > $1.month }
+        .sorted { $0.month < $1.month }
     }
 
     /// A shared formatter for displaying month and year in section headers.
@@ -170,18 +183,20 @@ struct TimelineView: View {
     /// Advances the expense's date based on its frequency.
     /// This is the business logic for the "Paid" swipe action.
     private func markAsPaid(_ expense: Expense) {
-        let calendar = Calendar.current
-        var dateComponent: Calendar.Component
-        
-        switch expense.frequencyUnit {
-        case .days: dateComponent = .day
-        case .weeks: dateComponent = .weekOfYear
-        case .months: dateComponent = .month
-        case .years: dateComponent = .year
-        }
-
-        if let newDate = calendar.date(byAdding: dateComponent, value: Int(expense.frequencyValue), to: expense.date) {
-            expense.date = newDate
+        withAnimation {
+            let calendar = Calendar.current
+            var dateComponent: Calendar.Component
+            
+            switch expense.frequencyUnit {
+            case .days: dateComponent = .day
+            case .weeks: dateComponent = .weekOfYear
+            case .months: dateComponent = .month
+            case .years: dateComponent = .year
+            }
+            
+            if let newDate = calendar.date(byAdding: dateComponent, value: Int(expense.frequencyValue), to: expense.date) {
+                expense.date = newDate
+            }
         }
     }
 }

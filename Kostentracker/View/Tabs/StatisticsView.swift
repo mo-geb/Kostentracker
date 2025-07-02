@@ -16,6 +16,8 @@ struct StatisticsView: View {
     @Query private var expenses: [Expense]
     @State private var showingSettings = false
     
+    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    
     // MARK: - Body
     
     var body: some View {
@@ -70,31 +72,25 @@ struct StatisticsView: View {
     
     /// A section displaying a donut chart of expenses by category.
     private var categoryChartSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text("By Category")
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
-            
-            Chart(categoryCosts) { categoryCost in
-                SectorMark(
-                    angle: .value("Cost", categoryCost.totalCost),
-                    innerRadius: .ratio(0.6), // This makes it a donut chart
-                    angularInset: 2
+
+            Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
+                BarMark(
+                    x: .value("Cost", item.totalCost),
+                    y: .value("Category", item.category.rawValue.capitalized)
                 )
-                .foregroundStyle(by: .value("Category", categoryCost.category.rawValue.capitalized))
-                .cornerRadius(5)
-                .annotation(position: .overlay) {
-                }
+                .foregroundStyle(by: .value("Category", item.category.rawValue.capitalized))
+                .cornerRadius(20)
             }
-            .chartForegroundStyleScale(domain: categoryCosts.map { $0.category.rawValue.capitalized })
-            .frame(height: 300)
-            .chartBackground { chartProxy in
-                VStack {
-                    Text("Total Yearly")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                    Text(totalCosts.yearly, format: .currency(code: "EUR"))
-                        .font(.title2.bold())
+            .frame(height: CGFloat(categoryCosts.count * 50 + 20))
+            .chartLegend(.hidden)
+            .chartYAxis {
+                AxisMarks(position: .leading) {
+                    AxisValueLabel()
+                        .font(.subheadline.bold())
                 }
             }
         }
@@ -105,13 +101,15 @@ struct StatisticsView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.headline)
-            Text(amount, format: .currency(code: "EUR"))
+            Text(amount, format: .currency(code: currencyCode))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background()
         .cornerRadius(10)
     }
     

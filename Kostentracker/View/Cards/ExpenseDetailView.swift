@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import PhotosUI
 
 struct ExpenseDetailView: View {
     // MARK: - Properties
@@ -14,7 +15,10 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var isEditing: Bool
+    @State private var selectedPhoto: PhotosPickerItem?
     var onSave: (() -> Void)?
+    
+    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
     init(expense: Expense, isEditingInitial: Bool = false, onSave: (() -> Void)? = nil) {
         self._expense = Bindable(wrappedValue: expense)
@@ -27,6 +31,7 @@ struct ExpenseDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
+                pictureSection
                 titleSection
                 
                 detailsSection
@@ -38,12 +43,63 @@ struct ExpenseDetailView: View {
                 }
             }
         }
+        .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
         }
     }
 
     // MARK: - View Components
+    
+    @ViewBuilder
+    private var pictureSection: some View {
+        VStack {
+            if isEditing {
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    imageDisplay
+                        .overlay(alignment: .bottomTrailing) {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title)
+                                .offset(x: 5, y: 5)
+                        }
+                }
+                .onChange(of: selectedPhoto) {
+                    Task {
+                        if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
+                            expense.customImageData = data
+                        }
+                    }
+                }
+            } else {
+                if expense.customImageData != nil {
+                    imageDisplay
+                }
+            }
+        }
+        .padding(.bottom)
+    }
+    
+    /// A reusable view that displays the expense's custom image or a placeholder as a circular icon.
+    @ViewBuilder
+    private var imageDisplay: some View {
+        ZStack {
+            // A background circle to maintain the shape.
+            Circle()
+                .fill(Color(.systemGray5))
+
+            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                Image(systemName: "photo")
+                    .font(.system(size: 40))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 100, height: 100)
+        .clipShape(Circle())
+    }
     
     @ViewBuilder
     private var titleSection: some View {
@@ -67,15 +123,15 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading, spacing: 15) {
             row(title: "Amount") {
                 if isEditing {
-                    TextField("Amount", value: $expense.amount, format: .currency(code: "EUR"))
+                    TextField("Amount", value: $expense.amount, format: .currency(code: currencyCode))
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
                         .padding(8)
-                        .background(Color(.systemGray6))
+                        .background(Color(.systemGray5))
                         .cornerRadius(8)
                 } else {
-                    Text(expense.amount, format: .currency(code: "EUR"))
+                    Text(expense.amount, format: .currency(code: currencyCode))
                 }
             }
             
@@ -90,7 +146,7 @@ struct ExpenseDetailView: View {
                             .multilineTextAlignment(.trailing)
                             .fixedSize()
                             .padding(8)
-                            .background(Color(.systemGray6))
+                            .background(Color(.systemGray5))
                             .cornerRadius(8)
                         
                         Picker("Unit", selection: $expense.frequencyUnit) {
@@ -120,9 +176,9 @@ struct ExpenseDetailView: View {
                         Picker("Category", selection: $expense.category) {
                             ForEach(Category.allCases, id: \.self) { category in
                                 Label(category.rawValue.capitalized, systemImage: category.iconName).tag(category)
+                                    .pickerStyle(.menu)
                             }
                         }
-                        .pickerStyle(.menu)
                     }
                 } else {
                     Label(expense.category.rawValue.capitalized, systemImage: expense.category.iconName)
@@ -137,9 +193,11 @@ struct ExpenseDetailView: View {
                         .padding(4)
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                                .stroke(Color(.systemGray5), lineWidth: 1)
                         )
                         .frame(minHeight: 100)
+                        .background()
+                        .cornerRadius(16)
                 } else if !expense.notes.isEmpty {
                     Text(expense.notes)
                 } else {
@@ -167,14 +225,33 @@ struct ExpenseDetailView: View {
                 )
                 let monthlyCost = yearlyCost / 12
                 let weeklyCost = yearlyCost / 52
-
-                Text("Yearly: \(yearlyCost, format: .currency(code: "EUR"))")
-                Text("Monthly: \(monthlyCost, format: .currency(code: "EUR"))")
-                Text("Weekly: \(weeklyCost, format: .currency(code: "EUR"))")
+                
+                HStack {
+                    costCard(title: "Yearly", amount: yearlyCost)
+                    costCard(title: "Monthly", amount: monthlyCost)
+                    costCard(title: "Weekly", amount: weeklyCost)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
+    }
+    
+    /// A reusable view for displaying a single cost metric (e.g., "Yearly").
+    private func costCard(title: String, amount: Double) -> some View {
+        VStack(alignment: .leading) {
+            Text(title)
+                .font(.headline)
+            Text(amount, format: .currency(code: currencyCode))
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background()
+        .cornerRadius(10)
     }
     
     @ViewBuilder
@@ -244,6 +321,10 @@ struct ExpenseDetailView: View {
             Spacer()
             content()
         }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background()
+        .cornerRadius(25)
     }
 
     // MARK: - Logic
@@ -263,13 +344,7 @@ struct ExpenseDetailView: View {
     }
 }
 
-#Preview("Dark Mode") {
-    // Create a sample expense for the preview
-    let sampleExpense = Expense(title: "Netflix Subscription", amount: 15.99, frequencyUnit: .months, frequencyValue: 1, date: Date(), category: .subscription, notes: "Premium plan with 4 screens.")
-    
-    NavigationStack {
-        ExpenseDetailView(expense: sampleExpense)
-    }
-    .preferredColorScheme(.dark) // <-- This forces the preview to be dark
+#Preview {
+    ExpenseDetailView(expense: PreviewSampleData.netflixSample, isEditingInitial: true, onSave: nil)
+        .preferredColorScheme(.dark)
 }
-
