@@ -12,6 +12,7 @@ struct TimelineView: View {
     // SwiftData Context and Query
     @Environment(\.modelContext) private var context
     @Query(sort: \Expense.date) private var expenses: [Expense]
+    @Query private var categories: [ExpenseCategory]
     
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
@@ -91,10 +92,16 @@ struct TimelineView: View {
                     .frame(width: 40, height: 40)
                     .clipShape(Circle())
             } else {
-                // Fallback to the category icon
-                Image(systemName: expense.category.iconName)
-                    .font(.title2)
-                    .frame(width: 40)
+                // Fallback to the category icon with circular background
+                ZStack {
+                    Circle()
+                        .fill(expense.category.color.opacity(0.3))
+                        .frame(width: 40, height: 40)
+                    
+                    Image(systemName: expense.category.iconName)
+                        .font(.title2)
+                        .foregroundStyle(expense.category.color)
+                }
             }
             
             VStack(alignment: .leading) {
@@ -143,8 +150,7 @@ struct TimelineView: View {
     private var addExpenseToolbarItem: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
-                // Create a new, empty Expense object to pass to the sheet.
-                newExpense = Expense(title: "", amount: 0, frequencyUnit: .months, frequencyValue: 1, date: Date(), category: .other, notes: "")
+                newExpense = Expense.createNew(with: context)
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }
@@ -200,10 +206,10 @@ struct TimelineView: View {
             var dateComponent: Calendar.Component
             
             switch expense.frequencyUnit {
-            case .days: dateComponent = .day
-            case .weeks: dateComponent = .weekOfYear
-            case .months: dateComponent = .month
-            case .years: dateComponent = .year
+            case .day: dateComponent = .day
+            case .week: dateComponent = .weekOfYear
+            case .month: dateComponent = .month
+            case .year: dateComponent = .year
             }
             
             if let newDate = calendar.date(byAdding: dateComponent, value: Int(expense.frequencyValue), to: expense.date) {

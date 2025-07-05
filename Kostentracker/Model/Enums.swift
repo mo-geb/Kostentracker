@@ -4,25 +4,7 @@
 //
 
 enum FrequencyUnit: String, Codable, CaseIterable {
-    case days, weeks, months, years
-}
-
-enum Category: String, Codable, CaseIterable {
-    case living = "Living"
-    case subscription = "Subscription"
-    case transport = "Transport"
-    case insurance = "Insurance"
-    case other = "Other"
-        
-     var iconName: String {
-         switch self {
-         case .living: "heart"
-         case .subscription: "dumbbell"
-         case .transport: "car"
-         case .insurance: "shield"
-         case .other: "tag"
-         }
-     }
+    case day, week, month, year
 }
 
 enum SortOption: String, CaseIterable, Identifiable {
@@ -42,4 +24,31 @@ enum CostPeriod: String, CaseIterable, Identifiable {
     case daily = "Daily"
     
     var id: Self { self }
+}
+
+enum FilterOption: String, CaseIterable, Identifiable {
+    case all = "All Expenses"
+    case nonZero = "Non-Zero Cost"
+    case recent = "Recent (Last 30 Days)"
+    
+    var id: Self { self }
+}
+
+// MARK: - Frequency Formatting
+
+extension FrequencyUnit {
+    /// Returns the properly capitalized and pluralized form of the frequency unit.
+    func displayName(for value: Int16) -> String {
+        let base = rawValue.capitalized
+        return value == 1 ? base : base + "s"
+    }
+    
+    /// Returns the complete frequency string (e.g., "Every Month" or "Every 2 Months").
+    static func formatFrequency(value: Int16, unit: FrequencyUnit) -> String {
+        if value == 1 {
+            return "Every \(unit.rawValue)"
+        } else {
+            return "Every \(value) \(unit.rawValue)s"
+        }
+    }
 }

@@ -80,9 +80,9 @@ struct StatisticsView: View {
             Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
                 BarMark(
                     x: .value("Cost", item.totalCost),
-                    y: .value("Category", item.category.rawValue.capitalized)
+                    y: .value("Category", item.category.name)
                 )
-                .foregroundStyle(by: .value("Category", item.category.rawValue.capitalized))
+                .foregroundStyle(item.category.color)
                 .cornerRadius(20)
             }
             .frame(height: CGFloat(categoryCosts.count * 50 + 20))
@@ -109,7 +109,7 @@ struct StatisticsView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.secondarySystemBackground))
+        .background(Color(.tertiarySystemBackground))
         .cornerRadius(10)
     }
     
@@ -139,8 +139,8 @@ struct StatisticsView: View {
     
     /// A helper struct to make category cost data identifiable for the Chart.
     private struct CategoryCost: Identifiable {
-        let id: Category
-        var category: Category
+        let id: ExpenseCategory
+        var category: ExpenseCategory
         var totalCost: Double
     }
     
@@ -165,13 +165,13 @@ struct StatisticsView: View {
         guard frequencyValue > 0 else { return 0 }
         
         switch expense.frequencyUnit {
-        case .days:
+        case .day:
             return expense.amount * (365.0 / frequencyValue)
-        case .weeks:
+        case .week:
             return expense.amount * (52.0 / frequencyValue)
-        case .months:
+        case .month:
             return expense.amount * (12.0 / frequencyValue)
-        case .years:
+        case .year:
             return expense.amount / frequencyValue
         }
     }

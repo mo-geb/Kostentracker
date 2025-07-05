@@ -62,40 +62,54 @@ struct SearchView: View {
             ContentUnavailableView.search(text: searchText)
             
         } else {
-            List(searchResults) { expense in
-                resultRow(for: expense)
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(searchResults) { expense in
+                        resultRow(for: expense)
+                    }
+                }
+                .padding()
             }
+            .background(Color(.systemGroupedBackground))
         }
     }
     
     /// A view for displaying a single search result row.
     private func resultRow(for expense: Expense) -> some View {
-        HStack {
+        HStack(spacing: 16) {
+            // Category icon with circular background
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 40, height: 40)
+                    .frame(width: 50, height: 50)
                     .clipShape(Circle())
             } else {
-                // Fallback to the category icon
-                Image(systemName: expense.category.iconName)
-                    .font(.title2)
-                    .frame(width: 40)
+                ZStack {
+                    Circle()
+                        .fill(expense.category.color.opacity(0.3))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: expense.category.iconName)
+                        .font(.title2)
+                        .foregroundStyle(expense.category.color)
+                }
             }
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(.headline)
-                HStack() {
-                    Text(expense.date , style: .date)
-                        .font(.caption)
+                    .foregroundStyle(.primary)
+                
+                HStack(spacing: 8) {
+                    Text(expense.date, style: .date)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
-                    Text("Every \(expense.frequencyValue) \(expense.frequencyUnit.rawValue.capitalized)")
-                        .font(.caption)
+                    
+                    Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                .padding(3)
             }
             
             Spacer()
@@ -103,7 +117,9 @@ struct SearchView: View {
             Text(expense.amount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 5)
+        .padding(16)
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(16)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense

@@ -11,6 +11,7 @@ struct ExpenseDetailView: View {
     // MARK: - Properties
     
     @Bindable var expense: Expense
+    @Query(sort: \ExpenseCategory.name) var categories: [ExpenseCategory]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
@@ -61,7 +62,7 @@ struct ExpenseDetailView: View {
                         .overlay(alignment: .bottomTrailing) {
                             Image(systemName: "pencil.circle.fill")
                                 .font(.title)
-                                .offset(x: 5, y: 5)
+                                .offset(x: 10, y: 10)
                         }
                 }
                 .onChange(of: selectedPhoto) {
@@ -72,9 +73,7 @@ struct ExpenseDetailView: View {
                     }
                 }
             } else {
-                if expense.customImageData != nil {
-                    imageDisplay
-                }
+                imageDisplay
             }
         }
         .padding(.bottom)
@@ -92,9 +91,15 @@ struct ExpenseDetailView: View {
                     .resizable()
                     .scaledToFit()
             } else {
-                Image(systemName: "photo")
-                    .font(.system(size: 40))
-                    .foregroundStyle(.secondary)
+                // Show category icon with circular background when no custom image
+                ZStack {
+                    Circle()
+                        .fill(expense.category.color.opacity(0.3))
+                    
+                    Image(systemName: expense.category.iconName)
+                        .font(.system(size: 40))
+                        .foregroundStyle(expense.category.color)
+                }
             }
         }
         .frame(width: 100, height: 100)
@@ -127,7 +132,10 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading, spacing: 15) {
             row(title: "Amount") {
                 if isEditing {
-                    TextField("Amount", value: $expense.amount, format: .currency(code: currencyCode))
+                    TextField("0.00", value: Binding(
+                        get: { expense.amount },
+                        set: { expense.amount = max(0, $0) }
+                    ), format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
@@ -142,12 +150,15 @@ struct ExpenseDetailView: View {
             row(title: "Frequency") {
                 if isEditing {
                     HStack {
-                        TextField("Value", value: Binding(
+                        Text("Every")
+                            .foregroundStyle(.secondary)
+                        
+                        TextField("1", value: Binding(
                             get: { Int(expense.frequencyValue) },
-                            set: { expense.frequencyValue = Int16($0) }
+                            set: { expense.frequencyValue = Int16(max(1, $0)) }
                         ), format: .number)
                             .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
+                            .multilineTextAlignment(.center)
                             .fixedSize()
                             .padding(8)
                             .background(Color(.secondarySystemBackground))
@@ -155,13 +166,15 @@ struct ExpenseDetailView: View {
                         
                         Picker("Unit", selection: $expense.frequencyUnit) {
                             ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                Text(unit.rawValue.capitalized).tag(unit)
+                                Text(unit.displayName(for: expense.frequencyValue))
+                                    .tag(unit)
                             }
                         }
                         .pickerStyle(.menu)
+                        .fixedSize(horizontal: false, vertical: true)
                     }
                 } else {
-                    Text("\(expense.frequencyValue) \(expense.frequencyUnit.rawValue.capitalized)")
+                    Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
                 }
             }
             
@@ -176,16 +189,21 @@ struct ExpenseDetailView: View {
             
             row(title: "Category") {
                 if isEditing {
-                    HStack {
-                        Picker("Category", selection: $expense.category) {
-                            ForEach(Category.allCases, id: \.self) { category in
-                                Label(category.rawValue.capitalized, systemImage: category.iconName).tag(category)
+                    Picker("Category", selection: $expense.category) {
+                        ForEach(categories, id: \.self) { category in
+                            HStack(spacing: 8) {
+                                Image(systemName: category.iconName)
+                                    .foregroundStyle(category.color)
+                                    .frame(width: 16)
+                                Text(category.name)
                             }
+                            .tag(category)
                         }
-                        .pickerStyle(.menu)
                     }
+                    .pickerStyle(.menu)
+                    .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Label(expense.category.rawValue.capitalized, systemImage: expense.category.iconName)
+                    Label(expense.category.name, systemImage: expense.category.iconName)
                 }
             }
             
@@ -275,16 +293,16 @@ struct ExpenseDetailView: View {
         }
         .tint(.red)
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
-                    Button("Delete", role: .destructive) {
-                        context.delete(expense)
-                        dismiss()
-                    }
+            Button("Delete", role: .destructive) {
+                context.delete(expense)
+                dismiss()
+            }
                     
-                    Button("Cancel", role: .cancel) { }
+            Button("Cancel", role: .cancel) { }
                     
-                } message: {
-                    Text("Are you sure? This action cannot be undone.")
-                }
+        } message: {
+            Text("Are you sure? This action cannot be undone.")
+        }
     }
     
     // MARK: - Toolbar
@@ -294,9 +312,15 @@ struct ExpenseDetailView: View {
         ToolbarItem(placement: .cancellationAction) {
             if isEditing {
                 Button {
-                    // Reload from persistent store if cancel pressed
-                    context.rollback()
+                    // If this is a new expense that hasn't been saved yet, delete it
+                    if expense.title.isEmpty && expense.amount == 0 {
+                        context.delete(expense)
+                    } else {
+                        // Reload from persistent store if cancel pressed
+                        context.rollback()
+                    }
                     isEditing = false
+                    dismiss()
                 } label: {
                     Label("Cancel", systemImage: "xmark")
                 }
@@ -322,6 +346,7 @@ struct ExpenseDetailView: View {
                 } label: {
                     Label("Save", systemImage: "checkmark")
                 }
+                .disabled(expense.title.isEmpty)
                 .tint(.green)
             } else {
                 Button {
@@ -354,19 +379,16 @@ struct ExpenseDetailView: View {
     private func calculateYearlyCost(amount: Double, frequencyValue: Int, frequencyUnit: FrequencyUnit) -> Double {
         guard frequencyValue > 0 else { return 0 }
         switch frequencyUnit {
-        case .days:
+        case .day:
             return amount * (365.0 / Double(frequencyValue))
-        case .weeks:
+        case .week:
             return amount * (52.0 / Double(frequencyValue))
-        case .months:
+        case .month:
             return amount * (12.0 / Double(frequencyValue))
-        case .years:
+        case .year:
             return amount / Double(frequencyValue)
         }
     }
-}
+    
 
-#Preview {
-    ExpenseDetailView(expense: PreviewSampleData.netflixSample, isEditingInitial: true, onSave: nil)
-        .preferredColorScheme(.dark)
 }

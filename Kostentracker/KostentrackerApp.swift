@@ -8,6 +8,29 @@ import SwiftData
 
 @main
 struct KostentrackerApp: App {
+    let modelContainer: ModelContainer
+    
+    init() {
+        do {
+            modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self)
+            let context = modelContainer.mainContext
+            
+            #if DEBUG
+            print("Entered App in DEBUG... Deleting models")
+            try? context.delete(model: Expense.self)
+            try? context.delete(model: ExpenseCategory.self)
+
+            UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+            #endif
+            
+            let setupCoordinator = AppSetupCoordinator(context: modelContainer.mainContext)
+            setupCoordinator.run()
+            
+        } catch {
+            fatalError("Could not initialize ModelContainer: \(error)")
+        }
+    }
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()
@@ -18,23 +41,23 @@ struct KostentrackerApp: App {
 
 #Preview {
     do {
-        // 1. Create a configuration for an in-memory database.
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
+        let context = container.mainContext
         
-        // 2. Create the temporary container.
-        let container = try ModelContainer(for: Expense.self, configurations: config)
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         
-        // 3. This is the magic: Insert all your sample expenses into the container.
+        PreviewSampleData.categories.forEach {
+            container.mainContext.insert($0)
+        }
+        
         PreviewSampleData.expenses.forEach {
             container.mainContext.insert($0)
         }
         
-        // 4. Return your view and tell it to use this pre-filled container.
         return MainTabView()
             .modelContainer(container)
         
     } catch {
-        // If creating the container fails, show an error.
         return Text("Failed to create preview container: \(error.localizedDescription)")
     }
 }
