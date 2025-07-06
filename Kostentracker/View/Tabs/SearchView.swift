@@ -77,13 +77,13 @@ struct SearchView: View {
     /// A view for displaying a single search result row.
     private func resultRow(for expense: Expense) -> some View {
         HStack(spacing: 16) {
-            // Category icon with circular background
+            // Category icon with app-shaped background for custom images, circular for system icons
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 50, height: 50)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             } else {
                 ZStack {
                     Circle()
@@ -101,15 +101,13 @@ struct SearchView: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                HStack(spacing: 8) {
-                    Text(expense.date, style: .date)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    
-                    Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
+                Text(expense.date, style: .date)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             
             Spacer()

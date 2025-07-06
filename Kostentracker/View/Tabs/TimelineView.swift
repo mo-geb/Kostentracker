@@ -19,6 +19,7 @@ struct TimelineView: View {
     // State for presenting sheets.
     @State private var selectedExpense: Expense?
     @State private var newExpense: Expense?
+    @State private var showingSettings = false
 
     // MARK: - Body
     
@@ -26,20 +27,21 @@ struct TimelineView: View {
         NavigationStack {
             mainContent
                 .navigationTitle("Timeline")
-                .toolbar { addExpenseToolbarItem }
+                .toolbar { toolbarContent }
                 .sheet(item: $selectedExpense) { expense in
-                    // Sheet for viewing details of an existing expense.
                     NavigationStack {
                         ExpenseDetailView(expense: expense)
                     }
                 }
                 .sheet(item: $newExpense) { expense in
-                    // Sheet for creating a new expense.
                     NavigationStack {
                         ExpenseDetailView(expense: expense, isEditingInitial: true) {
                             context.insert(expense)
                         }
                     }
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView()
                 }
         }
     }
@@ -84,13 +86,13 @@ struct TimelineView: View {
     /// A view representing a single row in the expense list.
     @ViewBuilder
     private func expenseRow(for expense: Expense) -> some View {
-        HStack {
+        HStack(spacing: 12) {
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 // Fallback to the category icon with circular background
                 ZStack {
@@ -147,8 +149,16 @@ struct TimelineView: View {
     // MARK: - Toolbar
     
     @ToolbarContentBuilder
-    private var addExpenseToolbarItem: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                showingSettings = true
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+            }
+        }
+        
+        ToolbarItem() {
             Button {
                 newExpense = Expense.createNew(with: context)
             } label: {

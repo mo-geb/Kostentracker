@@ -39,7 +39,7 @@ class Expense: Identifiable {
         }
         
         // Create the new expense.
-        return Expense(title: "", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: Date(), category: defaultCategory ?? ExpenseCategory(name: "Other", iconName: "questionmark", color: .gray, isDefault: true), notes: "")
+        return Expense(title: "", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: Date(), category: defaultCategory ?? ExpenseCategory(name: "Other", iconName: "tag", color: .gray, isDefault: true), notes: "")
     }
 }
 

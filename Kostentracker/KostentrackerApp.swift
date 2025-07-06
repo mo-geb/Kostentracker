@@ -15,15 +15,7 @@ struct KostentrackerApp: App {
             modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self)
             let context = modelContainer.mainContext
             
-            #if DEBUG
-            print("Entered App in DEBUG... Deleting models")
-            try? context.delete(model: Expense.self)
-            try? context.delete(model: ExpenseCategory.self)
-
-            UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-            #endif
-            
-            let setupCoordinator = AppSetupCoordinator(context: modelContainer.mainContext)
+            let setupCoordinator = AppSetupCoordinator(context: context)
             setupCoordinator.run()
             
         } catch {
@@ -43,6 +35,14 @@ struct KostentrackerApp: App {
     do {
         let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
         let context = container.mainContext
+        
+        #if DEBUG
+        print("Entered App in DEBUG... Deleting models")
+        try? context.delete(model: Expense.self)
+        try? context.delete(model: ExpenseCategory.self)
+
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+        #endif
         
         UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         

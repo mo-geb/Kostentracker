@@ -15,6 +15,7 @@ struct StatisticsView: View {
     
     @Query private var expenses: [Expense]
     @State private var showingSettings = false
+    @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
@@ -24,7 +25,7 @@ struct StatisticsView: View {
         NavigationStack {
             mainContent
                 .navigationTitle("Statistics")
-                .toolbar { settingsToolbar }
+                .toolbar { toolbarContent }
                 .sheet(isPresented: $showingSettings) {
                     SettingsView()
                 }
@@ -48,6 +49,7 @@ struct StatisticsView: View {
                 VStack(spacing: 30) {
                     totalCostsSection
                     categoryChartSection
+                    monthlyChartSection
                 }
                 .padding()
             }
@@ -96,6 +98,84 @@ struct StatisticsView: View {
         }
     }
     
+    /// A section displaying monthly expenses for the selected year.
+    private var monthlyChartSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("By Month")
+                    .font(.title2.bold())
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                HStack(spacing: 20) {
+                    Button {
+                        withAnimation {
+                            selectedYear -= 1
+                        }
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                    
+                    Text(String(selectedYear))
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                    
+                    Button {
+                        withAnimation {
+                            selectedYear += 1
+                        }
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .font(.title3)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            
+            Chart(monthlyCosts) { item in
+                BarMark(
+                    x: .value("Month", item.month),
+                    y: .value("Cost", item.totalCost)
+                )
+                .foregroundStyle(.blue)
+                .cornerRadius(8)
+                
+                RuleMark(
+                    y: .value("Average", totalCosts.monthly)
+                )
+                .foregroundStyle(.gray.opacity(0.6))
+                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+            }
+            .frame(height: 200)
+            .chartXScale(domain: 1...12)
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: 12)) { value in
+                    AxisValueLabel {
+                        if let month = value.as(Int.self) {
+                            Text(monthAbbreviation(for: month))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisValueLabel {
+                        if let cost = value.as(Double.self) {
+                            Text(cost, format: .currency(code: currencyCode))
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     /// A reusable view for displaying a single cost metric (e.g., "Yearly").
     private func costCard(title: String, amount: Double) -> some View {
         VStack(alignment: .leading) {
@@ -116,8 +196,8 @@ struct StatisticsView: View {
     // MARK: - Toolbar
         
         @ToolbarContentBuilder
-        private var settingsToolbar: some ToolbarContent {
-            ToolbarItem(placement: .navigationBarTrailing) {
+        private var toolbarContent: some ToolbarContent {
+            ToolbarItem(placement: .topBarLeading) {
                 Button {
                     showingSettings = true
                 } label: {
@@ -156,6 +236,80 @@ struct StatisticsView: View {
         .sorted { $0.totalCost > $1.totalCost }
     }
     
+    /// A helper struct to make monthly cost data identifiable for the Chart.
+    private struct MonthlyCost: Identifiable {
+        let id: Int
+        var month: Int
+        var totalCost: Double
+    }
+    
+    /// Calculates the total cost for each month of the selected year.
+    /// This includes all expenses that will be due in each month.
+    private var monthlyCosts: [MonthlyCost] {
+        var monthlyTotals = Array(repeating: 0.0, count: 12)
+        
+        for expense in expenses {
+            // Get all months this expense occurs in for the selected year
+            let monthsForThisExpense = getMonthsForExpense(expense, in: selectedYear)
+            
+            // Add the expense amount to each month it occurs in
+            for month in monthsForThisExpense {
+                monthlyTotals[month - 1] += expense.amount
+            }
+        }
+        
+        return monthlyTotals.enumerated().map { index, cost in
+            MonthlyCost(id: index + 1, month: index + 1, totalCost: cost)
+        }
+    }
+    
+    /// Determines which months a given expense occurs in for the specified year.
+    private func getMonthsForExpense(_ expense: Expense, in year: Int) -> [Int] {
+        let calendar = Calendar.current
+        var months: [Int] = []
+        
+        // Start from the expense's date
+        var currentDate = expense.date
+        
+        while calendar.component(.year, from: currentDate) >= year {
+            currentDate = advanceDate(currentDate, by: -expense.frequencyValue, unit: expense.frequencyUnit)
+        }
+        
+        while calendar.component(.year, from: currentDate) < year {
+            currentDate = advanceDate(currentDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
+        }
+        
+        // Now collect all occurrences in the selected year
+        var checkDate = currentDate
+        while calendar.component(.year, from: checkDate) == year {
+            let month = calendar.component(.month, from: checkDate)
+            if !months.contains(month) {
+                months.append(month)
+            }
+            
+            // Advance to next occurrence
+            checkDate = advanceDate(checkDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
+        }
+        
+        return months.sorted()
+    }
+    
+    /// Advances a date by the specified frequency value and unit.
+    /// Use negative values to go backwards in time.
+    private func advanceDate(_ date: Date, by value: Int16, unit: FrequencyUnit) -> Date {
+        let calendar = Calendar.current
+        var dateComponent: Calendar.Component
+        
+        switch unit {
+        case .day: dateComponent = .day
+        case .week: dateComponent = .weekOfYear
+        case .month: dateComponent = .month
+        case .year: dateComponent = .year
+        }
+        
+        return calendar.date(byAdding: dateComponent, value: Int(value), to: date) ?? date
+    }
+    
     // MARK: - Methods
     
     /// Calculates the equivalent yearly cost for a single expense.
@@ -174,5 +328,18 @@ struct StatisticsView: View {
         case .year:
             return expense.amount / frequencyValue
         }
+    }
+    
+    /// Returns the abbreviated month name for the given month number.
+    private func monthAbbreviation(for month: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        
+        let calendar = Calendar.current
+        let dateComponents = DateComponents(year: 2024, month: month, day: 1)
+        if let date = calendar.date(from: dateComponents) {
+            return String(formatter.string(from: date).prefix(1))
+        }
+        return "?"
     }
 }

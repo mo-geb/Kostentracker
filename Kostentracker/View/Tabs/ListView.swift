@@ -18,6 +18,7 @@ struct ListView: View {
     
     // MARK: - State for User Controls
     
+    @State private var showingSettings = false
     @State private var selectedExpense: Expense?
     @State private var newExpense: Expense?
     @State private var selectedPeriod: CostPeriod = .monthly
@@ -32,7 +33,7 @@ struct ListView: View {
         NavigationStack {
             mainContent
                 .navigationTitle("Categories")
-                .toolbar { controlsToolbar }
+                .toolbar { toolbarContent }
                 .sheet(item: $selectedExpense) { expense in
                     NavigationStack {
                         ExpenseDetailView(expense: expense)
@@ -44,6 +45,9 @@ struct ListView: View {
                             context.insert(expense)
                         }
                     }
+                }
+                .sheet(isPresented: $showingSettings) {
+                    SettingsView()
                 }
         }
     }
@@ -93,15 +97,15 @@ struct ListView: View {
     
     /// A view for a single expense row.
     private func expenseRow(for expense: Expense) -> some View {
-        HStack {
+        HStack(spacing: 12) {
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
                     .frame(width: 40, height: 40)
-                    .clipShape(Circle())
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
-                // Fallback to the category icon
+                // Fallback to the category icon - keep as circle
                 ZStack {
                     Circle()
                         .fill(expense.category.color.opacity(0.3))
@@ -129,12 +133,27 @@ struct ListView: View {
         .onTapGesture {
             selectedExpense = expense
         }
+        .contextMenu {
+            Button {
+                selectedExpense = expense
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+        }
     }
     
     // MARK: - Toolbar
     
     @ToolbarContentBuilder
-    private var controlsToolbar: some ToolbarContent {
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                showingSettings = true
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+            }
+        }
+        
         ToolbarItem() {
                 Menu {
                     Picker(selection: $selectedPeriod, label: Label("Display Period", systemImage: "calendar.badge.clock")) {

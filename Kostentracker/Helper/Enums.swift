@@ -51,4 +51,18 @@ extension FrequencyUnit {
             return "Every \(value) \(unit.rawValue)s"
         }
     }
+    
+    /// Returns the appropriate range of values for this frequency unit.
+    var valueRange: ClosedRange<Int16> {
+        switch self {
+        case .day:
+            return 1...365
+        case .week:
+            return 1...52
+        case .month:
+            return 1...12
+        case .year:
+            return 1...100
+        }
+    }
 }

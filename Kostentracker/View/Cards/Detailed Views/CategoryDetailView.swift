@@ -72,6 +72,11 @@ struct CategoryDetailView: View {
                         .padding(8)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
+                        .onChange(of: category.name) { _, newValue in
+                            if newValue.count > 20 {
+                                category.name = String(newValue.prefix(20))
+                            }
+                        }
                 }
             }
             
@@ -96,7 +101,7 @@ struct CategoryDetailView: View {
             LazyVGrid(columns: iconGridColumns, spacing: 15) {
                 ForEach(sampleIcons, id: \.self) { icon in
                     ZStack {
-                        Circle()
+                        RoundedRectangle(cornerRadius: 10)
                             .fill(category.color.opacity(0.3))
 
                         Image(systemName: icon)
@@ -106,7 +111,7 @@ struct CategoryDetailView: View {
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fit)
                     .overlay(
-                        Circle()
+                        RoundedRectangle(cornerRadius: 10)
                             .stroke(category.color, lineWidth: 2.5)
                             .opacity(category.iconName == icon ? 1.0 : 0.0)
                     )
@@ -151,12 +156,15 @@ struct CategoryDetailView: View {
                 // If this is a new category that hasn't been saved yet, delete it
                 if category.name.isEmpty {
                     context.delete(category)
+                } else {
+                    context.rollback()
                 }
                 dismiss()
             } label: {
                 Label("Cancel", systemImage: "xmark")
             }
         }
+        
         ToolbarItem(placement: .confirmationAction) {
             Button {
                 dismiss()

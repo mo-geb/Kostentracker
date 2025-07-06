@@ -60,7 +60,7 @@ struct CategoryManagementView: View {
         HStack(spacing: 16) {
             // Category icon with circular background
             ZStack {
-                Circle()
+                RoundedRectangle(cornerRadius: 10)
                     .fill(category.color.opacity(0.3))
                     .frame(width: 50, height: 50)
                 

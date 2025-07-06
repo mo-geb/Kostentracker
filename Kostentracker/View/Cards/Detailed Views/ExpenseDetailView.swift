@@ -79,17 +79,15 @@ struct ExpenseDetailView: View {
         .padding(.bottom)
     }
     
-    /// A reusable view that displays the expense's custom image or a placeholder as a circular icon.
+    /// A reusable view that displays the expense's custom image or a placeholder as an app-shaped icon.
     @ViewBuilder
     private var imageDisplay: some View {
         ZStack {
-            Circle()
-                .fill(Color(.tertiarySystemBackground))
-
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFit()
+                    .scaledToFill()
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
             } else {
                 // Show category icon with circular background when no custom image
                 ZStack {
@@ -103,7 +101,6 @@ struct ExpenseDetailView: View {
             }
         }
         .frame(width: 100, height: 100)
-        .clipShape(Circle())
         .offset(y: -10)
         .padding(-15)
     }
@@ -117,6 +114,11 @@ struct ExpenseDetailView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(-10)
+                .onChange(of: expense.title) { _, newValue in
+                    if newValue.count > 20 {
+                        expense.title = String(newValue.prefix(20))
+                    }
+                }
         } else {
             Text(expense.title)
                 .font(.title)
@@ -132,18 +134,31 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading, spacing: 15) {
             row(title: "Amount") {
                 if isEditing {
-                    TextField("0.00", value: Binding(
-                        get: { expense.amount },
-                        set: { expense.amount = max(0, $0) }
-                    ), format: .number)
+                    TextField("0.00", value: $expense.amount, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
                         .padding(8)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
+                        .onChange(of: expense.amount) { _, newValue in
+                            if newValue < 0 {
+                                expense.amount = 0
+                            }
+                        }
+                        .onAppear {
+                            // Only show placeholder if amount is 0 and we're editing
+                            if expense.amount == 0 {
+                                // This ensures the placeholder shows when the field is empty
+                            }
+                        }
                 } else {
-                    Text(expense.amount, format: .currency(code: currencyCode))
+                    if expense.amount == 0 {
+                        Text("0.00")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(expense.amount, format: .currency(code: currencyCode))
+                    }
                 }
             }
             
@@ -153,16 +168,20 @@ struct ExpenseDetailView: View {
                         Text("Every")
                             .foregroundStyle(.secondary)
                         
-                        TextField("1", value: Binding(
-                            get: { Int(expense.frequencyValue) },
-                            set: { expense.frequencyValue = Int16(max(1, $0)) }
-                        ), format: .number)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.center)
-                            .fixedSize()
-                            .padding(8)
-                            .background(Color(.secondarySystemBackground))
-                            .cornerRadius(8)
+                        Picker("Frequency Value", selection: $expense.frequencyValue) {
+                            ForEach(expense.frequencyUnit.valueRange, id: \.self) { value in
+                                Text("\(value)").tag(Int16(value))
+                            }
+                        }
+                        .pickerStyle(.wheel)
+                        .frame(width: 80)
+                        .onChange(of: expense.frequencyUnit) { _, newUnit in
+                            // Adjust frequency value if it's outside the new unit's range
+                            let maxValue = newUnit.valueRange.upperBound
+                            if expense.frequencyValue > maxValue {
+                                expense.frequencyValue = maxValue
+                            }
+                        }
                         
                         Picker("Unit", selection: $expense.frequencyUnit) {
                             ForEach(FrequencyUnit.allCases, id: \.self) { unit in
@@ -312,15 +331,13 @@ struct ExpenseDetailView: View {
         ToolbarItem(placement: .cancellationAction) {
             if isEditing {
                 Button {
-                    // If this is a new expense that hasn't been saved yet, delete it
                     if expense.title.isEmpty && expense.amount == 0 {
                         context.delete(expense)
                     } else {
-                        // Reload from persistent store if cancel pressed
                         context.rollback()
                     }
-                    isEditing = false
                     dismiss()
+                    isEditing = false
                 } label: {
                     Label("Cancel", systemImage: "xmark")
                 }
@@ -390,5 +407,4 @@ struct ExpenseDetailView: View {
         }
     }
     
-
 }
