@@ -12,7 +12,7 @@ struct ListView: View {
     
     @Environment(\.modelContext) private var context
     @Query private var expenses: [Expense]
-    @Query private var categories: [ExpenseCategory]
+    @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
@@ -22,8 +22,8 @@ struct ListView: View {
     @State private var selectedExpense: Expense?
     @State private var newExpense: Expense?
     @State private var selectedPeriod: CostPeriod = .monthly
-    @State private var selectedSort: SortOption = .dateDescending
-    @State private var selectedFilter: FilterOption = .all
+    @State private var selectedSort: SortOption = .amountDescending
+    @State private var selectedFilter: FilterOption = .nonZero
     
     @State var searchText = ""
     
@@ -92,7 +92,6 @@ struct ListView: View {
             Text(categoryData.totalCost, format: .currency(code: currencyCode))
                 .font(.headline)
         }
-        .padding(.vertical, 4)
     }
     
     /// A view for a single expense row.
@@ -101,7 +100,7 @@ struct ListView: View {
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(width: 40, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
@@ -128,7 +127,6 @@ struct ListView: View {
             Text(convertCost(for: expense), format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 2)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense
@@ -204,48 +202,34 @@ struct ListView: View {
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedCategories: [ProcessedCategory] {
         // 1. Apply filters to expenses
-        let filteredExpenses = applyFilters(to: expenses)
-        
+        let filteredExpenses = ExpenseUtils.applyFilters(expenses, filter: selectedFilter)
         // 2. Group all expenses by their category.
         let grouped = Dictionary(grouping: filteredExpenses, by: { $0.category })
-        
-        // 3. Map over the grouped dictionary to process each category.
-        let processed = grouped.map { (category, expenses) -> ProcessedCategory in
-            // a. Calculate the total cost for this category based on the selected period.
+        // 3. Map over the categories array to preserve order.
+        let processed = categories.compactMap { category -> ProcessedCategory? in
+            guard let expenses = grouped[category] else { return nil }
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
-            
-            // b. Sort the expenses within this category based on the selected sort option.
             let sortedExpenses = sort(expenses: expenses)
-            
             return ProcessedCategory(id: category, category: category, totalCost: total, expenses: sortedExpenses)
         }
-        
-        // 4. Sort the categories themselves alphabetically.
-        return processed.sorted { $0.category.name < $1.category.name }
+        return processed
     }
-    
+
     /// Sorts an array of expenses based on the `selectedSort` state.
     private func sort(expenses: [Expense]) -> [Expense] {
         switch selectedSort {
-        case .dateDescending:
-            return expenses.sorted { $0.date > $1.date }
-        case .dateAscending:
-            return expenses.sorted { $0.date < $1.date }
         case .amountDescending:
-            return expenses.sorted { calculateYearlyCost(for: $0) > calculateYearlyCost(for: $1) }
+            return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
         case .amountAscending:
-            return expenses.sorted { calculateYearlyCost(for: $0) < calculateYearlyCost(for: $1) }
+            return expenses.sorted { $0.yearlyCost < $1.yearlyCost }
         case .title:
             return expenses.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
         }
     }
 
-    // MARK: - Helper Methods
-    
     /// Converts an expense's cost to the currently selected time period.
     private func convertCost(for expense: Expense) -> Double {
-        let yearly = calculateYearlyCost(for: expense)
-        
+        let yearly = expense.yearlyCost
         switch selectedPeriod {
         case .yearly:
             return yearly
@@ -256,44 +240,6 @@ struct ListView: View {
         case .daily:
             return yearly / 365
         }
-    }
-    
-    /// Calculates the equivalent yearly cost for a single expense (the baseline for all conversions).
-    private func calculateYearlyCost(for expense: Expense) -> Double {
-        let frequencyValue = Double(expense.frequencyValue)
-        guard frequencyValue > 0 else { return 0 }
-        
-        switch expense.frequencyUnit {
-        case .day: return expense.amount * (365.0 / frequencyValue)
-        case .week: return expense.amount * (52.0 / frequencyValue)
-        case .month: return expense.amount * (12.0 / frequencyValue)
-        case .year: return expense.amount / frequencyValue
-        }
-    }
-    
-    /// Applies all active filters to the expenses array.
-    private func applyFilters(to expenses: [Expense]) -> [Expense] {
-        var filtered = expenses
-        
-        switch selectedFilter {
-        case .all:
-            // No filtering needed
-            break
-        case .nonZero:
-            // Filter out zero cost expenses
-            filtered = filtered.filter { expense in
-                let yearlyCost = calculateYearlyCost(for: expense)
-                return yearlyCost > 0
-            }
-        case .recent:
-            // Filter to show only expenses from the last 30 days
-            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
-            filtered = filtered.filter { expense in
-                return expense.date >= thirtyDaysAgo
-            }
-        }
-        
-        return filtered
     }
 
 

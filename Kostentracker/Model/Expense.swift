@@ -43,3 +43,16 @@ class Expense: Identifiable {
     }
 }
 
+extension Expense {
+    var yearlyCost: Double {
+        let frequencyValue = Double(self.frequencyValue)
+        guard frequencyValue > 0 else { return 0 }
+        switch self.frequencyUnit {
+        case .day: return self.amount * (365.0 / frequencyValue)
+        case .week: return self.amount * (52.0 / frequencyValue)
+        case .month: return self.amount * (12.0 / frequencyValue)
+        case .year: return self.amount / frequencyValue
+        }
+    }
+}
+

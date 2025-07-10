@@ -2,14 +2,6 @@
 //  CategoryEditorView.swift
 //  Kostentracker
 //
-//  Created by Moritz Gebhardt on 03.07.25.
-//
-
-
-//
-//  CategoryEditorView.swift
-//  Kostentracker
-//
 
 import SwiftUI
 import SwiftData
@@ -25,7 +17,10 @@ struct CategoryDetailView: View {
     let sampleIcons = [
         "cart", "house", "car", "popcorn", "shield",
         "dumbbell", "bolt", "tag", "airplane", "gift",
-        "pills", "fork.knife", "graduationcap", "suitcase", "gamecontroller"]
+        "pills", "fork.knife", "graduationcap", "suitcase", "gamecontroller",
+        "heart", "music.note", "person.3", "wineglass", "book",
+        "tshirt", "dog", "cat", "beach.umbrella", "laptopcomputer"
+    ]
     
     // Define the grid layout for the icons.
     // .adaptive will create as many columns as can fit with a minimum size.
@@ -131,17 +126,29 @@ struct CategoryDetailView: View {
         Button(role: .destructive) {
             showingDeleteAlert = true
         } label: {
-            Label("Delete", systemImage: "trash")
+            HStack {
+                Image(systemName: "trash")
+                Text("Delete")
+                    .fontWeight(.semibold)
+            }
+            .foregroundColor(.red)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 32)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.red.opacity(0.15))
+            )
         }
-        .tint(.red)
+        .frame(maxWidth: 260)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal)
         .alert("Delete Category?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 category.deleteSafely(from: context)
                 dismiss()
             }
-                    
             Button("Cancel", role: .cancel) { }
-                    
         } message: {
             Text("Are you sure? This action cannot be undone.")
         }

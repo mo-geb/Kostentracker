@@ -20,6 +20,7 @@ struct TimelineView: View {
     @State private var selectedExpense: Expense?
     @State private var newExpense: Expense?
     @State private var showingSettings = false
+    @State private var selectedFilter: FilterOption = .nonZero
 
     // MARK: - Body
     
@@ -77,7 +78,6 @@ struct TimelineView: View {
                     }
                     .font(.headline)
                     .foregroundStyle(.secondary)
-                    .padding(.vertical, 4)
                 }
             }
         }
@@ -90,7 +90,7 @@ struct TimelineView: View {
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(width: 40, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
@@ -119,7 +119,6 @@ struct TimelineView: View {
             Text(expense.amount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
-        .padding(.vertical, 2)
         .contentShape(Rectangle())
         .onTapGesture {
             selectedExpense = expense
@@ -159,6 +158,21 @@ struct TimelineView: View {
         }
         
         ToolbarItem() {
+                Menu {
+                    Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
+                        ForEach(FilterOption.allCases) { option in
+                            Text(option.rawValue).tag(option)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    
+                } label: {
+                    Label("Options", systemImage: "ellipsis")
+                }
+            }
+        ToolbarSpacer(.fixed)
+        
+        ToolbarItem() {
             Button {
                 newExpense = Expense.createNew(with: context)
             } label: {
@@ -181,17 +195,17 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the total amount for each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
+        // Apply filters to expenses (like in ListView)
+        let filteredExpenses = ExpenseUtils.applyFilters(expenses, filter: selectedFilter)
         // 1. Group expenses by the start of their month.
-        let groupedByMonth = Dictionary(grouping: expenses) { expense in
+        let groupedByMonth = Dictionary(grouping: filteredExpenses) { expense in
             Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: expense.date))!
         }
-        
         // 2. Transform the grouped dictionary into an array of `MonthlyExpenseGroup`.
         return groupedByMonth.map { (month, expensesInMonth) in
             // Calculate the sum of amounts for all expenses in this month.
             let total = expensesInMonth.reduce(0) { $0 + $1.amount }
             let sortedExpenses = expensesInMonth.sorted { $0.date < $1.date }
-            
             return MonthlyExpenseGroup(id: month, month: month, expenses: sortedExpenses, totalAmount: total)
         }
         // 3. Sort the groups by month, so the newest appear at the top.

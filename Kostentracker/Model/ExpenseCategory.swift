@@ -13,14 +13,16 @@ final class ExpenseCategory: Identifiable {
     var iconName: String
     var hexColor: String
     var isDefault: Bool = false
+    var sortOrder: Int = 0
     
     @Relationship(deleteRule: .cascade, inverse: \Expense.category) var expenses: [Expense]?
     
-    init(name: String, iconName: String, color: Color, isDefault: Bool = false) {
+    init(name: String, iconName: String, color: Color, isDefault: Bool = false, sortOrder: Int = 0) {
         self.name = name
         self.iconName = iconName
         self.hexColor = color.toHex() ?? "000000"
         self.isDefault = isDefault
+        self.sortOrder = sortOrder
     }
     
     /// A computed property to easily get the SwiftUI Color.

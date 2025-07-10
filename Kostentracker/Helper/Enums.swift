@@ -3,13 +3,15 @@
 //  Kostentracker
 //
 
+import Foundation
+
+// MARK: - Enum Definitions
+
 enum FrequencyUnit: String, Codable, CaseIterable {
     case day, week, month, year
 }
 
 enum SortOption: String, CaseIterable, Identifiable {
-    case dateDescending = "Newest First"
-    case dateAscending = "Oldest First"
     case amountDescending = "Amount (High to Low)"
     case amountAscending = "Amount (Low to High)"
     case title = "Title (A-Z)"

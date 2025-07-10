@@ -11,7 +11,7 @@ struct ExpenseDetailView: View {
     // MARK: - Properties
     
     @Bindable var expense: Expense
-    @Query(sort: \ExpenseCategory.name) var categories: [ExpenseCategory]
+    @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
@@ -71,6 +71,15 @@ struct ExpenseDetailView: View {
                             expense.customImageData = data
                         }
                     }
+                }
+                // Add Remove Picture button if a picture exists
+                if expense.customImageData != nil {
+                    Button() {
+                        expense.customImageData = nil
+                    } label: {
+                        Label("Remove", systemImage: "eraser")
+                    }
+                    .padding(.top, 8)
                 }
             } else {
                 imageDisplay
@@ -230,14 +239,17 @@ struct ExpenseDetailView: View {
             VStack(alignment: .leading) {
                 Text("Notes").font(.headline)
                 if isEditing {
-                    TextEditor(text: $expense.notes)
-                        .padding(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.tertiarySystemBackground), lineWidth: 1)
-                        )
-                        .frame(minHeight: 100)
-                        .cornerRadius(16)
+                    ZStack(alignment: .topLeading) {
+                        TextEditor(text: $expense.notes)
+                            .padding(12)
+                            .frame(minHeight: 100)
+                            .background(Color(.tertiarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(lineWidth: 0)
+                            )
+                    }
                 } else {
                     VStack {
                         if !expense.notes.isEmpty {
@@ -308,17 +320,29 @@ struct ExpenseDetailView: View {
         Button(role: .destructive) {
             showingDeleteAlert = true
         } label: {
-            Label("Delete", systemImage: "trash")
+            HStack {
+                Image(systemName: "trash")
+                Text("Delete")
+                    .fontWeight(.semibold)
+            }
+            .foregroundColor(.red)
+            .padding(.vertical, 14)
+            .padding(.horizontal, 32)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.red.opacity(0.15))
+            )
         }
-        .tint(.red)
+        .frame(maxWidth: 260)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal)
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 context.delete(expense)
                 dismiss()
             }
-                    
             Button("Cancel", role: .cancel) { }
-                    
         } message: {
             Text("Are you sure? This action cannot be undone.")
         }

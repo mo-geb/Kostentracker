@@ -1,5 +1,5 @@
 //
-//  Preview Content.swift
+//  PreviewSampleData.swift
 //  Kostentracker
 //
 
