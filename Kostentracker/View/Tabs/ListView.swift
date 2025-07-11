@@ -10,22 +10,20 @@ struct ListView: View {
     
     // MARK: - Properties
     
+    // SwiftData
     @Environment(\.modelContext) private var context
     @Query private var expenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
+    // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
-    // MARK: - State for User Controls
-    
+    // State
+    @State private var activeSheet: ActiveSheet?
     @State private var showingSettings = false
-    @State private var selectedExpense: Expense?
-    @State private var newExpense: Expense?
     @State private var selectedPeriod: CostPeriod = .monthly
     @State private var selectedSort: SortOption = .amountDescending
     @State private var selectedFilter: FilterOption = .nonZero
-    
-    @State var searchText = ""
     
     // MARK: - Body
     
@@ -34,15 +32,21 @@ struct ListView: View {
             mainContent
                 .navigationTitle("Categories")
                 .toolbar { toolbarContent }
-                .sheet(item: $selectedExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense)
-                    }
-                }
-                .sheet(item: $newExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense, isEditingInitial: true) {
-                            context.insert(expense)
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .view(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense)
+                        }
+                    case .new(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense, isEditingInitial: true) {
+                                context.insert(expense)
+                            }
+                        }
+                    case .edit(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense, isEditingInitial: true)
                         }
                     }
                 }
@@ -129,11 +133,11 @@ struct ListView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            selectedExpense = expense
+            activeSheet = .view(expense)
         }
         .contextMenu {
             Button {
-                selectedExpense = expense
+                activeSheet = .edit(expense)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
@@ -182,7 +186,8 @@ struct ListView: View {
         ToolbarSpacer(.fixed)
         ToolbarItem() {
                 Button {
-                    newExpense = Expense.createNew(with: context)
+                    let new = Expense.createNew(with: context)
+                    activeSheet = .new(new)
                 } label: {
                     Label("Add Expense", systemImage: "plus")
                 }
@@ -241,6 +246,4 @@ struct ListView: View {
             return yearly / 365
         }
     }
-
-
 }

@@ -9,18 +9,19 @@ import SwiftData
 struct TimelineView: View {
     // MARK: - Properties
     
-    // SwiftData Context and Query
+    // SwiftData
     @Environment(\.modelContext) private var context
     @Query(sort: \Expense.date) private var expenses: [Expense]
     @Query private var categories: [ExpenseCategory]
     
+    // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
-    // State for presenting sheets.
-    @State private var selectedExpense: Expense?
-    @State private var newExpense: Expense?
+    // State
+    @State private var activeSheet: ActiveSheet?
     @State private var showingSettings = false
     @State private var selectedFilter: FilterOption = .nonZero
+    @State private var listRefreshID = UUID()
 
     // MARK: - Body
     
@@ -29,15 +30,21 @@ struct TimelineView: View {
             mainContent
                 .navigationTitle("Timeline")
                 .toolbar { toolbarContent }
-                .sheet(item: $selectedExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense)
-                    }
-                }
-                .sheet(item: $newExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(expense: expense, isEditingInitial: true) {
-                            context.insert(expense)
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .view(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense)
+                        }
+                    case .new(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense, isEditingInitial: true) {
+                                context.insert(expense)
+                            }
+                        }
+                    case .edit(let expense):
+                        NavigationStack {
+                            ExpenseDetailView(expense: expense, isEditingInitial: true)
                         }
                     }
                 }
@@ -81,6 +88,7 @@ struct TimelineView: View {
                 }
             }
         }
+        .id(listRefreshID)
     }
     
     /// A view representing a single row in the expense list.
@@ -121,11 +129,11 @@ struct TimelineView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            selectedExpense = expense
+            activeSheet = .view(expense)
         }
         .contextMenu {
             Button {
-                selectedExpense = expense
+                activeSheet = .edit(expense)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
@@ -174,14 +182,15 @@ struct TimelineView: View {
         
         ToolbarItem() {
             Button {
-                newExpense = Expense.createNew(with: context)
+                let new = Expense.createNew(with: context)
+                activeSheet = .new(new)
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }
         }
     }
 
-    // MARK: - Data Processing Struct
+    // MARK: - Data Processing
         
     /// A struct to hold the processed data for each month's expenses.
     private struct MonthlyExpenseGroup: Identifiable {
@@ -190,8 +199,6 @@ struct TimelineView: View {
         var expenses: [Expense]
         var totalAmount: Double
     }
-    
-    // MARK: - Computed Properties
     
     /// Groups expenses by month, calculates the total amount for each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
@@ -220,8 +227,6 @@ struct TimelineView: View {
         return formatter
     }
     
-    // MARK: - Methods
-    
     /// Advances the expense's date based on its frequency.
     /// This is the business logic for the "Paid" swipe action.
     private func markAsPaid(_ expense: Expense) {
@@ -238,6 +243,8 @@ struct TimelineView: View {
             
             if let newDate = calendar.date(byAdding: dateComponent, value: Int(expense.frequencyValue), to: expense.date) {
                 expense.date = newDate
+                try? context.save()
+                listRefreshID = UUID()
             }
         }
     }

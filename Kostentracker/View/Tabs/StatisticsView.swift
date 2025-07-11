@@ -182,14 +182,13 @@ struct StatisticsView: View {
             Text(title)
                 .font(.headline)
             Text(amount, format: .currency(code: currencyCode))
-                .font(.title3.weight(.semibold).monospacedDigit())
+                .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
-                .frame(height: 32) // <-- Ensures all boxes are the same height
         }
         .padding()
-        .frame(maxWidth: .infinity, minHeight: 70) // <-- Ensures all cards are the same height
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(10)
     }

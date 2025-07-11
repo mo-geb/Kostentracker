@@ -129,9 +129,11 @@ struct CategoryManagementView: View {
         }
         .swipeActions(allowsFullSwipe: !category.isDefault) {
             if !category.isDefault {
-                Button("Delete", role: .destructive) {
+                Button(role: .destructive) {
                     selectedCategory = category
                     showingDeleteAlert = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
                 }
             }
         }

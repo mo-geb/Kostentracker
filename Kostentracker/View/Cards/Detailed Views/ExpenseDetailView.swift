@@ -11,10 +11,13 @@ struct ExpenseDetailView: View {
     // MARK: - Properties
     
     @Bindable var expense: Expense
+    
+    // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
+    // State
     @State private var isEditing: Bool
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
@@ -22,6 +25,7 @@ struct ExpenseDetailView: View {
     
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
+    // Construct
     init(expense: Expense, isEditingInitial: Bool = false, onSave: (() -> Void)? = nil) {
         self._expense = Bindable(wrappedValue: expense)
         self._isEditing = State(initialValue: isEditingInitial)
@@ -279,11 +283,7 @@ struct ExpenseDetailView: View {
                 Text("Statistics")
                     .font(.headline)
 
-                let yearlyCost = calculateYearlyCost(
-                    amount: expense.amount,
-                    frequencyValue: Int(expense.frequencyValue),
-                    frequencyUnit: expense.frequencyUnit
-                )
+                let yearlyCost = expense.yearlyCost
                 let monthlyCost = yearlyCost / 12
                 let weeklyCost = yearlyCost / 52
                 
@@ -307,7 +307,7 @@ struct ExpenseDetailView: View {
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.7)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -413,22 +413,6 @@ struct ExpenseDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(25)
-    }
-
-    // MARK: - Logic
-    
-    private func calculateYearlyCost(amount: Double, frequencyValue: Int, frequencyUnit: FrequencyUnit) -> Double {
-        guard frequencyValue > 0 else { return 0 }
-        switch frequencyUnit {
-        case .day:
-            return amount * (365.0 / Double(frequencyValue))
-        case .week:
-            return amount * (52.0 / Double(frequencyValue))
-        case .month:
-            return amount * (12.0 / Double(frequencyValue))
-        case .year:
-            return amount / Double(frequencyValue)
-        }
     }
     
 }

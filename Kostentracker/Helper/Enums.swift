@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftData
 
 // MARK: - Enum Definitions
 
@@ -34,6 +35,29 @@ enum FilterOption: String, CaseIterable, Identifiable {
     case recent = "Recent (Last 30 Days)"
     
     var id: Self { self }
+}
+
+enum ActiveSheet: Identifiable, Equatable {
+    case view(Expense)
+    case new(Expense)
+    case edit(Expense)
+    
+    var id: PersistentIdentifier {
+        switch self {
+        case .view(let expense): return expense.persistentModelID
+        case .new(let expense): return expense.persistentModelID
+        case .edit(let expense): return expense.persistentModelID
+        }
+    }
+    
+    static func == (lhs: ActiveSheet, rhs: ActiveSheet) -> Bool {
+        switch (lhs, rhs) {
+        case (.view(let l), .view(let r)): return l.id == r.id
+        case (.new(let l), .new(let r)): return l.id == r.id
+        case (.edit(let l), .new(let r)): return l.id == r.id
+        default: return false
+        }
+    }
 }
 
 // MARK: - Frequency Formatting
