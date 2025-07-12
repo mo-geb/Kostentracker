@@ -45,6 +45,13 @@ enum GroupByOption: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
+enum ViewMode: String, CaseIterable, Identifiable {
+    case normal = "Normal"
+    case compact = "Compact"
+    
+    var id: Self { self }
+}
+
 enum FocusedField: Hashable {
     case expenseDetailAmount
     case expenseDetailNotes

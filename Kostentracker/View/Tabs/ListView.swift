@@ -25,6 +25,7 @@ struct ListView: View {
     @State private var selectedSort: SortOption = .amountDescending
     @State private var selectedFilter: FilterOption = .nonZero
     @State private var selectedGroupBy: GroupByOption = .categories
+    @State private var selectedViewMode: ViewMode = .normal
     
     // MARK: - Body
     
@@ -81,12 +82,12 @@ struct ListView: View {
                 description: Text("Add expenses to see them grouped by category.")
             )
         } else {
-            categoryList
+            groupList
         }
     }
     
     /// The list of expenses, sectioned by category.
-    private var categoryList: some View {
+    private var groupList: some View {
         List {
             ForEach(processedGroups) { groupData in
                 Section {
@@ -94,30 +95,27 @@ struct ListView: View {
                         expenseRow(for: expense)
                     }
                 } header: {
-                    categoryHeader(for: groupData)
+                    groupHeader(for: groupData)
                 }
             }
         }
     }
     
     /// The header for each category section, showing the name and total cost.
-    private func categoryHeader(for groupData: ProcessedGroup) -> some View {
+    private func groupHeader(for groupData: ProcessedGroup) -> some View {
         HStack {
-            // Show appropriate icon based on grouping
-            if selectedGroupBy == .categories {
-                // For categories, we need to find the category to get its icon
+            switch selectedGroupBy {
+            case .categories:
                 if let firstExpense = groupData.expenses.first {
                     Image(systemName: firstExpense.category.iconName)
                         .foregroundStyle(firstExpense.category.color)
                 } else {
                     Image(systemName: "tray")
                 }
-            } else if selectedGroupBy == .frequencyUnit {
-                // For frequency units, show a clock icon
+            case .frequencyUnit:
                 Image(systemName: "clock")
                     .foregroundStyle(.blue)
-            } else {
-                // For "none" grouping, show a list icon
+            case .none:
                 Image(systemName: "list.bullet")
                     .foregroundStyle(.gray)
             }
@@ -131,49 +129,34 @@ struct ListView: View {
     
     /// A view for a single expense row.
     private func expenseRow(for expense: Expense) -> some View {
-        HStack(spacing: 12) {
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                // Fallback to the category icon - keep as circle
-                ZStack {
-                    Circle()
-                        .fill(expense.category.color.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    
-                    Image(systemName: expense.category.iconName)
-                        .font(.title2)
-                        .foregroundStyle(expense.category.color)
+        let subtitle: String
+        switch selectedGroupBy {
+        case .frequencyUnit:
+            subtitle = expense.category.name
+        case .categories, .none:
+            subtitle = FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit)
+        }
+        
+        @ViewBuilder
+        var rowContent: some View {
+            switch selectedViewMode {
+            case .compact:
+                expense.createCompactRow(convertedAmount: convertCost(for: expense), currencyCode: currencyCode)
+            case .normal:
+                expense.createNormalRow( subtitle: subtitle, convertedAmount: convertCost(for: expense), currencyCode: currencyCode)
+            }
+        }
+        
+        return rowContent
+            .contentShape(Rectangle())
+            .onTapGesture { activeSheet = .view(expense) }
+            .contextMenu {
+                Button {
+                    activeSheet = .edit(expense)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
                 }
             }
-            
-            VStack(alignment: .leading) {
-                Text(expense.title)
-                    .font(.headline)
-                Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Text(convertCost(for: expense), format: .currency(code: currencyCode))
-                .fontWeight(.medium)
-        }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            activeSheet = .view(expense)
-        }
-        .contextMenu {
-            Button {
-                activeSheet = .edit(expense)
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-        }
     }
     
     // MARK: - Toolbar
@@ -218,6 +201,13 @@ struct ListView: View {
                     }
                     .pickerStyle(.menu)
                     
+                    Picker(selection: $selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
+                        ForEach(ViewMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    
                 } label: {
                     Label("Options", systemImage: "ellipsis")
                 }
@@ -245,25 +235,18 @@ struct ListView: View {
     
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedGroups: [ProcessedGroup] {
-        // 1. Apply filters to expenses
         let filteredExpenses = ExpenseUtils.applyFilters(expenses, filter: selectedFilter)
-        
-        // 2. Group expenses based on selected grouping option
         let grouped: [String: [Expense]]
         
         switch selectedGroupBy {
         case .none:
-            // Single group with all expenses
             grouped = ["all": filteredExpenses]
         case .categories:
-            // Group by category
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.category.name })
         case .frequencyUnit:
-            // Group by frequency unit
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.frequencyUnit.rawValue.capitalized })
         }
         
-        // 3. Convert to ProcessedGroup array
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
             let sortedExpenses = sort(expenses: expenses)
@@ -271,7 +254,6 @@ struct ListView: View {
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
         }
         
-        // 4. Sort groups by total cost (descending)
         return processed.sorted { $0.totalCost > $1.totalCost }
     }
 

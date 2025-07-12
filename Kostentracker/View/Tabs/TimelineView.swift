@@ -21,6 +21,7 @@ struct TimelineView: View {
     @State private var activeSheet: ActiveSheet?
     @State private var showingSettings = false
     @State private var selectedFilter: FilterOption = .nonZero
+    @State private var selectedViewMode: ViewMode = .normal
     @State private var listRefreshID = UUID()
 
     // MARK: - Body
@@ -92,66 +93,42 @@ struct TimelineView: View {
     }
     
     /// A view representing a single row in the expense list.
-    @ViewBuilder
     private func expenseRow(for expense: Expense) -> some View {
-        HStack(spacing: 12) {
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                // Fallback to the category icon with circular background
-                ZStack {
-                    Circle()
-                        .fill(expense.category.color.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    
-                    Image(systemName: expense.category.iconName)
-                        .font(.title2)
-                        .foregroundStyle(expense.category.color)
+        let subtitle = DateFormatter.localizedString(from: expense.date, dateStyle: .medium, timeStyle: .none)
+        
+        @ViewBuilder
+        var rowContent: some View {
+            switch selectedViewMode {
+            case .compact:
+                expense.createCompactRow(convertedAmount: expense.amount, currencyCode: currencyCode)
+            case .normal:
+                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: currencyCode)
+            }
+        }
+        
+        return rowContent
+            .contentShape(Rectangle())
+            .onTapGesture { activeSheet = .view(expense) }
+            .contextMenu {
+                Button {
+                    activeSheet = .edit(expense)
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                }
+                Button {
+                    markAsPaid(expense)
+                } label: {
+                    Label("Mark as Paid", systemImage: "checkmark")
                 }
             }
-            
-            VStack(alignment: .leading) {
-                Text(expense.title)
-                    .font(.headline)
-                Text(expense.date, style: .date)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                Button {
+                    markAsPaid(expense)
+                } label: {
+                    Label("Paid", systemImage: "checkmark")
+                }
+                .tint(.green)
             }
-            
-            Spacer()
-            
-            Text(expense.amount, format: .currency(code: currencyCode))
-                .fontWeight(.medium)
-        }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            activeSheet = .view(expense)
-        }
-        .contextMenu {
-            Button {
-                activeSheet = .edit(expense)
-            } label: {
-                Label("Edit", systemImage: "pencil")
-            }
-            Button {
-                markAsPaid(expense)
-            } label: {
-                Label("Mark as Paid", systemImage: "checkmark")
-            }
-        }
-        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-            Button {
-                markAsPaid(expense)
-            } label: {
-                Label("Paid", systemImage: "checkmark")
-            }
-            .tint(.green)
-        }
     }
     
     // MARK: - Toolbar
@@ -168,12 +145,23 @@ struct TimelineView: View {
         
         ToolbarItem() {
                 Menu {
-                    Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
+                    Picker(selection: $selectedFilter) {
                         ForEach(FilterOption.allCases) { option in
                             Text(option.rawValue).tag(option)
                         }
+                    } label: {
+                        Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
                     }
                     .pickerStyle(.menu)
+                    
+                    Picker(selection: $selectedViewMode) {
+                        ForEach(ViewMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    } label: {
+                        Label("View Mode", systemImage: "list.bullet.rectangle")
+                    }
+                    .pickerStyle(.segmented)
                     
                 } label: {
                     Label("Options", systemImage: "ellipsis")
