@@ -127,6 +127,7 @@ struct TimelineView: View {
             Text(expense.amount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
         }
+        .padding(.vertical, 4)
         .contentShape(Rectangle())
         .onTapGesture {
             activeSheet = .view(expense)

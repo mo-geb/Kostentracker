@@ -23,7 +23,11 @@ struct ExpenseDetailView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     var onSave: (() -> Void)?
     
+    // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    
+    // Keyboard focus state
+    @FocusState private var focusedField: FocusedField?
     
     // Construct
     init(expense: Expense, isEditingInitial: Bool = false, onSave: (() -> Void)? = nil) {
@@ -52,6 +56,7 @@ struct ExpenseDetailView: View {
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
+            keyboardToolbarContent
         }
     }
 
@@ -76,7 +81,7 @@ struct ExpenseDetailView: View {
                         }
                     }
                 }
-                // Add Remove Picture button if a picture exists
+
                 if expense.customImageData != nil {
                     Button() {
                         expense.customImageData = nil
@@ -102,7 +107,6 @@ struct ExpenseDetailView: View {
                     .scaledToFill()
                     .clipShape(RoundedRectangle(cornerRadius: 20))
             } else {
-                // Show category icon with circular background when no custom image
                 ZStack {
                     Circle()
                         .fill(expense.category.color.opacity(0.3))
@@ -160,11 +164,11 @@ struct ExpenseDetailView: View {
                             }
                         }
                         .onAppear {
-                            // Only show placeholder if amount is 0 and we're editing
                             if expense.amount == 0 {
                                 // This ensures the placeholder shows when the field is empty
                             }
                         }
+                        .focused($focusedField, equals: .expenseDetailAmount)
                 } else {
                     if expense.amount == 0 {
                         Text("0.00")
@@ -253,6 +257,7 @@ struct ExpenseDetailView: View {
                                 RoundedRectangle(cornerRadius: 16)
                                     .stroke(lineWidth: 0)
                             )
+                            .focused($focusedField, equals: .expenseDetailNotes)
                     }
                 } else {
                     VStack {
@@ -395,6 +400,16 @@ struct ExpenseDetailView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
+            }
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var keyboardToolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button("Done") {
+                focusedField = nil
             }
         }
     }

@@ -37,6 +37,19 @@ enum FilterOption: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
+enum GroupByOption: String, CaseIterable, Identifiable {
+    case none = "None"
+    case categories = "Categories"
+    case frequencyUnit = "Frequency"
+    
+    var id: Self { self }
+}
+
+enum FocusedField: Hashable {
+    case expenseDetailAmount
+    case expenseDetailNotes
+}
+
 enum ActiveSheet: Identifiable, Equatable {
     case view(Expense)
     case new(Expense)
