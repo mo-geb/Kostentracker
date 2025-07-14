@@ -44,6 +44,8 @@ class Expense: Identifiable {
     }
 }
 
+// MARK: - Utility
+
 extension Expense {
     var yearlyCost: Double {
         let frequencyValue = Double(self.frequencyValue)
@@ -55,7 +57,7 @@ extension Expense {
         case .year: return self.amount / frequencyValue
         }
     }
-
+    
     // Compact row: just icon and title/cost
     func createCompactRow(convertedAmount: Double, currencyCode: String) -> some View {
         HStack(spacing: 8) {
@@ -83,10 +85,21 @@ extension Expense {
                 .font(.body)
         }
     }
-
+    
     // Normal row: icon, title, subtitle, cost
     func createNormalRow(subtitle: String, convertedAmount: Double, currencyCode: String) -> some View {
-        HStack(spacing: 12) {
+        let isOverdue: Bool = {
+            // Try to parse the subtitle as a date in the same format used in TimelineView
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            formatter.timeStyle = .none
+            if let date = formatter.date(from: subtitle) {
+                return date < Calendar.current.startOfDay(for: Date())
+            }
+            return false
+        }()
+        
+        return HStack(spacing: 12) {
             if let imageData = customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
@@ -108,7 +121,7 @@ extension Expense {
                     .font(.headline)
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(isOverdue ? Color.red : Color.secondary)
             }
             Spacer()
             Text(convertedAmount, format: .currency(code: currencyCode))
@@ -118,3 +131,42 @@ extension Expense {
     }
 }
 
+// MARK: - Persistence
+
+// Struct to hold a snapshot of all editable properties for persistence
+struct ExpenseSnapshot {
+    var title: String
+    var amount: Double
+    var frequencyUnit: FrequencyUnit
+    var frequencyValue: Int16
+    var date: Date
+    var category: ExpenseCategory
+    var notes: String
+    var customImageData: Data?
+}
+
+extension Expense {
+    func snapshot() -> ExpenseSnapshot {
+        ExpenseSnapshot(
+            title: self.title,
+            amount: self.amount,
+            frequencyUnit: self.frequencyUnit,
+            frequencyValue: self.frequencyValue,
+            date: self.date,
+            category: self.category,
+            notes: self.notes,
+            customImageData: self.customImageData
+        )
+    }
+
+    func restore(from snapshot: ExpenseSnapshot) {
+        self.title = snapshot.title
+        self.amount = snapshot.amount
+        self.frequencyUnit = snapshot.frequencyUnit
+        self.frequencyValue = snapshot.frequencyValue
+        self.date = snapshot.date
+        self.category = snapshot.category
+        self.notes = snapshot.notes
+        self.customImageData = snapshot.customImageData
+    }
+}

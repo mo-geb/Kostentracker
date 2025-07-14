@@ -32,7 +32,7 @@ enum CostPeriod: String, CaseIterable, Identifiable {
 enum FilterOption: String, CaseIterable, Identifiable {
     case all = "All Expenses"
     case nonZero = "Non-Zero Cost"
-    case recent = "Recent (Last 30 Days)"
+    case upcoming = "Upcoming (Next 30 Days)"
     
     var id: Self { self }
 }
@@ -53,6 +53,7 @@ enum ViewMode: String, CaseIterable, Identifiable {
 }
 
 enum FocusedField: Hashable {
+    case expenseDetailTitle
     case expenseDetailAmount
     case expenseDetailNotes
 }
@@ -109,6 +110,15 @@ extension FrequencyUnit {
             return 1...12
         case .year:
             return 1...100
+        }
+    }
+    
+    var sortOrder: Int {
+        switch self {
+        case .year: return 0
+        case .month: return 1
+        case .week: return 2
+        case .day: return 3
         }
     }
 }

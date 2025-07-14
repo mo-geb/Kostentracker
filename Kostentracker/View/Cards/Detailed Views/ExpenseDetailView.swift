@@ -25,9 +25,12 @@ struct ExpenseDetailView: View {
     
     // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
-    
-    // Keyboard focus state
+
+    // Focus management
     @FocusState private var focusedField: FocusedField?
+
+    // Snapshot for discarding changes
+    @State private var snapshot: ExpenseSnapshot? = nil
     
     // Construct
     init(expense: Expense, isEditingInitial: Bool = false, onSave: (() -> Void)? = nil) {
@@ -52,11 +55,18 @@ struct ExpenseDetailView: View {
                     statisticsSection
                 }
             }
+            .onTapGesture {
+                focusedField = nil
+            }
         }
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
-            keyboardToolbarContent
+        }
+        .onChange(of: isEditing) { oldValue, newValue in
+            if newValue == true {
+                snapshot = expense.snapshot()
+            }
         }
     }
 
@@ -131,6 +141,7 @@ struct ExpenseDetailView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(-10)
+                .focused($focusedField, equals: .expenseDetailTitle)
                 .onChange(of: expense.title) { _, newValue in
                     if newValue.count > 20 {
                         expense.title = String(newValue.prefix(20))
@@ -158,6 +169,7 @@ struct ExpenseDetailView: View {
                         .padding(8)
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
+                        .focused($focusedField, equals: .expenseDetailAmount)
                         .onChange(of: expense.amount) { _, newValue in
                             if newValue < 0 {
                                 expense.amount = 0
@@ -168,7 +180,6 @@ struct ExpenseDetailView: View {
                                 // This ensures the placeholder shows when the field is empty
                             }
                         }
-                        .focused($focusedField, equals: .expenseDetailAmount)
                 } else {
                     if expense.amount == 0 {
                         Text("0.00")
@@ -253,10 +264,7 @@ struct ExpenseDetailView: View {
                             .frame(minHeight: 100)
                             .background(Color(.tertiarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(lineWidth: 0)
-                            )
+                            .scrollContentBackground(.hidden)
                             .focused($focusedField, equals: .expenseDetailNotes)
                     }
                 } else {
@@ -363,6 +371,9 @@ struct ExpenseDetailView: View {
                     if expense.title.isEmpty && expense.amount == 0 {
                         context.delete(expense)
                     } else {
+                        if let snap = snapshot {
+                            expense.restore(from: snap)
+                        }
                         context.rollback()
                     }
                     dismiss()
@@ -404,16 +415,6 @@ struct ExpenseDetailView: View {
         }
     }
     
-    @ToolbarContentBuilder
-    private var keyboardToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("Done") {
-                focusedField = nil
-            }
-        }
-    }
-    
     // MARK: - Helper Views
     
     // A generic row builder to reduce duplication of HStack, Spacer, etc.
@@ -429,5 +430,4 @@ struct ExpenseDetailView: View {
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(25)
     }
-    
 }

@@ -12,6 +12,7 @@ struct CategoryDetailView: View {
     @Bindable var category: ExpenseCategory
     
     @State private var showingDeleteAlert = false
+    @State private var snapshot: ExpenseCategorySnapshot? = nil
     
     // A list of sample icons for the user to choose from.
     let sampleIcons = [
@@ -47,6 +48,9 @@ struct CategoryDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 toolbarContent
+            }
+            .onAppear {
+                snapshot = category.snapshot()
             }
         }
     }
@@ -164,6 +168,9 @@ struct CategoryDetailView: View {
                 if category.name.isEmpty {
                     context.delete(category)
                 } else {
+                    if let snap = snapshot {
+                        category.restore(from: snap)
+                    }
                     context.rollback()
                 }
                 dismiss()

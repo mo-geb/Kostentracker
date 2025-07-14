@@ -122,8 +122,29 @@ struct ListView: View {
             
             Text(groupData.title)
             Spacer()
-            Text(groupData.totalCost, format: .currency(code: currencyCode))
-                .font(.headline)
+            Button(action: {
+                if let currentIndex = CostPeriod.allCases.firstIndex(of: selectedPeriod) {
+                    let nextIndex = (currentIndex + 1) % CostPeriod.allCases.count
+                    selectedPeriod = CostPeriod.allCases[nextIndex]
+                }
+            }) {
+                HStack(spacing: 8) {
+                    Text(selectedPeriod.rawValue)
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(Color.secondary.opacity(0.15))
+                        )
+                    Text(groupData.totalCost, format: .currency(code: currencyCode))
+                        .font(.headline)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Change display period")
+            .accessibilityHint("Cycles through yearly, monthly, weekly, daily")
         }
     }
     
@@ -173,13 +194,7 @@ struct ListView: View {
         
         ToolbarItem() {
                 Menu {
-                    Picker(selection: $selectedPeriod, label: Label("Display Period", systemImage: "calendar.badge.clock")) {
-                        ForEach(CostPeriod.allCases) { period in
-                            Text(period.rawValue).tag(period)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    
+                    // Removed Display Period Picker
                     Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                         ForEach(SortOption.allCases) { option in
                             Text(option.rawValue).tag(option)
@@ -249,16 +264,16 @@ struct ListView: View {
         
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
-            let sortedExpenses = sort(expenses: expenses)
+            let sortedExpenses = sortExpenses(expenses: expenses)
             let title = selectedGroupBy == .none ? "All Expenses" : key
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
         }
         
-        return processed.sorted { $0.totalCost > $1.totalCost }
+        return sortGroups(groups: processed)
     }
 
     /// Sorts an array of expenses based on the `selectedSort` state.
-    private func sort(expenses: [Expense]) -> [Expense] {
+    private func sortExpenses(expenses: [Expense]) -> [Expense] {
         switch selectedSort {
         case .amountDescending:
             return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
@@ -266,6 +281,30 @@ struct ListView: View {
             return expenses.sorted { $0.yearlyCost < $1.yearlyCost }
         case .title:
             return expenses.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        }
+    }
+    
+    /// Sorts an array of groups based on the `selectedGroupBy` state.
+    private func sortGroups(groups: [ProcessedGroup]) -> [ProcessedGroup] {
+        switch selectedGroupBy {
+        case .none:
+            return groups
+        case .categories:
+            return groups.sorted {
+                guard
+                    let firstA = $0.expenses.first,
+                    let firstB = $1.expenses.first
+                else { return false }
+                return firstA.category.sortOrder < firstB.category.sortOrder
+            }
+        case .frequencyUnit:
+            return groups.sorted {
+                guard
+                    let unitA = FrequencyUnit(rawValue: $0.title.lowercased()),
+                    let unitB = FrequencyUnit(rawValue: $1.title.lowercased())
+                else { return false }
+                return unitA.sortOrder < unitB.sortOrder
+            }
         }
     }
 

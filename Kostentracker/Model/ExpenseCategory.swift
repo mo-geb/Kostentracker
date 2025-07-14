@@ -31,6 +31,8 @@ final class ExpenseCategory: Identifiable {
     }
 }
 
+// MARK: - Color Util
+
 extension Color {
     func toHex() -> String? {
         // Try to get components from cgColor
@@ -75,7 +77,15 @@ extension Color {
     }
 }
 
-// MARK: - Category Management
+// MARK: - Persistence
+
+// Struct to hold a snapshot of all editable properties for persistence
+struct ExpenseCategorySnapshot {
+    var name: String
+    var iconName: String
+    var hexColor: String
+    var sortOrder: Int
+}
 
 extension ExpenseCategory {
     /// Safely deletes a category by reassigning its expenses to the default category.
@@ -102,5 +112,21 @@ extension ExpenseCategory {
         } catch {
             print("Failed to delete category: \(error)")
         }
+    }
+    
+    func snapshot() -> ExpenseCategorySnapshot {
+        ExpenseCategorySnapshot(
+            name: self.name,
+            iconName: self.iconName,
+            hexColor: self.hexColor,
+            sortOrder: self.sortOrder
+        )
+    }
+
+    func restore(from snapshot: ExpenseCategorySnapshot) {
+        self.name = snapshot.name
+        self.iconName = snapshot.iconName
+        self.hexColor = snapshot.hexColor
+        self.sortOrder = snapshot.sortOrder
     }
 }

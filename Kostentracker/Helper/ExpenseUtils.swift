@@ -15,9 +15,9 @@ struct ExpenseUtils {
             break
         case .nonZero:
             filtered = filtered.filter { $0.yearlyCost > 0 }
-        case .recent:
-            let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? Date()
-            filtered = filtered.filter { $0.date >= thirtyDaysAgo }
+        case .upcoming:
+            let nextThirtyDays = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+            filtered = filtered.filter { $0.date <= nextThirtyDays }
         }
         return filtered
     }
