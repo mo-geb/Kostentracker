@@ -14,11 +14,11 @@ class Expense: Identifiable {
     var frequencyUnit: FrequencyUnit = FrequencyUnit.month
     var frequencyValue: Int16 = 1
     var date: Date = Date()
-    var category: ExpenseCategory = ExpenseCategory(name: "Other", iconName: "questionmark", color: .gray)
+    var category: ExpenseCategory? = ExpenseCategory.createDefault()
     var notes: String = ""
     @Attribute(.externalStorage) var customImageData: Data?
     
-    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory, notes: String, customImageData: Data? = nil) {
+    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory?, notes: String, customImageData: Data? = nil) {
         self.title = title
         self.amount = amount
         self.frequencyUnit = frequencyUnit
@@ -30,17 +30,7 @@ class Expense: Identifiable {
     }
     
     static func createNew(with context: ModelContext) -> Expense {
-        let defaultCategory: ExpenseCategory?
-        do {
-            let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
-            defaultCategory = try context.fetch(descriptor).first
-        } catch {
-            print("Failed to fetch default category for new expense: \(error)")
-            defaultCategory = nil
-        }
-        
-        // Create the new expense.
-        return Expense(title: "", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: Date(), category: defaultCategory ?? ExpenseCategory(name: "Other", iconName: "tag", color: .gray, isDefault: true), notes: "")
+        return Expense(title: "", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: Date(), category: ExpenseCategory.getDefault(with: context), notes: "")
     }
 }
 
@@ -70,11 +60,11 @@ extension Expense {
             } else {
                 ZStack {
                     Circle()
-                        .fill(category.color.opacity(0.3))
+                        .fill(categoryColor.opacity(0.3))
                         .frame(width: 20, height: 20)
-                    Image(systemName: category.iconName)
+                    Image(systemName: categoryIconName)
                         .font(.caption)
-                        .foregroundStyle(category.color)
+                        .foregroundStyle(categoryColor)
                 }
             }
             Text(title)
@@ -109,11 +99,11 @@ extension Expense {
             } else {
                 ZStack {
                     Circle()
-                        .fill(category.color.opacity(0.3))
+                        .fill(categoryColor.opacity(0.3))
                         .frame(width: 40, height: 40)
-                    Image(systemName: category.iconName)
+                    Image(systemName: categoryIconName)
                         .font(.title2)
-                        .foregroundStyle(category.color)
+                        .foregroundStyle(categoryColor)
                 }
             }
             VStack(alignment: .leading, spacing: 4) {
@@ -131,6 +121,15 @@ extension Expense {
     }
 }
 
+// MARK: - Safe Category Accessors
+
+extension Expense {
+    var categoryColor: Color { category?.color ?? .gray }
+    var categoryIconName: String { category?.iconName ?? "tag" }
+    var categoryName: String { category?.name ?? "Other" }
+    var categorySortOrder: Int { category?.sortOrder ?? 1 }
+}
+
 // MARK: - Persistence
 
 // Struct to hold a snapshot of all editable properties for persistence
@@ -140,7 +139,7 @@ struct ExpenseSnapshot {
     var frequencyUnit: FrequencyUnit
     var frequencyValue: Int16
     var date: Date
-    var category: ExpenseCategory
+    var category: ExpenseCategory?
     var notes: String
     var customImageData: Data?
 }

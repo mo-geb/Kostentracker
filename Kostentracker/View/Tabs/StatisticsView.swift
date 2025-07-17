@@ -82,9 +82,9 @@ struct StatisticsView: View {
             Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
                 BarMark(
                     x: .value("Cost", item.totalCost),
-                    y: .value("Category", item.category.name)
+                    y: .value("Category", item.category.categoryName)
                 )
-                .foregroundStyle(item.category.color)
+                .foregroundStyle(item.category.categoryColor)
                 .cornerRadius(20)
             }
             .frame(height: CGFloat(categoryCosts.count * 50 + 20))
@@ -220,7 +220,7 @@ struct StatisticsView: View {
     /// A helper struct to make category cost data identifiable for the Chart.
     private struct CategoryCost: Identifiable {
         let id: ExpenseCategory
-        var category: ExpenseCategory
+        var category: Expense
         var totalCost: Double
     }
     
@@ -228,10 +228,10 @@ struct StatisticsView: View {
     /// The result is sorted to display the largest categories first in the chart.
     private var categoryCosts: [CategoryCost] {
         let groupedByCategory = Dictionary(grouping: expenses, by: { $0.category })
-        
-        return groupedByCategory.map { (category, expenses) in
+        return groupedByCategory.compactMap { (category, expenses) in
+            guard let firstExpense = expenses.first else { return nil }
             let totalCostForCategory = expenses.reduce(0) { $0 + calculateYearlyCost(for: $1) }
-            return CategoryCost(id: category, category: category, totalCost: totalCostForCategory)
+            return CategoryCost(id: category ?? ExpenseCategory.createDefault(), category: firstExpense, totalCost: totalCostForCategory)
         }
         .sorted { $0.totalCost > $1.totalCost }
     }

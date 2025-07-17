@@ -119,11 +119,11 @@ struct ExpenseDetailView: View {
             } else {
                 ZStack {
                     Circle()
-                        .fill(expense.category.color.opacity(0.3))
+                        .fill(expense.categoryColor.opacity(0.3))
                     
-                    Image(systemName: expense.category.iconName)
+                    Image(systemName: expense.categoryIconName)
                         .font(.system(size: 40))
-                        .foregroundStyle(expense.category.color)
+                        .foregroundStyle(expense.categoryColor)
                 }
             }
         }
@@ -244,13 +244,13 @@ struct ExpenseDetailView: View {
                                     .frame(width: 16)
                                 Text(category.name)
                             }
-                            .tag(category)
+                            .tag(Optional(category))
                         }
                     }
                     .pickerStyle(.menu)
                     .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Label(expense.category.name, systemImage: expense.category.iconName)
+                    Label(expense.categoryName, systemImage: expense.categoryIconName)
                 }
             }
             

@@ -107,8 +107,8 @@ struct ListView: View {
             switch selectedGroupBy {
             case .categories:
                 if let firstExpense = groupData.expenses.first {
-                    Image(systemName: firstExpense.category.iconName)
-                        .foregroundStyle(firstExpense.category.color)
+                    Image(systemName: firstExpense.categoryIconName)
+                        .foregroundStyle(firstExpense.categoryColor)
                 } else {
                     Image(systemName: "tray")
                 }
@@ -153,7 +153,7 @@ struct ListView: View {
         let subtitle: String
         switch selectedGroupBy {
         case .frequencyUnit:
-            subtitle = expense.category.name
+            subtitle = expense.categoryName
         case .categories, .none:
             subtitle = FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit)
         }
@@ -193,49 +193,53 @@ struct ListView: View {
         }
         
         ToolbarItem() {
-                Menu {
-                    // Removed Display Period Picker
-                    Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
-                        ForEach(SortOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
-                        }
+            Menu {
+                // Removed Display Period Picker
+                Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
+                    ForEach(SortOption.allCases) { option in
+                        Text(option.rawValue).tag(option)
                     }
-                    .pickerStyle(.menu)
-                    
-                    Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
-                        ForEach(FilterOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    
-                    Picker(selection: $selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
-                        ForEach(GroupByOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    
-                    Picker(selection: $selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
-                        ForEach(ViewMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    
-                } label: {
-                    Label("Options", systemImage: "ellipsis")
                 }
+                .pickerStyle(.menu)
+                
+                Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
+                    ForEach(FilterOption.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+                .pickerStyle(.menu)
+                
+                Picker(selection: $selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
+                    ForEach(GroupByOption.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                }
+                .pickerStyle(.menu)
+                
+                Picker(selection: $selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
+                    ForEach(ViewMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+                
+            } label: {
+                Label("Options", systemImage: "ellipsis")
             }
-        ToolbarSpacer(.fixed)
+        }
+        
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed)
+        }
+        
         ToolbarItem() {
-                Button {
-                    let new = Expense.createNew(with: context)
-                    activeSheet = .new(new)
-                } label: {
-                    Label("Add Expense", systemImage: "plus")
-                }
+            Button {
+                let new = Expense.createNew(with: context)
+                activeSheet = .new(new)
+            } label: {
+                Label("Add Expense", systemImage: "plus")
             }
+        }
     }
     
     // MARK: - Data Processing
@@ -257,7 +261,7 @@ struct ListView: View {
         case .none:
             grouped = ["all": filteredExpenses]
         case .categories:
-            grouped = Dictionary(grouping: filteredExpenses, by: { $0.category.name })
+            grouped = Dictionary(grouping: filteredExpenses, by: { $0.categoryName })
         case .frequencyUnit:
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.frequencyUnit.rawValue.capitalized })
         }
@@ -295,7 +299,7 @@ struct ListView: View {
                     let firstA = $0.expenses.first,
                     let firstB = $1.expenses.first
                 else { return false }
-                return firstA.category.sortOrder < firstB.category.sortOrder
+                return firstA.categorySortOrder < firstB.categorySortOrder
             }
         case .frequencyUnit:
             return groups.sorted {

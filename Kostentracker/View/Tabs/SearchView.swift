@@ -87,12 +87,12 @@ struct SearchView: View {
             } else {
                 ZStack {
                     Circle()
-                        .fill(expense.category.color.opacity(0.3))
+                        .fill(expense.categoryColor.opacity(0.3))
                         .frame(width: 50, height: 50)
                     
-                    Image(systemName: expense.category.iconName)
+                    Image(systemName: expense.categoryIconName)
                         .font(.title2)
-                        .foregroundStyle(expense.category.color)
+                        .foregroundStyle(expense.categoryColor)
                 }
             }
             

@@ -167,7 +167,9 @@ struct TimelineView: View {
                     Label("Options", systemImage: "ellipsis")
                 }
             }
-        ToolbarSpacer(.fixed)
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed)
+        }
         
         ToolbarItem() {
             Button {

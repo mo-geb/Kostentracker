@@ -26,8 +26,8 @@ struct KostentrackerApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView()
+                .modelContainer(modelContainer)
        }
-        .modelContainer(for: Expense.self)
     }
 }
 

@@ -9,9 +9,9 @@ import UIKit
 
 @Model
 final class ExpenseCategory: Identifiable {
-    @Attribute(.unique) var name: String
-    var iconName: String
-    var hexColor: String
+    var name: String = ""
+    var iconName: String = ""
+    var hexColor: String = ""
     var isDefault: Bool = false
     var sortOrder: Int = 0
     
@@ -28,6 +28,18 @@ final class ExpenseCategory: Identifiable {
     /// A computed property to easily get the SwiftUI Color.
     var color: Color {
         Color(hex: hexColor)
+    }
+    
+    static func createDefault() -> ExpenseCategory {
+        return ExpenseCategory(name: "Other", iconName: "tag", color: .gray, isDefault: true)
+    }
+    
+    static func getDefault(with context: ModelContext) -> ExpenseCategory {
+        let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
+        if let defaultCategory = try? context.fetch(descriptor).first {
+            return defaultCategory
+        }
+        return createDefault()
     }
 }
 
