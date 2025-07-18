@@ -9,8 +9,8 @@ import PhotosUI
 
 struct ExpenseDetailView: View {
     // MARK: - Properties
-    
-    @Bindable var expense: Expense
+    let initialState: ActiveSheet
+    @Bindable private var expense: Expense
     
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
@@ -21,7 +21,6 @@ struct ExpenseDetailView: View {
     @State private var isEditing: Bool
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
-    var onSave: (() -> Void)?
     
     // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
@@ -33,10 +32,18 @@ struct ExpenseDetailView: View {
     @State private var snapshot: ExpenseSnapshot? = nil
     
     // Construct
-    init(expense: Expense, isEditingInitial: Bool = false, onSave: (() -> Void)? = nil) {
-        self._expense = Bindable(wrappedValue: expense)
-        self._isEditing = State(initialValue: isEditingInitial)
-        self.onSave = onSave
+    init(initialState: ActiveSheet) {
+        self.initialState = initialState
+        switch initialState {
+        case .view(let e), .edit(let e), .new(let e):
+            self._expense = Bindable(wrappedValue: e)
+        }
+        switch initialState {
+        case .view:
+            self._isEditing = State(initialValue: false)
+        case .edit, .new:
+            self._isEditing = State(initialValue: true)
+        }
     }
     
     // MARK: - Body
@@ -394,9 +401,11 @@ struct ExpenseDetailView: View {
             if isEditing {
                 Button {
                     do {
+                        if case .new = initialState {
+                            context.insert(expense)
+                        }
                         try context.save()
                         isEditing = false
-                        onSave?()
                     } catch {
                         print("Failed to save expense: \(error)")
                     }

@@ -35,17 +35,15 @@ struct TimelineView: View {
                     switch sheet {
                     case .view(let expense):
                         NavigationStack {
-                            ExpenseDetailView(expense: expense)
+                            ExpenseDetailView(initialState: .view(expense))
                         }
                     case .new(let expense):
                         NavigationStack {
-                            ExpenseDetailView(expense: expense, isEditingInitial: true) {
-                                context.insert(expense)
-                            }
+                            ExpenseDetailView(initialState: .new(expense))
                         }
                     case .edit(let expense):
                         NavigationStack {
-                            ExpenseDetailView(expense: expense, isEditingInitial: true)
+                            ExpenseDetailView(initialState: .edit(expense))
                         }
                     }
                 }

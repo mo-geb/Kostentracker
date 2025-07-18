@@ -28,7 +28,7 @@ struct SearchView: View {
                 .searchable(text: $searchText, prompt: "Search by title or notes")
                 .sheet(item: $selectedExpense) { expense in
                     NavigationStack {
-                        ExpenseDetailView(expense: expense)
+                        ExpenseDetailView(initialState: .view(expense))
                     }
                 }
         }
