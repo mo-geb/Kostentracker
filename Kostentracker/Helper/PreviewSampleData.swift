@@ -21,28 +21,31 @@ struct PreviewSampleData {
         insuranceSample
     ]
     
-    static let subscription = ExpenseCategory(name: "Subscription", iconName: "dumbbell", color: .blue)
-    static let insurance = ExpenseCategory(name: "Insurance", iconName: "shield", color: .red)
+    static let subscription = ExpenseCategory(from: CategoryDraft(name: "Subscription", iconName: "dumbbell", color: .blue))
+    static let insurance = ExpenseCategory(from: CategoryDraft(name: "Insurance", iconName: "shield", color: .red))
     
-    static let spotifySample = Expense(
-        title: "Spotify Premium",
-        amount: 10.99,
-        frequencyUnit: .month,
-        frequencyValue: 1,
-        date: Date(),
-        category: subscription,
-        notes: "Family plan."
+    static let spotifySample = Expense(from:ExpenseDraft(
+            title: "Spotify Premium",
+            amount: 10.99,
+            frequencyUnit: .month,
+            frequencyValue: 1,
+            date: Date(),
+            category: subscription,
+            notes: "Family plan."
+        )
     )
     
-    static let netflixSample = Expense(
-        title: "Netflix Subscription",
-        amount: 15.99,
-        frequencyUnit: .month,
-        frequencyValue: 1,
-        date: Date(),
-        category: subscription,
-        notes: "Premium plan with 4 screens.",
-        customImageData: UIImage(named: "netflix_icon")?.pngData())
+    static let netflixSample = Expense(from: ExpenseDraft(
+            title: "Netflix Subscription",
+            amount: 15.99,
+            frequencyUnit: .month,
+            frequencyValue: 1,
+            date: Date(),
+            category: subscription,
+            notes: "Premium plan with 4 screens.",
+            customImageData: UIImage(named: "netflix_icon")?.pngData()
+        )
+    )
     
     static var sampleDate: Date {
         let formatter = DateFormatter()
@@ -52,13 +55,14 @@ struct PreviewSampleData {
         return someDate
     }
     
-    static let insuranceSample = Expense(
-        title: "Third Party",
-        amount: 12.99,
-        frequencyUnit: .year,
-        frequencyValue: 1,
-        date: sampleDate,
-        category: insurance,
-        notes: ""
+    static let insuranceSample = Expense(from: ExpenseDraft(
+            title: "Third Party",
+            amount: 12.99,
+            frequencyUnit: .year,
+            frequencyValue: 1,
+            date: sampleDate,
+            category: insurance,
+            notes: ""
+        )
     )
 }

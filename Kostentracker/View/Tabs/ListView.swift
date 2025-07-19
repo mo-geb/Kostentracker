@@ -19,7 +19,7 @@ struct ListView: View {
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // State
-    @State private var activeSheet: ActiveSheet?
+    @State private var activeSheet: ActiveExpenseSheet?
     @State private var showingSettings = false
     @State private var selectedPeriod: CostPeriod = .monthly
     @State private var selectedSort: SortOption = .amountDescending
@@ -40,9 +40,9 @@ struct ListView: View {
                         NavigationStack {
                             ExpenseDetailView(initialState: .view(expense))
                         }
-                    case .new(let expense):
+                    case .new(let draft):
                         NavigationStack {
-                            ExpenseDetailView(initialState: .new(expense))
+                            ExpenseDetailView(initialState: .new(draft))
                         }
                     case .edit(let expense):
                         NavigationStack {
@@ -232,8 +232,7 @@ struct ListView: View {
         
         ToolbarItem() {
             Button {
-                let new = Expense.createNew(with: context)
-                activeSheet = .new(new)
+                activeSheet = .new(ExpenseDraft.createNew(with: context))
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }

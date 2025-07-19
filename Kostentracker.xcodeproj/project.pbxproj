@@ -408,7 +408,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kostentracker/Kostentracker.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3UC3S478RS;
 				ENABLE_APP_SANDBOX = YES;
@@ -454,7 +454,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kostentracker/Kostentracker.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3UC3S478RS;
 				ENABLE_APP_SANDBOX = YES;

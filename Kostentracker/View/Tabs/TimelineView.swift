@@ -18,7 +18,7 @@ struct TimelineView: View {
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // State
-    @State private var activeSheet: ActiveSheet?
+    @State private var activeSheet: ActiveExpenseSheet?
     @State private var showingSettings = false
     @State private var selectedFilter: FilterOption = .nonZero
     @State private var selectedViewMode: ViewMode = .normal
@@ -37,9 +37,9 @@ struct TimelineView: View {
                         NavigationStack {
                             ExpenseDetailView(initialState: .view(expense))
                         }
-                    case .new(let expense):
+                    case .new(let draft):
                         NavigationStack {
-                            ExpenseDetailView(initialState: .new(expense))
+                            ExpenseDetailView(initialState: .new(draft))
                         }
                     case .edit(let expense):
                         NavigationStack {
@@ -171,8 +171,7 @@ struct TimelineView: View {
         
         ToolbarItem() {
             Button {
-                let new = Expense.createNew(with: context)
-                activeSheet = .new(new)
+                activeSheet = .new(ExpenseDraft.createNew(with: context))
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }

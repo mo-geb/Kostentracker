@@ -7,61 +7,94 @@ import SwiftUI
 import SwiftData
 
 struct CategoryManagementView: View {
+    
+    // MARK: - Properties
+    
+    // SwiftData
     @Environment(\.modelContext) private var context
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
-    @State private var selectedCategory: ExpenseCategory?
+    // State
+    @State private var activeSheet: ActiveCategorySheet?
     @State private var showingDeleteAlert = false
     
+    // MARK: - Body
+    
     var body: some View {
+        NavigationStack {
+            mainContent
+                .navigationTitle("Manage Categories")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar { toolbarContent }
+                .sheet(item: $activeSheet) { sheet in
+                    switch sheet {
+                    case .new(let draft):
+                        NavigationStack {
+                            CategoryDetailView(initialState: .new(draft))
+                        }
+                    case .edit(let expense):
+                        NavigationStack {
+                            CategoryDetailView(initialState: .edit(expense))
+                        }
+                    }
+                }
+        }
+    }
+    
+    // MARK: - Main Content
+    
+    @ViewBuilder
+    private var mainContent: some View {
         VStack(spacing: 0) {
-            List {
-                ForEach(categories) { category in
-                    categoryRow(for: category)
-                }
-                .onMove(perform: moveCategory)
-            }
-            .listStyle(.insetGrouped)
-            
-            Button {
-                let newCategory = ExpenseCategory(name: "", iconName: "tag", color: .blue, sortOrder: (categories.last?.sortOrder ?? 0) + 1)
-                context.insert(newCategory)
-                selectedCategory = newCategory
-            } label: {
-                Label("Add Category", systemImage: "plus")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.accentColor.opacity(0.15))
-                    .foregroundColor(.accentColor)
-                    .cornerRadius(14)
-                    .padding([.horizontal, .top])
-            }
-            .accessibilityIdentifier("addCategoryButton")
+            listSection
+            addButton
         }
-        .navigationTitle("Manage Categories")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                EditButton()
+    }
+    
+    // MARK: - List Section
+    
+    @ViewBuilder
+    private var listSection: some View {
+        List {
+            ForEach(categories) { category in
+                categoryRow(for: category)
             }
+            .onMove(perform: moveCategory)
         }
-        .sheet(item: $selectedCategory) { category in
-            CategoryDetailView(category: category)
+        .listStyle(.insetGrouped)
+    }
+    
+    // MARK: - Add Button
+    
+    @ViewBuilder
+    private var addButton: some View {
+        Button {
+            let draft = CategoryDraft(from: ExpenseCategory.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1))
+            activeSheet = .new(draft)
+        } label: {
+            Label("Add Category", systemImage: "plus")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.accentColor.opacity(0.15))
+                .foregroundColor(.accentColor)
+                .cornerRadius(14)
+                .padding([.horizontal, .top])
         }
-        .alert("Delete Category?", isPresented: $showingDeleteAlert) {
-            Button("Delete", role: .destructive) {
-                if let category = selectedCategory {
-                    category.deleteSafely(from: context)
-                }
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("Are you sure? This action cannot be undone.")
+        .accessibilityIdentifier("addCategoryButton")
+    }
+    
+    // MARK: - Toolbar
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            EditButton()
         }
     }
     
     // MARK: - Move Support
+    
     private func moveCategory(from source: IndexSet, to destination: Int) {
         var revised = categories
         revised.move(fromOffsets: source, toOffset: destination)
@@ -125,17 +158,7 @@ struct CategoryManagementView: View {
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            selectedCategory = category
-        }
-        .swipeActions(allowsFullSwipe: !category.isDefault) {
-            if !category.isDefault {
-                Button(role: .destructive) {
-                    selectedCategory = category
-                    showingDeleteAlert = true
-                } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
+            activeSheet = .edit(category)
         }
     }
 }

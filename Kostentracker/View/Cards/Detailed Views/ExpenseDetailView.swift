@@ -9,8 +9,6 @@ import PhotosUI
 
 struct ExpenseDetailView: View {
     // MARK: - Properties
-    let initialState: ActiveSheet
-    @Bindable private var expense: Expense
     
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
@@ -18,6 +16,9 @@ struct ExpenseDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     // State
+    @State private var initialState: ActiveExpenseSheet
+    @State private var expense: Expense?
+    @State private var draft: ExpenseDraft
     @State private var isEditing: Bool
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
@@ -28,20 +29,21 @@ struct ExpenseDetailView: View {
     // Focus management
     @FocusState private var focusedField: FocusedField?
 
-    // Snapshot for discarding changes
-    @State private var snapshot: ExpenseSnapshot? = nil
-    
     // Construct
-    init(initialState: ActiveSheet) {
+    init(initialState: ActiveExpenseSheet) {
         self.initialState = initialState
         switch initialState {
-        case .view(let e), .edit(let e), .new(let e):
-            self._expense = Bindable(wrappedValue: e)
-        }
-        switch initialState {
-        case .view:
+        case .view(let e):
+            self.expense = e
+            self._draft = State(initialValue: ExpenseDraft(from: e))
             self._isEditing = State(initialValue: false)
-        case .edit, .new:
+        case .edit(let e):
+            self.expense = e
+            self._draft = State(initialValue: ExpenseDraft(from: e))
+            self._isEditing = State(initialValue: true)
+        case .new(let d):
+            self.expense = nil
+            self._draft = State(initialValue: d)
             self._isEditing = State(initialValue: true)
         }
     }
@@ -56,9 +58,9 @@ struct ExpenseDetailView: View {
                 
                 detailsSection
                 
-                if isEditing {
+                if isEditing && expense != nil {
                     deleteButton
-                } else {
+                } else if !isEditing {
                     statisticsSection
                 }
             }
@@ -69,11 +71,6 @@ struct ExpenseDetailView: View {
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
-        }
-        .onChange(of: isEditing) { oldValue, newValue in
-            if newValue == true {
-                snapshot = expense.snapshot()
-            }
         }
     }
 
@@ -94,14 +91,14 @@ struct ExpenseDetailView: View {
                 .onChange(of: selectedPhoto) {
                     Task {
                         if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
-                            expense.customImageData = data
+                            draft.customImageData = data
                         }
                     }
                 }
 
-                if expense.customImageData != nil {
+                if draft.customImageData != nil {
                     Button() {
-                        expense.customImageData = nil
+                        draft.customImageData = nil
                     } label: {
                         Label("Remove", systemImage: "eraser")
                     }
@@ -118,7 +115,7 @@ struct ExpenseDetailView: View {
     @ViewBuilder
     private var imageDisplay: some View {
         ZStack {
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+            if let imageData = (isEditing ? draft.customImageData : expense?.customImageData), let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
@@ -126,11 +123,11 @@ struct ExpenseDetailView: View {
             } else {
                 ZStack {
                     Circle()
-                        .fill(expense.categoryColor.opacity(0.3))
+                        .fill((isEditing ? (draft.category?.color ?? .gray) : (expense?.categoryColor ?? .gray)).opacity(0.3))
                     
-                    Image(systemName: expense.categoryIconName)
+                    Image(systemName: isEditing ? (draft.category?.iconName ?? "tag") : (expense?.categoryIconName ?? "tag"))
                         .font(.system(size: 40))
-                        .foregroundStyle(expense.categoryColor)
+                        .foregroundStyle(isEditing ? (draft.category?.color ?? .gray) : (expense?.categoryColor ?? .gray))
                 }
             }
         }
@@ -142,20 +139,20 @@ struct ExpenseDetailView: View {
     @ViewBuilder
     private var titleSection: some View {
         if isEditing {
-            TextField("Title", text: $expense.title)
+            TextField("Title", text: $draft.title)
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
                 .padding(-10)
                 .focused($focusedField, equals: .expenseDetailTitle)
-                .onChange(of: expense.title) { _, newValue in
+                .onChange(of: draft.title) { _, newValue in
                     if newValue.count > 20 {
-                        expense.title = String(newValue.prefix(20))
+                        draft.title = String(newValue.prefix(20))
                     }
                 }
         } else {
-            Text(expense.title)
+            Text(expense?.title ?? "")
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
@@ -169,7 +166,7 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading, spacing: 15) {
             row(title: "Amount") {
                 if isEditing {
-                    TextField("0.00", value: $expense.amount, format: .number)
+                    TextField("0.00", value: $draft.amount, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
@@ -177,22 +174,22 @@ struct ExpenseDetailView: View {
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
                         .focused($focusedField, equals: .expenseDetailAmount)
-                        .onChange(of: expense.amount) { _, newValue in
+                        .onChange(of: draft.amount) { _, newValue in
                             if newValue < 0 {
-                                expense.amount = 0
+                                draft.amount = 0
                             }
                         }
                         .onAppear {
-                            if expense.amount == 0 {
+                            if draft.amount == 0 {
                                 // This ensures the placeholder shows when the field is empty
                             }
                         }
                 } else {
-                    if expense.amount == 0 {
+                    if let amount = expense?.amount, amount == 0 {
                         Text("0.00")
                             .foregroundStyle(.secondary)
-                    } else {
-                        Text(expense.amount, format: .currency(code: currencyCode))
+                    } else if let amount = expense?.amount {
+                        Text(amount, format: .currency(code: currencyCode))
                     }
                 }
             }
@@ -202,25 +199,22 @@ struct ExpenseDetailView: View {
                     HStack {
                         Text("Every")
                             .foregroundStyle(.secondary)
-                        
-                        Picker("Frequency Value", selection: $expense.frequencyValue) {
-                            ForEach(expense.frequencyUnit.valueRange, id: \.self) { value in
+                        Picker("Frequency Value", selection: $draft.frequencyValue) {
+                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
                                 Text("\(value)").tag(Int16(value))
                             }
                         }
                         .pickerStyle(.wheel)
                         .frame(width: 80)
-                        .onChange(of: expense.frequencyUnit) { _, newUnit in
-                            // Adjust frequency value if it's outside the new unit's range
+                        .onChange(of: draft.frequencyUnit) { _, newUnit in
                             let maxValue = newUnit.valueRange.upperBound
-                            if expense.frequencyValue > maxValue {
-                                expense.frequencyValue = maxValue
+                            if draft.frequencyValue > maxValue {
+                                draft.frequencyValue = maxValue
                             }
                         }
-                        
-                        Picker("Unit", selection: $expense.frequencyUnit) {
+                        Picker("Unit", selection: $draft.frequencyUnit) {
                             ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                Text(unit.displayName(for: expense.frequencyValue))
+                                Text(unit.displayName(for: draft.frequencyValue))
                                     .tag(unit)
                             }
                         }
@@ -228,22 +222,26 @@ struct ExpenseDetailView: View {
                         .fixedSize(horizontal: false, vertical: true)
                     }
                 } else {
-                    Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
+                    if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
+                        Text(FrequencyUnit.formatFrequency(value: freqValue, unit: freqUnit))
+                    }
                 }
             }
             
             row(title: "Date") {
                 if isEditing {
-                    DatePicker("", selection: $expense.date, displayedComponents: [.date])
+                    DatePicker("", selection: $draft.date, displayedComponents: [.date])
                         .labelsHidden()
                 } else {
-                    Text(expense.date, style: .date)
+                    if let date = expense?.date {
+                        Text(date, style: .date)
+                    }
                 }
             }
             
             row(title: "Category") {
                 if isEditing {
-                    Picker("Category", selection: $expense.category) {
+                    Picker("Category", selection: $draft.category) {
                         ForEach(categories, id: \.self) { category in
                             HStack(spacing: 8) {
                                 Image(systemName: category.iconName)
@@ -257,7 +255,9 @@ struct ExpenseDetailView: View {
                     .pickerStyle(.menu)
                     .fixedSize(horizontal: false, vertical: true)
                 } else {
-                    Label(expense.categoryName, systemImage: expense.categoryIconName)
+                    if let name = expense?.categoryName, let icon = expense?.categoryIconName {
+                        Label(name, systemImage: icon)
+                    }
                 }
             }
             
@@ -266,7 +266,7 @@ struct ExpenseDetailView: View {
                 Text("Notes").font(.headline)
                 if isEditing {
                     ZStack(alignment: .topLeading) {
-                        TextEditor(text: $expense.notes)
+                        TextEditor(text: $draft.notes)
                             .padding(12)
                             .frame(minHeight: 100)
                             .background(Color(.tertiarySystemBackground))
@@ -276,8 +276,8 @@ struct ExpenseDetailView: View {
                     }
                 } else {
                     VStack {
-                        if !expense.notes.isEmpty {
-                            Text(expense.notes)
+                        if let notes = expense?.notes, !notes.isEmpty {
+                            Text(notes)
                         } else {
                             Text("No notes provided.")
                                 .foregroundStyle(.secondary)
@@ -289,7 +289,6 @@ struct ExpenseDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
             }
-            
         }
         .padding()
     }
@@ -303,7 +302,7 @@ struct ExpenseDetailView: View {
                 Text("Statistics")
                     .font(.headline)
 
-                let yearlyCost = expense.yearlyCost
+                let yearlyCost = expense?.yearlyCost ?? 0
                 let monthlyCost = yearlyCost / 12
                 let weeklyCost = yearlyCost / 52
                 
@@ -359,7 +358,9 @@ struct ExpenseDetailView: View {
         .padding(.horizontal)
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
-                context.delete(expense)
+                if let expense = expense {
+                    context.delete(expense)
+                }
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -375,13 +376,13 @@ struct ExpenseDetailView: View {
         ToolbarItem(placement: .cancellationAction) {
             if isEditing {
                 Button {
-                    if expense.title.isEmpty && expense.amount == 0 {
-                        context.delete(expense)
-                    } else {
-                        if let snap = snapshot {
-                            expense.restore(from: snap)
+                    if draft.title.isEmpty && draft.amount == 0 {
+                        switch initialState {
+                        case .edit(let expense), .view(let expense):
+                            context.delete(expense)
+                        case .new:
+                            break
                         }
-                        context.rollback()
                     }
                     dismiss()
                     isEditing = false
@@ -401,8 +402,15 @@ struct ExpenseDetailView: View {
             if isEditing {
                 Button {
                     do {
-                        if case .new = initialState {
-                            context.insert(expense)
+                        switch initialState {
+                        case .edit(let expense), .view(let expense):
+                            expense.update(from: draft)
+                        case .new:
+                            let newExpense = Expense(from: draft)
+                            context.insert(newExpense)
+                            try context.save()
+                            self.expense = newExpense
+                            self.isEditing = false
                         }
                         try context.save()
                         isEditing = false
@@ -412,7 +420,7 @@ struct ExpenseDetailView: View {
                 } label: {
                     Label("Save", systemImage: "checkmark")
                 }
-                .disabled(expense.title.isEmpty)
+                .disabled(draft.title.isEmpty)
                 .tint(.green)
             } else {
                 Button {

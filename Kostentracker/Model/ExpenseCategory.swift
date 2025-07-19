@@ -14,26 +14,45 @@ final class ExpenseCategory: Identifiable {
     var hexColor: String = ""
     var isDefault: Bool = false
     var sortOrder: Int = 0
-    
     @Relationship(deleteRule: .cascade, inverse: \Expense.category) var expenses: [Expense]?
-    
-    init(name: String, iconName: String, color: Color, isDefault: Bool = false, sortOrder: Int = 0) {
-        self.name = name
-        self.iconName = iconName
-        self.hexColor = color.toHex() ?? "000000"
-        self.isDefault = isDefault
-        self.sortOrder = sortOrder
-    }
     
     /// A computed property to easily get the SwiftUI Color.
     var color: Color {
         Color(hex: hexColor)
     }
     
-    static func createDefault() -> ExpenseCategory {
-        return ExpenseCategory(name: "Other", iconName: "tag", color: .gray, isDefault: true)
+    // Main initializer for creating from a draft
+    init(from draft: CategoryDraft) {
+        self.name = draft.name
+        self.iconName = draft.iconName
+        self.hexColor = draft.hexColor
+        self.isDefault = draft.isDefault
+        self.sortOrder = draft.sortOrder
     }
     
+    // Update from draft
+    func update(from draft: CategoryDraft) {
+        self.name = draft.name
+        self.iconName = draft.iconName
+        self.hexColor = draft.hexColor
+        self.isDefault = draft.isDefault
+        self.sortOrder = draft.sortOrder
+    }
+    
+    // Create new (with default values)
+    static func createNew(sortOrder: Int = 0) -> ExpenseCategory {
+        ExpenseCategory(from: CategoryDraft(
+                name: "",
+                iconName: "tag",
+                color: .blue,
+                isDefault: false,
+                sortOrder: sortOrder
+            )
+        )
+    }
+}
+
+extension ExpenseCategory {
     static func getDefault(with context: ModelContext) -> ExpenseCategory {
         let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
         if let defaultCategory = try? context.fetch(descriptor).first {
@@ -41,13 +60,38 @@ final class ExpenseCategory: Identifiable {
         }
         return createDefault()
     }
+    
+    static func createDefault() -> ExpenseCategory {
+        return ExpenseCategory(from: CategoryDraft(name: "Other", iconName: "tag", color: .gray, isDefault: true))
+    }
+    
+    /// Safely deletes a category by reassigning its expenses to the default category.
+    /// This method ensures no expenses are orphaned when a category is deleted.
+    func deleteSafely(from context: ModelContext) {
+        guard !isDefault else { return }
+        do {
+            let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
+            guard let defaultCategory = try context.fetch(descriptor).first else {
+                print("Could not find default category. Aborting delete.")
+                return
+            }
+            if let expensesToReassign = expenses {
+                for expense in expensesToReassign {
+                    expense.category = defaultCategory
+                }
+            }
+            context.delete(self)
+            try context.save()
+        } catch {
+            print("Failed to delete category: \(error)")
+        }
+    }
 }
 
 // MARK: - Color Util
 
 extension Color {
     func toHex() -> String? {
-        // Try to get components from cgColor
         if let components = cgColor?.components, components.count >= 3 {
             let r = Float(components[0])
             let g = Float(components[1])
@@ -89,56 +133,29 @@ extension Color {
     }
 }
 
-// MARK: - Persistence
+// MARK: - Category Draft struct for creating and editing Categories
 
-// Struct to hold a snapshot of all editable properties for persistence
-struct ExpenseCategorySnapshot {
+struct CategoryDraft {
     var name: String
     var iconName: String
     var hexColor: String
+    var isDefault: Bool
     var sortOrder: Int
-}
-
-extension ExpenseCategory {
-    /// Safely deletes a category by reassigning its expenses to the default category.
-    /// This method ensures no expenses are orphaned when a category is deleted.
-    func deleteSafely(from context: ModelContext) {
-        guard !isDefault else { return }
-        
-        do {
-            let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
-            guard let defaultCategory = try context.fetch(descriptor).first else {
-                print("Could not find default category. Aborting delete.")
-                return
-            }
-            
-            if let expensesToReassign = expenses {
-                for expense in expensesToReassign {
-                    expense.category = defaultCategory
-                }
-            }
-            
-            context.delete(self)
-            try context.save()
-            
-        } catch {
-            print("Failed to delete category: \(error)")
-        }
+    
+    init(name: String, iconName: String, color: Color, isDefault: Bool = false, sortOrder: Int = 0) {
+        self.name = name
+        self.iconName = iconName
+        self.hexColor = color.toHex() ?? "000000"
+        self.isDefault = isDefault
+        self.sortOrder = sortOrder
     }
     
-    func snapshot() -> ExpenseCategorySnapshot {
-        ExpenseCategorySnapshot(
-            name: self.name,
-            iconName: self.iconName,
-            hexColor: self.hexColor,
-            sortOrder: self.sortOrder
-        )
-    }
-
-    func restore(from snapshot: ExpenseCategorySnapshot) {
-        self.name = snapshot.name
-        self.iconName = snapshot.iconName
-        self.hexColor = snapshot.hexColor
-        self.sortOrder = snapshot.sortOrder
+    // Create from an ExpenseCategory
+    init(from category: ExpenseCategory) {
+        self.name = category.name
+        self.iconName = category.iconName
+        self.hexColor = category.hexColor
+        self.isDefault = category.isDefault
+        self.sortOrder = category.sortOrder
     }
 }

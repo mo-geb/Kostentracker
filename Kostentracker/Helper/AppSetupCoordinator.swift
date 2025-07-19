@@ -26,18 +26,12 @@ final class AppSetupCoordinator {
     
     /// Creates a set of default categories if the database is empty.
     private func createDefaultCategoriesIfNeeded() {
-        let defaults = UserDefaults.standard
-        if defaults.bool(forKey: "hasCreatedDefaultCategories") {
-            return
-        }
-        
         // Check if any categories already exist.
         let fetchDescriptor = FetchDescriptor<ExpenseCategory>()
         do {
             let count = try context.fetchCount(fetchDescriptor)
             if count > 0 {
-                defaults.set(true, forKey: "hasCreatedDefaultCategories")
-                return
+                return // Categories already exist, no need to create defaults
             }
         } catch {
             print("Failed to fetch category count: \(error)")
@@ -45,9 +39,7 @@ final class AppSetupCoordinator {
         }
         
         print("No categories found. Creating default set...")
-        context.insert(ExpenseCategory(name: "Other", iconName: "tag", color: .gray, isDefault: true))
-        
-        defaults.set(true, forKey: "hasCreatedDefaultCategories")
+        context.insert(ExpenseCategory.createNew())
         print("Default categories created successfully.")
     }
 }

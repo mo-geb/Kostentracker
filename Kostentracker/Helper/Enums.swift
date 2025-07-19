@@ -58,24 +58,45 @@ enum FocusedField: Hashable {
     case expenseDetailNotes
 }
 
-enum ActiveSheet: Identifiable, Equatable {
+enum ActiveExpenseSheet: Identifiable, Equatable {
     case view(Expense)
-    case new(Expense)
+    case new(ExpenseDraft)
     case edit(Expense)
     
-    var id: PersistentIdentifier {
+    var id: String {
         switch self {
-        case .view(let expense): return expense.persistentModelID
-        case .new(let expense): return expense.persistentModelID
-        case .edit(let expense): return expense.persistentModelID
+        case .view(let expense): return expense.persistentModelID.entityName
+        case .new(_): return "new"
+        case .edit(let expense): return expense.persistentModelID.entityName
         }
     }
     
-    static func == (lhs: ActiveSheet, rhs: ActiveSheet) -> Bool {
+    static func == (lhs: ActiveExpenseSheet, rhs: ActiveExpenseSheet) -> Bool {
         switch (lhs, rhs) {
         case (.view(let l), .view(let r)): return l.id == r.id
-        case (.new(let l), .new(let r)): return l.id == r.id
-        case (.edit(let l), .new(let r)): return l.id == r.id
+        case (.new(let l), .new(let r)): return l.category?.persistentModelID == r.category?.persistentModelID
+        case (.edit(let l), .edit(let r)): return l.id == r.id
+        default: return false
+        }
+    }
+}
+
+enum ActiveCategorySheet: Identifiable, Equatable {
+    case new(CategoryDraft)
+    case edit(ExpenseCategory)
+    
+    var id: String {
+        switch self {
+        case .new(_): return "new"
+        case .edit(let category): return category.persistentModelID.entityName
+        }
+    }
+    
+    static func == (lhs: ActiveCategorySheet, rhs: ActiveCategorySheet) -> Bool {
+        switch (lhs, rhs) {
+        case (.new(let l), .new(let r)): 
+            return l.name == r.name && l.iconName == r.iconName && l.hexColor == r.hexColor && l.isDefault == r.isDefault && l.sortOrder == r.sortOrder
+        case (.edit(let l), .edit(let r)): return l.id == r.id
         default: return false
         }
     }

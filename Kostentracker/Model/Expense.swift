@@ -18,19 +18,27 @@ class Expense: Identifiable {
     var notes: String = ""
     @Attribute(.externalStorage) var customImageData: Data?
     
-    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory?, notes: String, customImageData: Data? = nil) {
-        self.title = title
-        self.amount = amount
-        self.frequencyUnit = frequencyUnit
-        self.frequencyValue = frequencyValue
-        self.date = date
-        self.category = category
-        self.notes = notes
-        self.customImageData = customImageData
+    // Create from an Expense
+    init(from draft: ExpenseDraft) {
+        self.title = draft.title
+        self.amount = draft.amount
+        self.frequencyUnit = draft.frequencyUnit
+        self.frequencyValue = draft.frequencyValue
+        self.date = draft.date
+        self.category = draft.category
+        self.notes = draft.notes
+        self.customImageData = draft.customImageData
     }
     
-    static func createNew(with context: ModelContext) -> Expense {
-        return Expense(title: "", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: Date(), category: ExpenseCategory.getDefault(with: context), notes: "")
+    func update(from draft: ExpenseDraft) {
+        self.title = draft.title
+        self.amount = draft.amount
+        self.frequencyUnit = draft.frequencyUnit
+        self.frequencyValue = draft.frequencyValue
+        self.date = draft.date
+        self.category = draft.category
+        self.notes = draft.notes
+        self.customImageData = draft.customImageData
     }
 }
 
@@ -130,10 +138,9 @@ extension Expense {
     var categorySortOrder: Int { category?.sortOrder ?? 1 }
 }
 
-// MARK: - Persistence
+// MARK: - Expense Draft struct for creating and editing Expenses
 
-// Struct to hold a snapshot of all editable properties for persistence
-struct ExpenseSnapshot {
+struct ExpenseDraft {
     var title: String
     var amount: Double
     var frequencyUnit: FrequencyUnit
@@ -142,30 +149,41 @@ struct ExpenseSnapshot {
     var category: ExpenseCategory?
     var notes: String
     var customImageData: Data?
-}
-
-extension Expense {
-    func snapshot() -> ExpenseSnapshot {
-        ExpenseSnapshot(
-            title: self.title,
-            amount: self.amount,
-            frequencyUnit: self.frequencyUnit,
-            frequencyValue: self.frequencyValue,
-            date: self.date,
-            category: self.category,
-            notes: self.notes,
-            customImageData: self.customImageData
-        )
+    
+    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory?, notes: String, customImageData: Data? = nil) {
+        self.title = title
+        self.amount = amount
+        self.frequencyUnit = frequencyUnit
+        self.frequencyValue = frequencyValue
+        self.date = date
+        self.category = category
+        self.notes = notes
+        self.customImageData = customImageData
     }
-
-    func restore(from snapshot: ExpenseSnapshot) {
-        self.title = snapshot.title
-        self.amount = snapshot.amount
-        self.frequencyUnit = snapshot.frequencyUnit
-        self.frequencyValue = snapshot.frequencyValue
-        self.date = snapshot.date
-        self.category = snapshot.category
-        self.notes = snapshot.notes
-        self.customImageData = snapshot.customImageData
+    
+    // Create from an Expense
+    init(from expense: Expense) {
+        self.title = expense.title
+        self.amount = expense.amount
+        self.frequencyUnit = expense.frequencyUnit
+        self.frequencyValue = expense.frequencyValue
+        self.date = expense.date
+        self.category = expense.category
+        self.notes = expense.notes
+        self.customImageData = expense.customImageData
+    }
+    
+    // Create new (with context for default category)
+    static func createNew(with context: ModelContext) -> ExpenseDraft {
+        ExpenseDraft(
+            title: "",
+            amount: 0,
+            frequencyUnit: .month,
+            frequencyValue: 1,
+            date: Date(),
+            category: ExpenseCategory.getDefault(with: context),
+            notes: "",
+            customImageData: nil
+        )
     }
 }
