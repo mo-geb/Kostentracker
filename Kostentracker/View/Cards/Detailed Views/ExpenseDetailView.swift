@@ -64,13 +64,13 @@ struct ExpenseDetailView: View {
                     statisticsSection
                 }
             }
-            .onTapGesture {
-                focusedField = nil
-            }
         }
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
+        }
+        .onTapGesture {
+            focusedField = nil
         }
     }
 

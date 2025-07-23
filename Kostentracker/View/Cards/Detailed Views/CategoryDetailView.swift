@@ -19,6 +19,9 @@ struct CategoryDetailView: View {
     @State private var draft: CategoryDraft
     @State private var showingDeleteAlert = false
     
+    // Focus management
+    @FocusState private var focusedField: FocusedField?
+    
     // A list of sample icons for the user to choose from.
     private let sampleIcons = [
         "cart", "house", "car", "popcorn", "shield",
@@ -67,6 +70,9 @@ struct CategoryDetailView: View {
             .toolbar {
                 toolbarContent
             }
+            .onTapGesture {
+                focusedField = nil
+            }
         }
     }
     
@@ -87,6 +93,7 @@ struct CategoryDetailView: View {
                             draft.name = String(newValue.prefix(20))
                         }
                     }
+                    .focused($focusedField, equals: .expenseDetailAmount)
             }
             
             row(title: "Color") {

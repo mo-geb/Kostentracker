@@ -3,11 +3,9 @@
 //  Kostentracker
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
 
-/// A class responsible for handling all one-time setup tasks when the app launches.
-/// This includes data migration, creating default data, etc.
 @MainActor
 final class AppSetupCoordinator {
     
@@ -24,22 +22,34 @@ final class AppSetupCoordinator {
     
     // MARK: - Private Helper Methods
     
-    /// Creates a set of default categories if the database is empty.
     private func createDefaultCategoriesIfNeeded() {
-        // Check if any categories already exist.
-        let fetchDescriptor = FetchDescriptor<ExpenseCategory>()
-        do {
-            let count = try context.fetchCount(fetchDescriptor)
-            if count > 0 {
-                return // Categories already exist, no need to create defaults
-            }
-        } catch {
-            print("Failed to fetch category count: \(error)")
+        let defaults = UserDefaults.standard
+        
+        guard !defaults.bool(forKey: "isInitialSetupComplete") else {
             return
         }
-        
-        print("No categories found. Creating default set...")
-        context.insert(ExpenseCategory.createDefault())
-        print("Default categories created successfully.")
+
+        Task {
+            try? await Task.sleep(for: .seconds(3))
+            
+            let fetchDescriptor = FetchDescriptor<ExpenseCategory>()
+            do {
+                let count = try context.fetchCount(fetchDescriptor)
+                if count == 0 {
+                    print("No categories found after delay. Creating default set...")
+                    // Your logic to insert default categories
+                    let defaultCategory = ExpenseCategory.createDefault()
+                    context.insert(defaultCategory)
+                    print("Default categories created successfully.")
+                } else {
+                    print("Categories found from iCloud. Skipping default creation.")
+                }
+            } catch {
+                print("Failed to fetch category count: \(error)")
+            }
+            
+            // 3. Set the flag so this entire process never runs again.
+            defaults.set(true, forKey: "isInitialSetupComplete")
+        }
     }
 }

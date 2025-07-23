@@ -56,6 +56,7 @@ enum FocusedField: Hashable {
     case expenseDetailTitle
     case expenseDetailAmount
     case expenseDetailNotes
+    case categoryDetailTitle
 }
 
 enum ActiveExpenseSheet: Identifiable, Equatable {
