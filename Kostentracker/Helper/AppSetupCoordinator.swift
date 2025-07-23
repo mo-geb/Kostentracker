@@ -39,7 +39,7 @@ final class AppSetupCoordinator {
         }
         
         print("No categories found. Creating default set...")
-        context.insert(ExpenseCategory.createNew())
+        context.insert(ExpenseCategory.createDefault())
         print("Default categories created successfully.")
     }
 }

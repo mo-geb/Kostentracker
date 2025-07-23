@@ -13,10 +13,14 @@ struct StatisticsView: View {
     
     // MARK: - Properties
     
+    // SwiftData
     @Query private var expenses: [Expense]
+    
+    // State
     @State private var showingSettings = false
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     
+    // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // MARK: - Body

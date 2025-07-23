@@ -6,5 +6,7 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
-</dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To allow you to attach images to your expenses, the app needs access to your photos.</string>
+	</dict>
 </plist>

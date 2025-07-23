@@ -15,6 +15,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     generalSection
+                    moreSection
                 }
                 .padding()
             }
@@ -54,6 +55,33 @@ struct SettingsView: View {
                 CategoryManagementView()
             } label: {
                 row(title: "Manage Categories", icon: "paintbrush", iconColor: .purple) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+    
+    @ViewBuilder
+    private var moreSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("More")
+                .font(.title2.bold())
+                .foregroundStyle(.secondary)
+            
+            Button {
+                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/") else {
+                    print("Error: Invalid URL string.")
+                    return
+                }
+                UIApplication.shared.open(url)
+            } label: {
+                row(title: "App Website", icon: "globe", iconColor: .green) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")

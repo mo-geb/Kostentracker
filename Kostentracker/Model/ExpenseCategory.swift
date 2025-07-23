@@ -38,18 +38,6 @@ final class ExpenseCategory: Identifiable {
         self.isDefault = draft.isDefault
         self.sortOrder = draft.sortOrder
     }
-    
-    // Create new (with default values)
-    static func createNew(sortOrder: Int = 0) -> ExpenseCategory {
-        ExpenseCategory(from: CategoryDraft(
-                name: "",
-                iconName: "tag",
-                color: .blue,
-                isDefault: false,
-                sortOrder: sortOrder
-            )
-        )
-    }
 }
 
 extension ExpenseCategory {
@@ -150,12 +138,21 @@ struct CategoryDraft {
         self.sortOrder = sortOrder
     }
     
-    // Create from an ExpenseCategory
     init(from category: ExpenseCategory) {
         self.name = category.name
         self.iconName = category.iconName
         self.hexColor = category.hexColor
         self.isDefault = category.isDefault
         self.sortOrder = category.sortOrder
+    }
+    
+    static func createNew(sortOrder: Int = 0) -> CategoryDraft {
+        CategoryDraft(
+                name: "",
+                iconName: "tag",
+                color: .blue,
+                isDefault: false,
+                sortOrder: sortOrder
+        )
     }
 }

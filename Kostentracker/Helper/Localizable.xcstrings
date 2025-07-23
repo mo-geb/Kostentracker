@@ -1,0 +1,255 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "%d" : {
+
+    },
+    "%lld expenses" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ausgabe"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ausgaben"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld expense"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld expenses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "0.00" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.00"
+          }
+        }
+      },
+      "shouldTranslate" : false
+    },
+    "Add Category" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Kategorie"
+          }
+        }
+      }
+    },
+    "Add Expense" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Ausgabe"
+          }
+        }
+      }
+    },
+    "Add expenses to see them grouped by category." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge Ausgaben hinzu, um sie gruppiert zu sehen."
+          }
+        }
+      }
+    },
+    "Add some expenses in the Timeline to see your statistics." : {
+
+    },
+    "Are you sure? This action cannot be undone." : {
+
+    },
+    "Average" : {
+
+    },
+    "By Category" : {
+
+    },
+    "By Month" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Category" : {
+
+    },
+    "Category Name" : {
+
+    },
+    "Change display period" : {
+
+    },
+    "Close" : {
+
+    },
+    "Cost" : {
+
+    },
+    "Currency" : {
+
+    },
+    "Cycles through yearly, monthly, weekly, daily" : {
+
+    },
+    "Default" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete Category?" : {
+
+    },
+    "Delete Expense?" : {
+
+    },
+    "Edit" : {
+
+    },
+    "Edit Category" : {
+
+    },
+    "Every" : {
+
+    },
+    "Filter By" : {
+
+    },
+    "Frequency Value" : {
+
+    },
+    "General" : {
+
+    },
+    "Group By" : {
+
+    },
+    "Icon" : {
+
+    },
+    "List" : {
+
+    },
+    "Make Default" : {
+
+    },
+    "Manage Categories" : {
+
+    },
+    "Mark as Paid" : {
+
+    },
+    "Month" : {
+
+    },
+    "More" : {
+
+    },
+    "New Category" : {
+
+    },
+    "No Data to Analyze" : {
+
+    },
+    "No Expenses" : {
+
+    },
+    "No Expenses Found" : {
+
+    },
+    "No notes provided." : {
+
+    },
+    "Notes" : {
+
+    },
+    "Options" : {
+
+    },
+    "Overall Expenses" : {
+
+    },
+    "Paid" : {
+
+    },
+    "Remove" : {
+
+    },
+    "Save" : {
+
+    },
+    "Search" : {
+
+    },
+    "Search by title or notes" : {
+
+    },
+    "Search for Expenses" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Sort By" : {
+
+    },
+    "Statistics" : {
+
+    },
+    "Tap the + button to add your first expense." : {
+
+    },
+    "Timeline" : {
+
+    },
+    "Title" : {
+
+    },
+    "Unit" : {
+
+    },
+    "View Mode" : {
+
+    },
+    "Will be Default" : {
+
+    }
+  },
+  "version" : "1.1"
+}

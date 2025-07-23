@@ -20,7 +20,7 @@ struct CategoryDetailView: View {
     @State private var showingDeleteAlert = false
     
     // A list of sample icons for the user to choose from.
-    let sampleIcons = [
+    private let sampleIcons = [
         "cart", "house", "car", "popcorn", "shield",
         "dumbbell", "bolt", "tag", "airplane", "gift",
         "pills", "fork.knife", "graduationcap", "suitcase", "gamecontroller",
@@ -28,7 +28,6 @@ struct CategoryDetailView: View {
         "tshirt", "dog", "cat", "beach.umbrella", "laptopcomputer"
     ]
     
-    // Define the grid layout for the icons.
     private let iconGridColumns: [GridItem] = [
         .init(.adaptive(minimum: 50))
     ]
@@ -45,6 +44,8 @@ struct CategoryDetailView: View {
             self._draft = State(initialValue: d)
         }
     }
+    
+    // MARK: - Body
 
     var body: some View {
         NavigationStack {

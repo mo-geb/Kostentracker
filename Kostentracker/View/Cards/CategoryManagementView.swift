@@ -69,7 +69,7 @@ struct CategoryManagementView: View {
     @ViewBuilder
     private var addButton: some View {
         Button {
-            let draft = CategoryDraft(from: ExpenseCategory.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1))
+            let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
             activeSheet = .new(draft)
         } label: {
             Label("Add Category", systemImage: "plus")
