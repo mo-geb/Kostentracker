@@ -12,7 +12,7 @@ enum FrequencyUnit: String, Codable, CaseIterable {
     case day, week, month, year
 }
 
-enum SortOption: String, CaseIterable, Identifiable {
+enum SortOption: LocalizedStringResource, CaseIterable, Identifiable {
     case amountDescending = "Amount (High to Low)"
     case amountAscending = "Amount (Low to High)"
     case title = "Title (A-Z)"
@@ -20,7 +20,7 @@ enum SortOption: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-enum CostPeriod: String, CaseIterable, Identifiable {
+enum CostPeriod: LocalizedStringResource, CaseIterable, Identifiable {
     case yearly = "Yearly"
     case monthly = "Monthly"
     case weekly = "Weekly"
@@ -29,7 +29,7 @@ enum CostPeriod: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-enum FilterOption: String, CaseIterable, Identifiable {
+enum FilterOption: LocalizedStringResource, CaseIterable, Identifiable {
     case all = "All Expenses"
     case nonZero = "Non-Zero Cost"
     case upcoming = "Upcoming (Next 30 Days)"
@@ -37,7 +37,7 @@ enum FilterOption: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-enum GroupByOption: String, CaseIterable, Identifiable {
+enum GroupByOption: LocalizedStringResource, CaseIterable, Identifiable {
     case none = "None"
     case categories = "Categories"
     case frequencyUnit = "Frequency"
@@ -45,7 +45,7 @@ enum GroupByOption: String, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
-enum ViewMode: String, CaseIterable, Identifiable {
+enum ViewMode: LocalizedStringResource, CaseIterable, Identifiable {
     case normal = "Normal"
     case compact = "Compact"
     

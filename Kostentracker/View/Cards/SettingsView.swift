@@ -37,12 +37,12 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var generalSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("General")
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
             
-            row(title: "Display Currency", icon: "eurosign", iconColor: .orange) {
+            row(title: String(localized: "Display Currency"), icon: "eurosign", iconColor: .orange) {
                 Picker("Currency", selection: $currencyCode) {
                     ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
                         Text(currencyDisplayName(for: code)).tag(code)
@@ -54,7 +54,21 @@ struct SettingsView: View {
             NavigationLink {
                 CategoryManagementView()
             } label: {
-                row(title: "Manage Categories", icon: "paintbrush", iconColor: .purple) {
+                row(title: String(localized: "Manage Categories"), icon: "paintbrush", iconColor: .purple) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            
+            NavigationLink {
+                NotificationManagementView()
+            } label: {
+                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .red) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -69,7 +83,7 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var moreSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             Text("More")
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
@@ -81,7 +95,26 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: "App Website", icon: "globe", iconColor: .green) {
+                row(title: String(localized: "App Website"), icon: "globe", iconColor: .green) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            
+            Button {
+                let email = "support@mo-geb.com"
+                let subject = "App Feedback - Cost Tracker".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                let body = "Hi there,...".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+                if let url = URL(string: "mailto:\(email)?subject=\(subject)&body=\(body)") {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                row(title: String(localized: "Contact Support"), icon: "wrench.and.screwdriver", iconColor: .blue) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")

@@ -164,7 +164,7 @@ struct ExpenseDetailView: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
-            row(title: "Amount") {
+            row(title: String(localized: "Amount")) {
                 if isEditing {
                     TextField("0.00", value: $draft.amount, format: .number)
                         .keyboardType(.decimalPad)
@@ -194,7 +194,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: "Frequency") {
+            row(title: String(localized: "Frequency")) {
                 if isEditing {
                     HStack {
                         Text("Every")
@@ -228,7 +228,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: "Date") {
+            row(title: String(localized: "Date")) {
                 if isEditing {
                     DatePicker("", selection: $draft.date, displayedComponents: [.date])
                         .labelsHidden()
@@ -239,7 +239,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: "Category") {
+            row(title: String(localized: "Category")) {
                 if isEditing {
                     Picker("Category", selection: $draft.category) {
                         ForEach(categories, id: \.self) { category in

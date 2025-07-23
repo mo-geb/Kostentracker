@@ -22,13 +22,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Ausgabe"
+                  "value" : "%lld Ausgabe"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Ausgaben"
+                  "value" : "%lld Ausgaben"
                 }
               }
             }
@@ -105,6 +105,56 @@
         }
       }
     },
+    "All Expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Ausgaben"
+          }
+        }
+      }
+    },
+    "Amount" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag"
+          }
+        }
+      }
+    },
+    "Amount (High to Low)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag (Absteigend)"
+          }
+        }
+      }
+    },
+    "Amount (Low to High)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag (Aufsteigend)"
+          }
+        }
+      }
+    },
+    "App Website" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Website"
+          }
+        }
+      }
+    },
     "Are you sure? This action cannot be undone." : {
       "localizations" : {
         "de" : {
@@ -121,6 +171,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Durchschnitt"
+          }
+        }
+      }
+    },
+    "But this is where you will be able to manage your notifications soon! 👁️👄👁️" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aber hier kann man bald seine Push-Nachrichten einstellen 👁️👄👁️"
           }
         }
       }
@@ -151,6 +211,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Schließen"
+          }
+        }
+      }
+    },
+    "Categories" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorien"
           }
         }
       }
@@ -195,6 +265,36 @@
         }
       }
     },
+    "Color" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbe"
+          }
+        }
+      }
+    },
+    "Compact" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kompakt"
+          }
+        }
+      }
+    },
+    "Contact Support" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support kontaktieren"
+          }
+        }
+      }
+    },
     "Cost" : {
       "localizations" : {
         "de" : {
@@ -221,6 +321,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wechselt zwischen jährlich, monatlich, wöchentlich und täglich"
+          }
+        }
+      }
+    },
+    "Daily" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Täglich"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
           }
         }
       }
@@ -265,6 +385,16 @@
         }
       }
     },
+    "Display Currency" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Währung"
+          }
+        }
+      }
+    },
     "Edit" : {
       "localizations" : {
         "de" : {
@@ -300,7 +430,17 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Filtern nach"
+            "value" : "Filter"
+          }
+        }
+      }
+    },
+    "Frequency" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufigkeit"
           }
         }
       }
@@ -375,6 +515,16 @@
         }
       }
     },
+    "Manage Notifications" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Push-Nachrichten"
+          }
+        }
+      }
+    },
     "Mark as Paid" : {
       "localizations" : {
         "de" : {
@@ -395,12 +545,32 @@
         }
       }
     },
+    "Monthly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monatlich"
+          }
+        }
+      }
+    },
     "More" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mehr"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
           }
         }
       }
@@ -455,12 +625,52 @@
         }
       }
     },
+    "Non-Zero Cost" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht-Null Kosten"
+          }
+        }
+      }
+    },
+    "None" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine"
+          }
+        }
+      }
+    },
+    "Normal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal"
+          }
+        }
+      }
+    },
     "Notes" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notizen"
+          }
+        }
+      }
+    },
+    "Nothing to see here" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier gibt’s nichts zu sehen"
           }
         }
       }
@@ -560,7 +770,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sortieren nach"
+            "value" : "Sortierung"
           }
         }
       }
@@ -590,7 +800,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zeitstrahl"
+            "value" : "Timeline"
           }
         }
       }
@@ -605,12 +815,32 @@
         }
       }
     },
+    "Title (A-Z)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name (A-Z)"
+          }
+        }
+      }
+    },
     "Unit" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Einheit"
+          }
+        }
+      }
+    },
+    "Upcoming (Next 30 Days)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anstehend (nächste 30 Tage)"
           }
         }
       }
@@ -625,12 +855,32 @@
         }
       }
     },
+    "Weekly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wöchentlich"
+          }
+        }
+      }
+    },
     "Will be Default" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wird Standard"
+          }
+        }
+      }
+    },
+    "Yearly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jährlich"
           }
         }
       }

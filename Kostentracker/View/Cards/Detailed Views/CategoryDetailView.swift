@@ -81,7 +81,7 @@ struct CategoryDetailView: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(spacing: 15) {
-            row(title: "Name") {
+            row(title: String(localized: "Name")) {
                 TextField("Category Name", text: $draft.name)
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
@@ -96,7 +96,7 @@ struct CategoryDetailView: View {
                     .focused($focusedField, equals: .categoryDetailTitle)
             }
             
-            row(title: "Color") {
+            row(title: String(localized: "Color")) {
                 ColorPicker("", selection: Binding(
                     get: { Color(hex: draft.hexColor) },
                     set: { draft.hexColor = $0.toHex() ?? "000000" }
