@@ -37,7 +37,6 @@ final class AppSetupCoordinator {
                 let count = try context.fetchCount(fetchDescriptor)
                 if count == 0 {
                     print("No categories found after delay. Creating default set...")
-                    // Your logic to insert default categories
                     let defaultCategory = ExpenseCategory.createDefault()
                     context.insert(defaultCategory)
                     print("Default categories created successfully.")
@@ -48,7 +47,6 @@ final class AppSetupCoordinator {
                 print("Failed to fetch category count: \(error)")
             }
             
-            // 3. Set the flag so this entire process never runs again.
             defaults.set(true, forKey: "isInitialSetupComplete")
         }
     }

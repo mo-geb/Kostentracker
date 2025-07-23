@@ -93,7 +93,7 @@ struct CategoryDetailView: View {
                             draft.name = String(newValue.prefix(20))
                         }
                     }
-                    .focused($focusedField, equals: .expenseDetailAmount)
+                    .focused($focusedField, equals: .categoryDetailTitle)
             }
             
             row(title: "Color") {

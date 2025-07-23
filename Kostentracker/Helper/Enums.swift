@@ -53,10 +53,7 @@ enum ViewMode: String, CaseIterable, Identifiable {
 }
 
 enum FocusedField: Hashable {
-    case expenseDetailTitle
-    case expenseDetailAmount
-    case expenseDetailNotes
-    case categoryDetailTitle
+    case expenseDetailTitle, expenseDetailAmount, expenseDetailNotes, categoryDetailTitle
 }
 
 enum ActiveExpenseSheet: Identifiable, Equatable {

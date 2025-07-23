@@ -14,7 +14,7 @@ class Expense: Identifiable {
     var frequencyUnit: FrequencyUnit = FrequencyUnit.month
     var frequencyValue: Int16 = 1
     var date: Date = Date()
-    var category: ExpenseCategory? = ExpenseCategory.createDefault()
+    var category: ExpenseCategory?
     var notes: String = ""
     @Attribute(.externalStorage) var customImageData: Data?
     
