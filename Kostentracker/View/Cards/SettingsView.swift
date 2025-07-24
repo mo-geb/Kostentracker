@@ -143,7 +143,7 @@ struct SettingsView: View {
                 Text(title)
                     .font(.headline)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                    .layoutPriority(1)
                 Spacer()
                 content()
             }

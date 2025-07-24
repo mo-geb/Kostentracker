@@ -129,6 +129,7 @@ struct CategoryManagementView: View {
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
+                        .layoutPriority(1)
                         .minimumScaleFactor(0.8)
                     if category.isDefault {
                         Text("Default")

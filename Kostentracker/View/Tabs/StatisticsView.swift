@@ -69,9 +69,9 @@ struct StatisticsView: View {
                 .foregroundStyle(.secondary)
             
             HStack {
-                costCard(title: "Yearly", amount: totalCosts.yearly)
-                costCard(title: "Monthly", amount: totalCosts.monthly)
-                costCard(title: "Weekly", amount: totalCosts.weekly)
+                costCard(title: String(localized: "Yearly"), amount: totalCosts.yearly)
+                costCard(title: String(localized: "Monthly"), amount: totalCosts.monthly)
+                costCard(title: String(localized: "Weekly"), amount: totalCosts.weekly)
             }
         }
     }
@@ -185,9 +185,10 @@ struct StatisticsView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Text(amount, format: .currency(code: currencyCode))
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
         }
