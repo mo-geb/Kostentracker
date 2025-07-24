@@ -62,11 +62,11 @@ struct ListView: View {
     private var navigationTitle: String {
         switch selectedGroupBy {
         case .none:
-            return "All Expenses"
+            return String(localized: "All Expenses")
         case .categories:
-            return "Categories"
+            return String(localized: "Categories")
         case .frequencyUnit:
-            return "Frequency Units"
+            return String(localized: "Frequency Units")
         }
     }
     
@@ -153,7 +153,7 @@ struct ListView: View {
         case .frequencyUnit:
             subtitle = expense.categoryName
         case .categories, .none:
-            subtitle = FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit)
+            subtitle = String(localized: "Every \(expense.frequencyValue) \(expense.frequencyUnit.displayName(for: expense.frequencyValue))")
         }
         
         @ViewBuilder
@@ -266,7 +266,7 @@ struct ListView: View {
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
             let sortedExpenses = sortExpenses(expenses: expenses)
-            let title = selectedGroupBy == .none ? "All Expenses" : key
+            let title = selectedGroupBy == .none ? String(localized: "All Expenses") : key
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
         }
         

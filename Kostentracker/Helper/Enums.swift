@@ -105,16 +105,16 @@ enum ActiveCategorySheet: Identifiable, Equatable {
 extension FrequencyUnit {
     /// Returns the properly capitalized and pluralized form of the frequency unit.
     func displayName(for value: Int16) -> String {
-        let base = rawValue.capitalized
-        return value == 1 ? base : base + "s"
-    }
-    
-    /// Returns the complete frequency string (e.g., "Every Month" or "Every 2 Months").
-    static func formatFrequency(value: Int16, unit: FrequencyUnit) -> String {
-        if value == 1 {
-            return "Every \(unit.rawValue)"
-        } else {
-            return "Every \(value) \(unit.rawValue)s"
+        let singular = value == 1
+        switch self {
+        case .day:
+            return singular ? String(localized: "Day") : String(localized: "Days")
+        case .week:
+            return singular ? String(localized: "Week") : String(localized: "Weeks")
+        case .month:
+            return singular ? String(localized: "Month") : String(localized: "Months")
+        case .year:
+            return singular ? String(localized: "Year") : String(localized: "Years")
         }
     }
     

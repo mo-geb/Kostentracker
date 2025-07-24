@@ -223,7 +223,7 @@ struct ExpenseDetailView: View {
                     }
                 } else {
                     if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                        Text(FrequencyUnit.formatFrequency(value: freqValue, unit: freqUnit))
+                        Text("Every \(freqValue) \(freqUnit.displayName(for: freqValue))")
                     }
                 }
             }

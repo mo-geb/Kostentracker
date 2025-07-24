@@ -50,7 +50,7 @@ extension ExpenseCategory {
     }
     
     static func createDefault() -> ExpenseCategory {
-        return ExpenseCategory(from: CategoryDraft(name: "Other", iconName: "tag", color: .gray, isDefault: true))
+        return ExpenseCategory(from: CategoryDraft(name: String(localized: "Other"), iconName: "tag", color: .gray, isDefault: true))
     }
     
     /// Safely deletes a category by reassigning its expenses to the default category.

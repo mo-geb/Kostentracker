@@ -105,7 +105,7 @@ struct SearchView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
-                Text(FrequencyUnit.formatFrequency(value: expense.frequencyValue, unit: expense.frequencyUnit))
+                Text("Every \(expense.frequencyValue) \(expense.frequencyUnit.displayName(for: expense.frequencyValue))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
