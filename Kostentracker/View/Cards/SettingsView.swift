@@ -131,14 +131,17 @@ struct SettingsView: View {
     
     /// A generic row builder to reduce duplication, matching the style of other views.
     @ViewBuilder
-    private func row<Content: View>(title: String, icon: String? = nil, iconColor: Color? = nil, @ViewBuilder content: () -> Content) -> some View {
+    private func row<Content: View>(title: String, icon: String, iconColor: Color, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                if let icon = icon, let iconColor = iconColor {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(iconColor.opacity(0.3))
+                        .frame(width: 28, height: 28)
+
                     Image(systemName: icon)
-                        .font(.title3)
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundStyle(iconColor)
-                        .frame(width: 24)
                 }
                 Text(title)
                     .font(.headline)

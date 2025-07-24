@@ -164,7 +164,7 @@ struct ExpenseDetailView: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
-            row(title: String(localized: "Amount")) {
+            row(title: String(localized: "Amount"), icon: "number") {
                 if isEditing {
                     TextField("0.00", value: $draft.amount, format: .number)
                         .keyboardType(.decimalPad)
@@ -194,7 +194,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: String(localized: "Frequency")) {
+            row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
                 if isEditing {
                     HStack {
                         Text("Every")
@@ -228,7 +228,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: String(localized: "Date")) {
+            row(title: String(localized: "Date"), icon: "calendar") {
                 if isEditing {
                     DatePicker("", selection: $draft.date, displayedComponents: [.date])
                         .labelsHidden()
@@ -239,7 +239,7 @@ struct ExpenseDetailView: View {
                 }
             }
             
-            row(title: String(localized: "Category")) {
+            row(title: String(localized: "Category"), icon: "archivebox") {
                 if isEditing {
                     Picker("Category", selection: $draft.category) {
                         ForEach(categories, id: \.self) { category in
@@ -376,15 +376,14 @@ struct ExpenseDetailView: View {
         ToolbarItem(placement: .cancellationAction) {
             if isEditing {
                 Button {
-                    if draft.title.isEmpty && draft.amount == 0 {
+                    do {
                         switch initialState {
-                        case .edit(let expense), .view(let expense):
-                            context.delete(expense)
+                        case .edit(_), .view(_): break
                         case .new:
+                            dismiss()
                             break
                         }
                     }
-                    dismiss()
                     isEditing = false
                 } label: {
                     Label("Cancel", systemImage: "xmark")
@@ -436,8 +435,14 @@ struct ExpenseDetailView: View {
     
     // A generic row builder to reduce duplication of HStack, Spacer, etc.
     @ViewBuilder
-    private func row<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+            }
             Text(title)
             Spacer()
             content()
@@ -445,6 +450,6 @@ struct ExpenseDetailView: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(25)
+        .cornerRadius(16)
     }
 }

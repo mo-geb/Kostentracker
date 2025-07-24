@@ -81,7 +81,7 @@ struct CategoryDetailView: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(spacing: 15) {
-            row(title: String(localized: "Name")) {
+            row(title: String(localized: "Name"), icon: "character.textbox") {
                 TextField("Category Name", text: $draft.name)
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
@@ -96,7 +96,7 @@ struct CategoryDetailView: View {
                     .focused($focusedField, equals: .categoryDetailTitle)
             }
             
-            row(title: String(localized: "Color")) {
+            row(title: String(localized: "Color"), icon: "paintpalette") {
                 ColorPicker("", selection: Binding(
                     get: { Color(hex: draft.hexColor) },
                     set: { draft.hexColor = $0.toHex() ?? "000000" }
@@ -262,8 +262,14 @@ struct CategoryDetailView: View {
     
     /// A generic row builder to reduce duplication, matching the style of ExpenseDetailView.
     @ViewBuilder
-    private func row<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+            }
             Text(title)
                 .font(.callout)
             Spacer()

@@ -2,8 +2,6 @@
 //  ExpenseUtils.swift
 //  Kostentracker
 //
-//  Created by Moritz Gebhardt on 08.07.25.
-//
 
 import Foundation
 
