@@ -407,7 +407,6 @@ struct ExpenseDetailView: View {
                         case .new:
                             let newExpense = Expense(from: draft)
                             context.insert(newExpense)
-                            try context.save()
                             self.expense = newExpense
                             self.isEditing = false
                         }
