@@ -175,16 +175,6 @@
         }
       }
     },
-    "But this is where you will be able to manage your notifications soon! 👁️👄👁️" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aber hier kann man bald seine Push-Nachrichten einstellen 👁️👄👁️"
-          }
-        }
-      }
-    },
     "By Category" : {
       "localizations" : {
         "de" : {
@@ -431,6 +421,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kategorie bearbeiten"
+          }
+        }
+      }
+    },
+    "Enable Notifications" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benachrichtigungen aktivieren"
+          }
+        }
+      }
+    },
+    "Enable notifications to receive reminders about upcoming expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviere Benachrichtigungen, um über anstehende Ausgaben benachrichtigt zu werden"
           }
         }
       }
@@ -745,12 +755,22 @@
         }
       }
     },
-    "Nothing to see here" : {
+    "Notification Settings" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hier gibt’s nichts zu sehen"
+            "value" : "Mitteilungseinstellungen"
+          }
+        }
+      }
+    },
+    "One week before due" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Woche vorher"
           }
         }
       }
@@ -791,6 +811,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bezahlt"
+          }
+        }
+      }
+    },
+    "Reminder Schedule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erinnerungstermine"
           }
         }
       }
@@ -845,6 +875,16 @@
         }
       }
     },
+    "Select when you want to be notified about upcoming expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestimme, wann du über anstehende Ausgaben benachrichtigt werden möchtest"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "de" : {
@@ -881,6 +921,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Drücke +, um deine erste Ausgabe hinzuzufügen"
+          }
+        }
+      }
+    },
+    "The day before due" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einen Tag vorher"
+          }
+        }
+      }
+    },
+    "Three days before due" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drei Tage vorher"
           }
         }
       }
@@ -971,6 +1031,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wochen"
+          }
+        }
+      }
+    },
+    "When due" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn fällig"
+          }
+        }
+      }
+    },
+    "When overdue" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn überfällig"
           }
         }
       }

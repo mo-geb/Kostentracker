@@ -18,7 +18,6 @@ struct StatisticsView: View {
     
     // State
     @State private var showingSettings = false
-    @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
     
     // User Settings
     @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
@@ -62,6 +61,7 @@ struct StatisticsView: View {
     }
     
     /// A section displaying the total yearly, monthly, and weekly costs.
+    @ViewBuilder
     private var totalCostsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Overall Expenses")
@@ -77,109 +77,111 @@ struct StatisticsView: View {
     }
     
     /// A section displaying a donut chart of expenses by category.
+    @ViewBuilder
     private var categoryChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("By Category")
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
 
-            Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
-                BarMark(
-                    x: .value("Cost", item.totalCost),
-                    y: .value("Category", item.category.categoryName)
-                )
-                .foregroundStyle(item.category.categoryColor)
-                .cornerRadius(20)
-            }
-            .frame(height: CGFloat(categoryCosts.count * 50 + 20))
-            .chartLegend(.hidden)
-            .chartYAxis {
-                AxisMarks(position: .leading) {
-                    AxisValueLabel()
-                        .font(.subheadline.bold())
-                }
-            }
+            categoryChart
         }
     }
     
     /// A section displaying monthly expenses for the selected year.
+    @ViewBuilder
     private var monthlyChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("By Month")
                     .font(.title2.bold())
                     .foregroundStyle(.secondary)
-                
                 Spacer()
-                
-                HStack(spacing: 20) {
-                    Button {
-                        withAnimation {
-                            selectedYear -= 1
-                        }
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Text(String(selectedYear))
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                    
-                    Button {
-                        withAnimation {
-                            selectedYear += 1
-                        }
-                    } label: {
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                Text(String(Calendar.current.component(.year, from: Date())))
+                    .font(.title2.bold())
+                    .foregroundStyle(.secondary)
             }
             
-            Chart(monthlyCosts) { item in
-                BarMark(
-                    x: .value("Month", item.month),
-                    y: .value("Cost", item.totalCost)
-                )
-                .foregroundStyle(.blue)
-                .cornerRadius(8)
-                
-                RuleMark(
-                    y: .value("Average", totalCosts.monthly)
-                )
-                .foregroundStyle(.gray.opacity(0.6))
-                .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+            monthlyChart
+        }
+    }
+    
+    // MARK: - Charts
+    /// A section displaying a donut chart of expenses by category.
+    @ViewBuilder
+    private var categoryChart: some View {
+        Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
+            BarMark(
+                x: .value("Cost", item.totalCost),
+                y: .value("Category", item.category.categoryName)
+            )
+            .foregroundStyle(item.category.categoryColor)
+            .cornerRadius(20)
+        }
+        .frame(height: CGFloat(categoryCosts.count * 50 + 20))
+        .chartLegend(.hidden)
+        .chartYAxis {
+            AxisMarks(position: .leading) {
+                AxisValueLabel()
+                    .font(.subheadline.bold())
             }
-            .frame(height: 200)
-            .chartXScale(domain: 1...12)
-            .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 12)) { value in
-                    AxisValueLabel {
-                        if let month = value.as(Int.self) {
-                            Text(monthAbbreviation(for: month))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+        }
+    }
+    
+    private var monthlyChart: some View {
+        Chart(monthlyCostsWithCategories) { item in
+            BarMark(
+                x: .value("Month", item.month),
+                y: .value("Cost", item.amount)
+            )
+            .foregroundStyle(item.category.color)
+            .position(by: .value("Category", item.category.name))
+            RuleMark(
+                y: .value("Average", totalCosts.monthly)
+            )
+            .foregroundStyle(.gray.opacity(0.6))
+            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+        }
+        .frame(height: 200)
+        .chartXScale(domain: 1...12)
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 12)) { value in
+                AxisValueLabel {
+                    if let month = value.as(Int.self) {
+                        Text(monthAbbreviation(for: month))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
-            .chartYAxis {
-                AxisMarks { value in
-                    AxisValueLabel {
-                        if let cost = value.as(Double.self) {
-                            Text(cost, format: .currency(code: currencyCode))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+        }
+        .chartYAxis {
+            AxisMarks { value in
+                AxisValueLabel {
+                    if let cost = value.as(Double.self) {
+                        Text(cost, format: .currency(code: currencyCode))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
         }
     }
     
+    // MARK: - Toolbar
+        
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                showingSettings = true
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+            }
+        }
+    }
+    
+    // MARK: - Total Helpers
     /// A reusable view for displaying a single cost metric (e.g., "Yearly").
     private func costCard(title: String, amount: Double) -> some View {
         VStack(alignment: .leading) {
@@ -198,29 +200,16 @@ struct StatisticsView: View {
         .cornerRadius(10)
     }
     
-    // MARK: - Toolbar
-        
-        @ToolbarContentBuilder
-        private var toolbarContent: some ToolbarContent {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showingSettings = true
-                } label: {
-                    Label("Settings", systemImage: "gearshape")
-                }
-            }
-        }
-    
-    // MARK: - Computed Properties
-    
     /// A helper struct to hold the calculated total costs.
     private typealias TotalCosts = (yearly: Double, monthly: Double, weekly: Double)
     
     /// Calculates the total yearly, monthly, and weekly cost of all expenses.
     private var totalCosts: TotalCosts {
-        let yearlyTotal = expenses.reduce(0) { $0 + calculateYearlyCost(for: $1) }
+        let yearlyTotal = expenses.reduce(0) { $0 + $1.yearlyCost }
         return (yearlyTotal, yearlyTotal / 12, yearlyTotal / 52)
     }
+    
+    // MARK: - Category Helpers
     
     /// A helper struct to make category cost data identifiable for the Chart.
     private struct CategoryCost: Identifiable {
@@ -235,37 +224,55 @@ struct StatisticsView: View {
         let groupedByCategory = Dictionary(grouping: expenses, by: { $0.category })
         return groupedByCategory.compactMap { (category, expenses) in
             guard let firstExpense = expenses.first else { return nil }
-            let totalCostForCategory = expenses.reduce(0) { $0 + calculateYearlyCost(for: $1) }
+            let totalCostForCategory = expenses.reduce(0) { $0 + $1.yearlyCost }
             return CategoryCost(id: category ?? ExpenseCategory.createDefault(), category: firstExpense, totalCost: totalCostForCategory)
         }
         .sorted { $0.totalCost > $1.totalCost }
     }
     
-    /// A helper struct to make monthly cost data identifiable for the Chart.
-    private struct MonthlyCost: Identifiable {
-        let id: Int
-        var month: Int
-        var totalCost: Double
+    // MARK: - Months Helpers
+    private struct MonthlyCategoryExpense: Identifiable {
+        let id = UUID()
+        let month: Int
+        let category: ExpenseCategory
+        let amount: Double
     }
-    
-    /// Calculates the total cost for each month of the selected year.
-    /// This includes all expenses that will be due in each month.
-    private var monthlyCosts: [MonthlyCost] {
-        var monthlyTotals = Array(repeating: 0.0, count: 12)
+
+    private var monthlyCostsWithCategories: [MonthlyCategoryExpense] {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        var monthCategoryAmounts: [Int: [ExpenseCategory: Double]] = [:]
         
+        // Initialize the dictionary for all months
+        for month in 1...12 {
+            monthCategoryAmounts[month] = [:]
+        }
+        
+        // Group expenses by month and category
         for expense in expenses {
-            // Get all months this expense occurs in for the selected year
-            let monthsForThisExpense = getMonthsForExpense(expense, in: selectedYear)
+            guard let category = expense.category else { continue }
+            let months = getMonthsForExpense(expense, in: currentYear)
             
-            // Add the expense amount to each month it occurs in
-            for month in monthsForThisExpense {
-                monthlyTotals[month - 1] += expense.amount
+            for month in months {
+                let monthlyAmount = expense.yearlyCost / Double(months.count)
+                monthCategoryAmounts[month]?[category, default: 0] += monthlyAmount
             }
         }
         
-        return monthlyTotals.enumerated().map { index, cost in
-            MonthlyCost(id: index + 1, month: index + 1, totalCost: cost)
+        // Convert the dictionary to array of MonthlyCategoryExpense
+        var result: [MonthlyCategoryExpense] = []
+        for (month, categoryAmounts) in monthCategoryAmounts {
+            // Sort categories by amount (descending) before adding to result
+            let sortedCategories = categoryAmounts.sorted { $0.value > $1.value }
+            for (category, amount) in sortedCategories {
+                result.append(MonthlyCategoryExpense(
+                    month: month,
+                    category: category,
+                    amount: amount
+                ))
+            }
         }
+        
+        return result
     }
     
     /// Determines which months a given expense occurs in for the specified year.
@@ -292,11 +299,23 @@ struct StatisticsView: View {
                 months.append(month)
             }
             
-            // Advance to next occurrence
             checkDate = advanceDate(checkDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
         }
         
         return months.sorted()
+    }
+    
+    /// Returns the abbreviated month name for the given month number.
+    private func monthAbbreviation(for month: Int) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        
+        let calendar = Calendar.current
+        let dateComponents = DateComponents(year: Calendar.current.component(.year, from: Date()), month: month, day: 1)
+        if let date = calendar.date(from: dateComponents) {
+            return String(formatter.string(from: date).prefix(1))
+        }
+        return "?"
     }
     
     /// Advances a date by the specified frequency value and unit.
@@ -313,38 +332,5 @@ struct StatisticsView: View {
         }
         
         return calendar.date(byAdding: dateComponent, value: Int(value), to: date) ?? date
-    }
-    
-    // MARK: - Methods
-    
-    /// Calculates the equivalent yearly cost for a single expense.
-    /// This is the key to comparing expenses with different frequencies.
-    private func calculateYearlyCost(for expense: Expense) -> Double {
-        let frequencyValue = Double(expense.frequencyValue)
-        guard frequencyValue > 0 else { return 0 }
-        
-        switch expense.frequencyUnit {
-        case .day:
-            return expense.amount * (365.0 / frequencyValue)
-        case .week:
-            return expense.amount * (52.0 / frequencyValue)
-        case .month:
-            return expense.amount * (12.0 / frequencyValue)
-        case .year:
-            return expense.amount / frequencyValue
-        }
-    }
-    
-    /// Returns the abbreviated month name for the given month number.
-    private func monthAbbreviation(for month: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM"
-        
-        let calendar = Calendar.current
-        let dateComponents = DateComponents(year: 2024, month: month, day: 1)
-        if let date = calendar.date(from: dateComponents) {
-            return String(formatter.string(from: date).prefix(1))
-        }
-        return "?"
     }
 }
