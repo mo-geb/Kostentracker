@@ -20,7 +20,7 @@ struct StatisticsView: View {
     @State private var showingSettings = false
     
     // User Settings
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // MARK: - Body
     

@@ -765,6 +765,16 @@
         }
       }
     },
+    "Notifications Disabled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mitteilungen deaktiviert"
+          }
+        }
+      }
+    },
     "One week before due" : {
       "localizations" : {
         "de" : {
@@ -971,6 +981,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name (A-Z)"
+          }
+        }
+      }
+    },
+    "To enable notifications, please grant permission in Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um Mitteilungen zu aktivieren, erteile die Erlaubnis in den Einstellungen."
           }
         }
       }

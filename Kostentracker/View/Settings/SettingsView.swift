@@ -8,7 +8,7 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
 
     var body: some View {
         NavigationStack {
@@ -52,7 +52,7 @@ struct SettingsView: View {
             }
             
             NavigationLink {
-                CategoryManagementView()
+                CategoriesView()
             } label: {
                 row(title: String(localized: "Manage Categories"), icon: "paintbrush", iconColor: .purple) {
                     HStack {
@@ -66,7 +66,7 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             
             NavigationLink {
-                NotificationManagementView()
+                NotificationView()
             } label: {
                 row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .red) {
                     HStack {

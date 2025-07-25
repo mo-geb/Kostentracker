@@ -15,7 +15,7 @@ struct TimelineView: View {
     @Query private var categories: [ExpenseCategory]
     
     // User Settings
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // State
     @State private var activeSheet: ActiveExpenseSheet?
@@ -191,7 +191,7 @@ struct TimelineView: View {
     /// Groups expenses by month, calculates the total amount for each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
         // Apply filters to expenses (like in ListView)
-        let filteredExpenses = ExpenseUtils.applyFilters(expenses, filter: selectedFilter)
+        let filteredExpenses = Utils.applyFilters(expenses, filter: selectedFilter)
         // 1. Group expenses by the start of their month.
         let groupedByMonth = Dictionary(grouping: filteredExpenses) { expense in
             Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: expense.date))!

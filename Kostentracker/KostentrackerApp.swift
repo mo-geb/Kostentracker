@@ -15,7 +15,7 @@ struct KostentrackerApp: App {
             modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self)
             let context = modelContainer.mainContext
             
-            let setupCoordinator = AppSetupCoordinator(context: context)
+            let setupCoordinator = SetupCoordinator(context: context)
             setupCoordinator.run()
             
         } catch {
@@ -46,11 +46,11 @@ struct KostentrackerApp: App {
         
         UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         
-        PreviewSampleData.categories.forEach {
+        SampleData.categories.forEach {
             container.mainContext.insert($0)
         }
         
-        PreviewSampleData.expenses.forEach {
+        SampleData.expenses.forEach {
             container.mainContext.insert($0)
         }
         

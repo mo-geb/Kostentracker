@@ -43,7 +43,6 @@ struct SampleData {
             date: Date(),
             category: subscription,
             notes: "Premium plan with 4 screens.",
-            customImageData: UIImage(named: "netflix_icon")?.pngData()
         )
     )
     

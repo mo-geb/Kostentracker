@@ -16,7 +16,7 @@ struct ListView: View {
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     // User Settings
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
     
     // State
     @State private var activeSheet: ActiveExpenseSheet?

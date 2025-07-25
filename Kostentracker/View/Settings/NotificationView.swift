@@ -100,9 +100,6 @@ struct NotificationView: View {
                     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                         DispatchQueue.main.async {
                             isNotificationsEnabled = granted
-                            if !granted {
-                                showSettingsAlert = true
-                            }
                         }
                     }
                 default:

@@ -14,7 +14,7 @@ struct SearchView: View {
     @State private var searchText = ""
 
     @Query private var allExpenses: [Expense]
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
     
     /// The expense selected by the user to view its details.
     @State private var selectedExpense: Expense?

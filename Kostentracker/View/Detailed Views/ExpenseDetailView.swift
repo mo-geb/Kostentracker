@@ -24,7 +24,7 @@ struct ExpenseDetailView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     
     // User Settings
-    @AppStorage(AppSettings.currencyKey) private var currencyCode: String = "EUR"
+    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
 
     // Focus management
     @FocusState private var focusedField: FocusedField?
