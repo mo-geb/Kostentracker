@@ -7,7 +7,7 @@ import SwiftUI
 import SwiftData
 
 /// A central place to provide sample data for Xcode Previews across the app.
-struct PreviewSampleData {
+struct SampleData {
     
     static var categories: [ExpenseCategory] = [
         subscription,

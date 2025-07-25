@@ -7,7 +7,7 @@ import Foundation
 import SwiftData
 
 @MainActor
-final class AppSetupCoordinator {
+final class SetupCoordinator {
     
     private let context: ModelContext
     

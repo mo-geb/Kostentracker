@@ -5,16 +5,30 @@
 
 import SwiftUI
 import UserNotifications
+import UIKit
 
-struct NotificationManagementView: View {
+struct NotificationView: View {
     @State private var isNotificationsEnabled = false
     @State private var selectedNotificationDays: Set<NotificationDay> = []
+    @State private var showSettingsAlert = false
     
     var body: some View {
         NavigationStack {
             mainContent
                 .navigationTitle("Manage Notifications")
                 .navigationBarTitleDisplayMode(.inline)
+                .alert("Notifications Disabled", isPresented: $showSettingsAlert) {
+                    Button("Cancel", role: .cancel) {
+                        isNotificationsEnabled = false
+                    }
+                    Button("Settings") {
+                        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(settingsUrl)
+                        }
+                    }
+                } message: {
+                    Text("To enable notifications, please grant permission in Settings.")
+                }
         }
     }
     
@@ -74,10 +88,25 @@ struct NotificationManagementView: View {
     }
     
     private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
-                if !granted {
+                switch settings.authorizationStatus {
+                case .authorized:
+                    isNotificationsEnabled = true
+                case .denied:
                     isNotificationsEnabled = false
+                    showSettingsAlert = true
+                case .notDetermined:
+                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                        DispatchQueue.main.async {
+                            isNotificationsEnabled = granted
+                            if !granted {
+                                showSettingsAlert = true
+                            }
+                        }
+                    }
+                default:
+                    break
                 }
             }
         }

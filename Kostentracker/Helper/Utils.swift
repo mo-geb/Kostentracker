@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct ExpenseUtils {
+struct Utils {
     static func applyFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
         var filtered = expenses
         switch filter {

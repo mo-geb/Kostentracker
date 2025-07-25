@@ -6,7 +6,7 @@
 import SwiftUI
 import SwiftData
 
-struct CategoryManagementView: View {
+struct CategoriesView: View {
     
     // MARK: - Properties
     
