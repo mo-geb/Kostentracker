@@ -137,6 +137,21 @@ extension FrequencyUnit {
         }
     }
     
+    /// Returns the properly capitalized and pluralized form of the frequency unit.
+    func displayText(for value: Int16) -> String {
+        let singular = value == 1
+        switch self {
+        case .day:
+            return singular ? String(localized: "Every day") : String(localized: "Every \(value) days")
+        case .week:
+            return singular ? String(localized: "Every week") : String(localized: "Every \(value) weeks")
+        case .month:
+            return singular ? String(localized: "Every month") : String(localized: "Every \(value) months")
+        case .year:
+            return singular ? String(localized: "Every year") : String(localized: "Every \(value) years")
+        }
+    }
+    
     /// Returns the appropriate range of values for this frequency unit.
     var valueRange: ClosedRange<Int16> {
         switch self {

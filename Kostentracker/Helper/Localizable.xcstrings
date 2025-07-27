@@ -445,52 +445,82 @@
         }
       }
     },
-    "Every" : {
+    "Every %d days" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alle"
+            "value" : "Alle %d Tage"
           }
         }
       }
     },
-    "Every %d %@" : {
+    "Every %d months" : {
       "localizations" : {
         "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Alle %2$@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Alle %1$d %2$@"
-                }
-              }
-            }
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle %d Monate"
           }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Every %2$@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "Every %1$d %2$@"
-                }
-              }
-            }
+        }
+      }
+    },
+    "Every %d weeks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle %d Wochen"
+          }
+        }
+      }
+    },
+    "Every %d years" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle %d Jahre"
+          }
+        }
+      }
+    },
+    "Every day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeden Tag"
+          }
+        }
+      }
+    },
+    "Every month" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeden Monat"
+          }
+        }
+      }
+    },
+    "Every week" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Woche"
+          }
+        }
+      }
+    },
+    "Every year" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Jahr"
           }
         }
       }

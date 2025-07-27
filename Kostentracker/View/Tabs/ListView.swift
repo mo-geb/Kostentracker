@@ -153,7 +153,7 @@ struct ListView: View {
         case .frequencyUnit:
             subtitle = expense.categoryName
         case .categories, .none:
-            subtitle = String(localized: "Every \(expense.frequencyValue) \(expense.frequencyUnit.displayName(for: expense.frequencyValue))")
+            subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
         }
         
         @ViewBuilder

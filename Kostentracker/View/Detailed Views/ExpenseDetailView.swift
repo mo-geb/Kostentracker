@@ -197,8 +197,6 @@ struct ExpenseDetailView: View {
             row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
                 if isEditing {
                     HStack {
-                        Text("Every")
-                            .foregroundStyle(.secondary)
                         Picker("Frequency Value", selection: $draft.frequencyValue) {
                             ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
                                 Text("\(value)").tag(Int16(value))
@@ -223,7 +221,7 @@ struct ExpenseDetailView: View {
                     }
                 } else {
                     if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                        Text("Every \(freqValue) \(freqUnit.displayName(for: freqValue))")
+                        Text(freqUnit.displayText(for: freqValue))
                     }
                 }
             }

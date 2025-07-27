@@ -37,10 +37,10 @@ struct SampleData {
     
     static let netflixSample = Expense(from: ExpenseDraft(
             title: "Netflix Subscription",
-            amount: 15.99,
-            frequencyUnit: .month,
+            amount: 1,
+            frequencyUnit: .week,
             frequencyValue: 1,
-            date: Date(),
+            date: sampleDate2,
             category: subscription,
             notes: "Premium plan with 4 screens.",
         )
@@ -50,6 +50,14 @@ struct SampleData {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
         guard let someDate = formatter.date(from: "2025/10/08") else { return Date() }
+        
+        return someDate
+    }
+    
+    static var sampleDate2: Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd"
+        guard let someDate = formatter.date(from: "2025/08/01") else { return Date() }
         
         return someDate
     }

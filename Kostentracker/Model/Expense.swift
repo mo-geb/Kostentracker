@@ -56,6 +56,47 @@ extension Expense {
         }
     }
     
+    /// Calculates the total cost of this expense for a specific month
+    func totalForMonth(containing date: Date) -> Double {
+        let calendar = Calendar.current
+        
+        // Get the start and end of the month
+        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        let monthEnd = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: monthStart)!
+        
+        var currentDate = self.date
+        var monthTotal = 0.0
+        
+        // Keep advancing the date until we're past the month
+        while currentDate <= monthEnd {
+            if currentDate >= monthStart {
+                monthTotal += amount
+            }
+            
+            // Advance to next occurrence based on frequency
+            let dateComponent: Calendar.Component
+            switch frequencyUnit {
+            case .day: dateComponent = .day
+            case .week: dateComponent = .weekOfYear
+            case .month: dateComponent = .month
+            case .year: dateComponent = .year
+            }
+            
+            guard let nextDate = calendar.date(byAdding: dateComponent,
+                                             value: Int(frequencyValue),
+                                             to: currentDate) else { break }
+            currentDate = nextDate
+        }
+        
+        return monthTotal
+    }
+    
+    /// Returns true if this expense occurs multiple times in the given month
+    func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {
+        let total = totalForMonth(containing: date)
+        return total > amount
+    }
+    
     // Compact row: just icon and title/cost
     func createCompactRow(convertedAmount: Double, currencyCode: String) -> some View {
         HStack(spacing: 8) {
@@ -85,7 +126,7 @@ extension Expense {
     }
     
     // Normal row: icon, title, subtitle, cost
-    func createNormalRow(subtitle: String, convertedAmount: Double, currencyCode: String) -> some View {
+    func createNormalRow(subtitle: String, convertedAmount: Double, currencyCode: String, displayTotal: Bool = false) -> some View {
         let isOverdue: Bool = {
             // Try to parse the subtitle as a date in the same format used in TimelineView
             let formatter = DateFormatter()
@@ -122,8 +163,16 @@ extension Expense {
                     .foregroundStyle(isOverdue ? Color.red : Color.secondary)
             }
             Spacer()
-            Text(convertedAmount, format: .currency(code: currencyCode))
-                .fontWeight(.medium)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(convertedAmount, format: .currency(code: currencyCode))
+                    .fontWeight(.medium)
+                if displayTotal && hasMultipleOccurrencesInMonth(containing: date) {
+                    let monthTotal = totalForMonth(containing: date)
+                    Text(monthTotal, format: .currency(code: currencyCode))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
         .padding(.vertical, 4)
     }

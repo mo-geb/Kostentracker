@@ -100,7 +100,7 @@ struct TimelineView: View {
             case .compact:
                 expense.createCompactRow(convertedAmount: expense.amount, currencyCode: currencyCode)
             case .normal:
-                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: currencyCode)
+                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: currencyCode, displayTotal: true)
             }
         }
         
@@ -188,22 +188,28 @@ struct TimelineView: View {
         var totalAmount: Double
     }
     
-    /// Groups expenses by month, calculates the total amount for each month, and sorts the results.
+    /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
         // Apply filters to expenses (like in ListView)
         let filteredExpenses = Utils.applyFilters(expenses, filter: selectedFilter)
-        // 1. Group expenses by the start of their month.
+        let calendar = Calendar.current
+        
+        // 1. Group expenses by the start of their month
         let groupedByMonth = Dictionary(grouping: filteredExpenses) { expense in
-            Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: expense.date))!
+            calendar.date(from: calendar.dateComponents([.year, .month], from: expense.date))!
         }
-        // 2. Transform the grouped dictionary into an array of `MonthlyExpenseGroup`.
+        
+        // 2. Transform the grouped dictionary into an array of MonthlyExpenseGroup
         return groupedByMonth.map { (month, expensesInMonth) in
-            // Calculate the sum of amounts for all expenses in this month.
-            let total = expensesInMonth.reduce(0) { $0 + $1.amount }
+            // For each month, calculate the total using the new method
+            let total = expensesInMonth.reduce(0.0) { sum, expense in
+                sum + expense.totalForMonth(containing: month)
+            }
+            
             let sortedExpenses = expensesInMonth.sorted { $0.date < $1.date }
             return MonthlyExpenseGroup(id: month, month: month, expenses: sortedExpenses, totalAmount: total)
         }
-        // 3. Sort the groups by month, so the newest appear at the top.
+        // 3. Sort the groups by month, so the newest appear at the top
         .sorted { $0.month < $1.month }
     }
 
