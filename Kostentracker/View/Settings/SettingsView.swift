@@ -65,19 +65,19 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
             
-            NavigationLink {
-                NotificationView()
-            } label: {
-                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .red) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
+//            NavigationLink {
+//                NotificationView()
+//            } label: {
+//                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .red) {
+//                    HStack {
+//                        Spacer()
+//                        Image(systemName: "chevron.right")
+//                            .font(.caption)
+//                            .foregroundStyle(.secondary)
+//                    }
+//                }
+//            }
+//            .buttonStyle(.plain)
         }
     }
     
@@ -96,6 +96,42 @@ struct SettingsView: View {
                 UIApplication.shared.open(url)
             } label: {
                 row(title: String(localized: "App Website"), icon: "globe", iconColor: .green) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            
+            Button {
+                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/terms") else {
+                    print("Error: Invalid URL string.")
+                    return
+                }
+                UIApplication.shared.open(url)
+            } label: {
+                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .indigo) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+            
+            Button {
+                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/guide") else {
+                    print("Error: Invalid URL string.")
+                    return
+                }
+                UIApplication.shared.open(url)
+            } label: {
+                row(title: String(localized: "User Guide"), icon: "book", iconColor: .mint) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
