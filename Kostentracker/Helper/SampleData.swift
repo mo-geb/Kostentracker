@@ -21,9 +21,11 @@ struct SampleData {
         insuranceSample
     ]
     
-    static let subscription = ExpenseCategory(from: CategoryDraft(name: "Subscription", iconName: "dumbbell", color: .blue))
+    // MARK: - Categories
+    static let subscription = ExpenseCategory(from: CategoryDraft(name: "Subscription", iconName: "dumbbell", color: .blue, isDefault: true))
     static let insurance = ExpenseCategory(from: CategoryDraft(name: "Insurance", iconName: "shield", color: .red))
     
+    // MARK: - Expenses
     static let spotifySample = Expense(from:ExpenseDraft(
             title: "Spotify Premium",
             amount: 10.99,
@@ -46,6 +48,17 @@ struct SampleData {
         )
     )
     
+    static let insuranceSample = Expense(from: ExpenseDraft(
+            title: "Third Party",
+            amount: 12.99,
+            frequencyUnit: .year,
+            frequencyValue: 1,
+            date: sampleDate,
+            category: insurance,
+            notes: ""
+        )
+    )
+    
     static var sampleDate: Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
@@ -61,15 +74,4 @@ struct SampleData {
         
         return someDate
     }
-    
-    static let insuranceSample = Expense(from: ExpenseDraft(
-            title: "Third Party",
-            amount: 12.99,
-            frequencyUnit: .year,
-            frequencyValue: 1,
-            date: sampleDate,
-            category: insurance,
-            notes: ""
-        )
-    )
 }

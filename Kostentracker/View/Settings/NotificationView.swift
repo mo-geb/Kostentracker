@@ -109,3 +109,9 @@ struct NotificationView: View {
         }
     }
 }
+
+#Preview {
+    return NavigationStack {
+        NotificationView()
+    }
+}

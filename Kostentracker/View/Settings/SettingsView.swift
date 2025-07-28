@@ -199,3 +199,9 @@ struct SettingsView: View {
            return "\(currencyName) (\(currencySymbol))"
    }
 }
+
+#Preview {
+    return NavigationStack {
+        NotificationView()
+    }
+}

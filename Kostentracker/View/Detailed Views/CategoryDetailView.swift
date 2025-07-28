@@ -281,3 +281,36 @@ struct CategoryDetailView: View {
     }
     
 }
+
+#Preview {
+    do {
+        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
+        let context = container.mainContext
+        
+        #if DEBUG
+        print("Entered App in DEBUG... Deleting models")
+        try? context.delete(model: Expense.self)
+        try? context.delete(model: ExpenseCategory.self)
+
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+        #endif
+        
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+        
+        SampleData.categories.forEach {
+            container.mainContext.insert($0)
+        }
+        
+        SampleData.expenses.forEach {
+            container.mainContext.insert($0)
+        }
+        
+        return NavigationStack {
+            CategoryDetailView(initialState: .edit(SampleData.subscription))
+                .modelContainer(container)
+        }
+        
+    } catch {
+        return Text("Failed to create preview container: \(error.localizedDescription)")
+    }
+}

@@ -124,13 +124,16 @@ struct CategoriesView: View {
             }
             
             VStack(alignment: .leading, spacing: 6) {
+                Text(category.name)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                    .minimumScaleFactor(0.8)
                 HStack(alignment: .center, spacing: 8) {
-                    Text(category.name)
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
-                        .layoutPriority(1)
-                        .minimumScaleFactor(0.8)
+                    Text("\(category.expenses?.count ?? 0) expenses")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                     if category.isDefault {
                         Text("Default")
                             .font(.caption2)
@@ -141,9 +144,6 @@ struct CategoriesView: View {
                             .cornerRadius(7)
                     }
                 }
-                Text("\(category.expenses?.count ?? 0) expenses")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
             }
             Spacer(minLength: 12)
             Image(systemName: "chevron.right")
@@ -161,5 +161,38 @@ struct CategoriesView: View {
         .onTapGesture {
             activeSheet = .edit(category)
         }
+    }
+}
+
+#Preview {
+    do {
+        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
+        let context = container.mainContext
+        
+        #if DEBUG
+        print("Entered App in DEBUG... Deleting models")
+        try? context.delete(model: Expense.self)
+        try? context.delete(model: ExpenseCategory.self)
+
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+        #endif
+        
+        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
+        
+        SampleData.categories.forEach {
+            container.mainContext.insert($0)
+        }
+        
+        SampleData.expenses.forEach {
+            container.mainContext.insert($0)
+        }
+        
+        return NavigationStack {
+            CategoriesView()
+                .modelContainer(container)
+        }
+        
+    } catch {
+        return Text("Failed to create preview container: \(error.localizedDescription)")
     }
 }
