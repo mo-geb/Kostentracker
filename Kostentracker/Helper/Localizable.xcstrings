@@ -175,6 +175,16 @@
         }
       }
     },
+    "Bar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balken"
+          }
+        }
+      }
+    },
     "By Category" : {
       "localizations" : {
         "de" : {
@@ -635,7 +645,7 @@
         }
       }
     },
-    "Mark as Paid" : {
+    "Mark as paid" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -851,6 +861,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bezahlt"
+          }
+        }
+      }
+    },
+    "Pie" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Donut"
           }
         }
       }

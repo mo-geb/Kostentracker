@@ -20,6 +20,7 @@ struct ExpenseDetailView: View {
     @State private var expense: Expense?
     @State private var draft: ExpenseDraft
     @State private var isEditing: Bool
+    @State private var amountText: String = ""
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
     
@@ -61,6 +62,7 @@ struct ExpenseDetailView: View {
                 if isEditing && expense != nil {
                     deleteButton
                 } else if !isEditing {
+//                    markAsPaidButton
                     statisticsSection
                 }
             }
@@ -166,7 +168,7 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading, spacing: 15) {
             row(title: String(localized: "Amount"), icon: "number") {
                 if isEditing {
-                    TextField("0.00", value: $draft.amount, format: .number)
+                    TextField("0.00", text: $amountText)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .fixedSize()
@@ -174,15 +176,24 @@ struct ExpenseDetailView: View {
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
                         .focused($focusedField, equals: .expenseDetailAmount)
-                        .onChange(of: draft.amount) { _, newValue in
-                            if newValue < 0 {
+                        .onChange(of: amountText) { _, newValue in
+                            if let amount = Double(newValue) {
+                                draft.amount = max(0, amount)
+                            } else {
                                 draft.amount = 0
                             }
                         }
-                        .onAppear {
-                            if draft.amount == 0 {
-                                // This ensures the placeholder shows when the field is empty
+                        .onChange(of: focusedField) { _, focused in
+                            if focusedField != .expenseDetailAmount {
+                                if draft.amount > 0 {
+                                    amountText = String(format: "%.2f", draft.amount)
+                                } else {
+                                    amountText = ""
+                                }
                             }
+                        }
+                        .onAppear {
+                            amountText = draft.amount > 0 ? String(format: "%.2f", draft.amount) : ""
                         }
                 } else {
                     if let amount = expense?.amount, amount == 0 {
@@ -289,6 +300,30 @@ struct ExpenseDetailView: View {
             }
         }
         .padding()
+    }
+    
+    @ViewBuilder
+    private var markAsPaidButton: some View {
+        Button() {
+            expense?.markAsPaid()
+            try? context.save()
+        } label: {
+            HStack {
+                Image(systemName: "checkmark")
+                Text("Mark as paid")
+                    .fontWeight(.semibold)
+            }
+            .padding(.vertical, 14)
+            .padding(.horizontal, 32)
+            .foregroundColor(.green)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.green.opacity(0.15))
+            )
+        }
+        .frame(maxWidth: 260)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
     }
     
     @ViewBuilder

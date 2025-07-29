@@ -18,6 +18,7 @@ struct StatisticsView: View {
     
     // State
     @State private var showingSettings = false
+    @State private var displayedCategoryChart = CategoryChart.barChart
     
     // User Settings
     @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
@@ -80,11 +81,35 @@ struct StatisticsView: View {
     @ViewBuilder
     private var categoryChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("By Category")
-                .font(.title2.bold())
-                .foregroundStyle(.secondary)
-
-            categoryChart
+            HStack {
+                Text("By Category")
+                    .font(.title2.bold())
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button(action: {
+                    if let currentIndex = CategoryChart.allCases.firstIndex(of: displayedCategoryChart) {
+                        let nextIndex = (currentIndex + 1) % CategoryChart.allCases.count
+                        displayedCategoryChart = CategoryChart.allCases[nextIndex]
+                    }
+                }) {
+                    Text(displayedCategoryChart.rawValue)
+                        .font(.subheadline)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.secondary.opacity(0.15))
+                        )
+                }
+                .contentShape(Rectangle())
+                .buttonStyle(.plain)
+            }
+            switch displayedCategoryChart {
+            case .barChart:
+                categoryBarChart
+            case .pieChart:
+                categoryPieChart
+            }
         }
     }
     
@@ -109,63 +134,92 @@ struct StatisticsView: View {
     // MARK: - Charts
     /// A section displaying a donut chart of expenses by category.
     @ViewBuilder
-    private var categoryChart: some View {
+    private var categoryBarChart: some View {
         Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
             BarMark(
                 x: .value("Cost", item.totalCost),
                 y: .value("Category", item.category.categoryName)
             )
             .foregroundStyle(item.category.categoryColor)
-            .cornerRadius(20)
+            .cornerRadius(12)
         }
-        .frame(height: CGFloat(categoryCosts.count * 50 + 20))
         .chartLegend(.hidden)
+        .chartXAxis(.hidden)
         .chartYAxis {
             AxisMarks(position: .leading) {
                 AxisValueLabel()
                     .font(.subheadline.bold())
             }
         }
+        .frame(height: CGFloat(categoryCosts.count * 50 + 20))
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(10)
     }
     
+    @ViewBuilder
+    private var categoryPieChart: some View {
+        let sortedCategoryCosts = categoryCosts.sorted { $0.totalCost > $1.totalCost }
+        
+        let domain = sortedCategoryCosts.map { $0.category.categoryName }
+        let range = sortedCategoryCosts.map { $0.category.categoryColor }
+
+        Chart(sortedCategoryCosts) { item in
+            SectorMark(
+                angle: .value("Amount", item.totalCost),
+                innerRadius: .ratio(0.618),
+                angularInset: 2
+            )
+            .foregroundStyle(by: .value("Category", item.category.categoryName))
+            .cornerRadius(3)
+        }
+        .chartForegroundStyleScale(domain: domain, range: range)
+        .chartLegend(position: .trailing, alignment: .center, spacing: 12)
+        .frame(height: 200)
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(10)
+    }
+
+    
+    @ViewBuilder
     private var monthlyChart: some View {
         Chart(monthlyCostsWithCategories) { item in
-            BarMark(
-                x: .value("Month", item.month),
-                y: .value("Cost", item.amount)
-            )
-            .foregroundStyle(item.category.color)
-            .position(by: .value("Category", item.category.name))
             RuleMark(
                 y: .value("Average", totalCosts.monthly)
             )
-            .foregroundStyle(.gray.opacity(0.6))
+            .foregroundStyle(.gray.opacity(0.4))
             .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+            
+            BarMark(
+                x: .value("Month", item.date, unit: .month),
+                y: .value("Cost", item.amount),
+                width: .ratio(0.618)
+            )
+            .foregroundStyle(item.category.color)
+            .cornerRadius(6)
+
         }
-        .frame(height: 200)
-        .chartXScale(domain: 1...12)
         .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 12)) { value in
-                AxisValueLabel {
-                    if let month = value.as(Int.self) {
-                        Text(monthAbbreviation(for: month))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+            AxisMarks(values: .automatic(desiredCount: 12)) {
+                AxisValueLabel(format: .dateTime.month(.narrow), centered: true)
             }
         }
         .chartYAxis {
-            AxisMarks { value in
+            AxisMarks(position: .leading) { value in
                 AxisValueLabel {
                     if let cost = value.as(Double.self) {
-                        Text(cost, format: .currency(code: currencyCode))
+                        Text(cost, format: .number)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
             }
         }
+        .frame(height: 200)
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(10)
     }
     
     // MARK: - Toolbar
@@ -231,9 +285,11 @@ struct StatisticsView: View {
     }
     
     // MARK: - Months Helpers
+    
     private struct MonthlyCategoryExpense: Identifiable {
         let id = UUID()
         let month: Int
+        let date: Date
         let category: ExpenseCategory
         let amount: Double
     }
@@ -261,11 +317,15 @@ struct StatisticsView: View {
         // Convert the dictionary to array of MonthlyCategoryExpense
         var result: [MonthlyCategoryExpense] = []
         for (month, categoryAmounts) in monthCategoryAmounts {
+            let dateComponents = DateComponents(year: currentYear, month: month)
+                    guard let date = Calendar.current.date(from: dateComponents) else { continue }
             // Sort categories by amount (descending) before adding to result
+            
             let sortedCategories = categoryAmounts.sorted { $0.value > $1.value }
             for (category, amount) in sortedCategories {
                 result.append(MonthlyCategoryExpense(
                     month: month,
+                    date: date,
                     category: category,
                     amount: amount
                 ))
@@ -303,19 +363,6 @@ struct StatisticsView: View {
         }
         
         return months.sorted()
-    }
-    
-    /// Returns the abbreviated month name for the given month number.
-    private func monthAbbreviation(for month: Int) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM"
-        
-        let calendar = Calendar.current
-        let dateComponents = DateComponents(year: Calendar.current.component(.year, from: Date()), month: month, day: 1)
-        if let date = calendar.date(from: dateComponents) {
-            return String(formatter.string(from: date).prefix(1))
-        }
-        return "?"
     }
     
     /// Advances a date by the specified frequency value and unit.

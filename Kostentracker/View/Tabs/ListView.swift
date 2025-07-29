@@ -220,7 +220,6 @@ struct ListView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                
             } label: {
                 Label("Options", systemImage: "ellipsis")
             }

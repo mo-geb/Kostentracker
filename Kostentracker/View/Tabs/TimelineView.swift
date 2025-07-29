@@ -114,14 +114,18 @@ struct TimelineView: View {
                     Label("Edit", systemImage: "pencil")
                 }
                 Button {
-                    markAsPaid(expense)
+                    expense.markAsPaid()
+                    try? context.save()
+                    listRefreshID = UUID()
                 } label: {
-                    Label("Mark as Paid", systemImage: "checkmark")
+                    Label("Mark as paid", systemImage: "checkmark")
                 }
             }
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
-                    markAsPaid(expense)
+                    expense.markAsPaid()
+                    try? context.save()
+                    listRefreshID = UUID()
                 } label: {
                     Label("Paid", systemImage: "checkmark")
                 }
@@ -219,28 +223,6 @@ struct TimelineView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
         return formatter
-    }
-    
-    /// Advances the expense's date based on its frequency.
-    /// This is the business logic for the "Paid" swipe action.
-    private func markAsPaid(_ expense: Expense) {
-        withAnimation {
-            let calendar = Calendar.current
-            var dateComponent: Calendar.Component
-            
-            switch expense.frequencyUnit {
-            case .day: dateComponent = .day
-            case .week: dateComponent = .weekOfYear
-            case .month: dateComponent = .month
-            case .year: dateComponent = .year
-            }
-            
-            if let newDate = calendar.date(byAdding: dateComponent, value: Int(expense.frequencyValue), to: expense.date) {
-                expense.date = newDate
-                try? context.save()
-                listRefreshID = UUID()
-            }
-        }
     }
 }
 

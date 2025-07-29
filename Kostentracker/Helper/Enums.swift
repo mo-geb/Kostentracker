@@ -12,19 +12,21 @@ enum FrequencyUnit: String, Codable, CaseIterable {
     case day, week, month, year
 }
 
-enum SortOption: LocalizedStringResource, CaseIterable, Identifiable {
-    case amountDescending = "Amount (High to Low)"
-    case amountAscending = "Amount (Low to High)"
-    case title = "Title (A-Z)"
-    
-    var id: Self { self }
-}
-
 enum CostPeriod: LocalizedStringResource, CaseIterable, Identifiable {
     case yearly = "Yearly"
     case monthly = "Monthly"
     case weekly = "Weekly"
     case daily = "Daily"
+    
+    var id: Self { self }
+}
+
+// MARK: - Display Options
+
+enum SortOption: LocalizedStringResource, CaseIterable, Identifiable {
+    case amountDescending = "Amount (High to Low)"
+    case amountAscending = "Amount (Low to High)"
+    case title = "Title (A-Z)"
     
     var id: Self { self }
 }
@@ -52,9 +54,13 @@ enum ViewMode: LocalizedStringResource, CaseIterable, Identifiable {
     var id: Self { self }
 }
 
+// MARK: - Focus Management
+
 enum FocusedField: Hashable {
     case expenseDetailTitle, expenseDetailAmount, expenseDetailNotes, categoryDetailTitle
 }
+
+// MARK: - Sheets
 
 enum ActiveExpenseSheet: Identifiable, Equatable {
     case view(Expense)
@@ -100,6 +106,8 @@ enum ActiveCategorySheet: Identifiable, Equatable {
     }
 }
 
+// MARK: - Settings
+
 enum NotificationDay: CaseIterable {
     case oneWeekBefore, threeDaysBefore, oneDayBefore, onDay, overdue
     
@@ -117,6 +125,15 @@ enum NotificationDay: CaseIterable {
             return String(localized: "When overdue")
         }
     }
+}
+
+// MARK: - Statistics
+
+enum CategoryChart: LocalizedStringResource, CaseIterable, Identifiable {
+    case barChart = "Bar"
+    case pieChart = "Pie"
+    
+    var id: Self { self }
 }
 
 // MARK: - Frequency Formatting
