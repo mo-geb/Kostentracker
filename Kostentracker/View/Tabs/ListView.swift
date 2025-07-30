@@ -225,9 +225,9 @@ struct ListView: View {
             }
         }
         
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.fixed)
-        }
+//        if #available(iOS 26.0, *) {
+//            ToolbarSpacer(.fixed)
+//        }
         
         ToolbarItem() {
             Button {

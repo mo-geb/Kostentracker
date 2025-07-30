@@ -241,12 +241,13 @@ struct StatisticsView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.headline)
+                .minimumScaleFactor(0.3)
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
             Text(amount, format: .currency(code: currencyCode))
                 .font(.title3.weight(.semibold))
                 .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.3)
+                .layoutPriority(1)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
