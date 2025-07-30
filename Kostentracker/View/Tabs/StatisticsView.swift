@@ -46,7 +46,7 @@ struct StatisticsView: View {
             ContentUnavailableView(
                 "No Data to Analyze",
                 systemImage: "chart.pie",
-                description: Text("Add some expenses in the Timeline to see your statistics.")
+                description: Text("Add some expenses to see your statistics.")
             )
         } else {
             ScrollView {
@@ -197,7 +197,7 @@ struct StatisticsView: View {
                 width: .ratio(0.618)
             )
             .foregroundStyle(item.category.color)
-            .cornerRadius(6)
+            .cornerRadius(4)
 
         }
         .chartXAxis {

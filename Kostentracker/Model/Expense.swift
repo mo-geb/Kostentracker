@@ -117,7 +117,9 @@ extension Expense {
     
     // Compact row: just icon and title/cost
     func createCompactRow(convertedAmount: Double, currencyCode: String) -> some View {
-        HStack(spacing: 8) {
+        let isZero: Bool = convertedAmount == 0
+
+        return HStack(spacing: 8) {
             if let imageData = customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()
@@ -136,10 +138,12 @@ extension Expense {
             }
             Text(title)
                 .font(.body)
+                .foregroundStyle(isZero ? .secondary : .primary)
             Spacer()
             Text(convertedAmount, format: .currency(code: currencyCode))
                 .fontWeight(.medium)
                 .font(.body)
+                .foregroundStyle(isZero ? .secondary : .primary)
         }
     }
     
@@ -155,6 +159,8 @@ extension Expense {
             }
             return false
         }()
+        
+        let isZero: Bool = convertedAmount == 0
         
         return HStack(spacing: 12) {
             if let imageData = customImageData, let uiImage = UIImage(data: imageData) {
@@ -176,6 +182,7 @@ extension Expense {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
+                    .foregroundStyle(isZero ? .secondary : .primary)
                 Text(subtitle)
                     .font(.subheadline)
                     .foregroundStyle(isOverdue ? Color.red : Color.secondary)
@@ -184,6 +191,7 @@ extension Expense {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(convertedAmount, format: .currency(code: currencyCode))
                     .fontWeight(.medium)
+                    .foregroundStyle(isZero ? .secondary : .primary)
                 if displayTotal && hasMultipleOccurrencesInMonth(containing: date) {
                     let monthTotal = totalForMonth(containing: date)
                     Text(monthTotal, format: .currency(code: currencyCode))

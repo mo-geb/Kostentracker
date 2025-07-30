@@ -177,23 +177,39 @@ struct ExpenseDetailView: View {
                         .cornerRadius(8)
                         .focused($focusedField, equals: .expenseDetailAmount)
                         .onChange(of: amountText) { _, newValue in
-                            if let amount = Double(newValue) {
-                                draft.amount = max(0, amount)
+                            let formatter = NumberFormatter()
+                            formatter.locale = Locale.current
+                            formatter.numberStyle = .decimal
+
+                            if let number = formatter.number(from: newValue) {
+                                draft.amount = max(0, number.doubleValue)
                             } else {
                                 draft.amount = 0
                             }
                         }
                         .onChange(of: focusedField) { _, focused in
                             if focusedField != .expenseDetailAmount {
+                                let formatter = NumberFormatter()
+                                formatter.locale = Locale.current
+                                formatter.numberStyle = .decimal
+                                formatter.minimumFractionDigits = 2
+                                formatter.maximumFractionDigits = 2
+
                                 if draft.amount > 0 {
-                                    amountText = String(format: "%.2f", draft.amount)
+                                    amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
                                 } else {
                                     amountText = ""
                                 }
                             }
                         }
                         .onAppear {
-                            amountText = draft.amount > 0 ? String(format: "%.2f", draft.amount) : ""
+                            let formatter = NumberFormatter()
+                            formatter.locale = Locale.current
+                            formatter.numberStyle = .decimal
+                            formatter.minimumFractionDigits = 2
+                            formatter.maximumFractionDigits = 2
+
+                            amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
                         }
                 } else {
                     if let amount = expense?.amount, amount == 0 {

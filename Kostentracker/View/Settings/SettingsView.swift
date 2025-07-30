@@ -16,6 +16,7 @@ struct SettingsView: View {
                 VStack(spacing: 20) {
                     generalSection
                     moreSection
+                    versionInfo
                 }
                 .padding()
             }
@@ -163,6 +164,13 @@ struct SettingsView: View {
         }
     }
     
+    @ViewBuilder
+    var versionInfo: some View {
+        Text(Bundle.main.fullVersionString)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+    
     // MARK: - Helper Views
     
     /// A generic row builder to reduce duplication, matching the style of other views.
@@ -202,6 +210,6 @@ struct SettingsView: View {
 
 #Preview {
     return NavigationStack {
-        NotificationView()
+        SettingsView()
     }
 }
