@@ -192,16 +192,15 @@ struct ListView: View {
         
         ToolbarItem() {
             Menu {
-                // Removed Display Period Picker
-                Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
-                    ForEach(SortOption.allCases) { option in
+                Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
+                    ForEach(FilterOption.allCases) { option in
                         Text(option.rawValue).tag(option)
                     }
                 }
                 .pickerStyle(.menu)
                 
-                Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
-                    ForEach(FilterOption.allCases) { option in
+                Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
+                    ForEach(SortOption.allCases) { option in
                         Text(option.rawValue).tag(option)
                     }
                 }

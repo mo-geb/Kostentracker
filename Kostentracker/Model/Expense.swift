@@ -76,19 +76,18 @@ extension Expense {
     
     /// Calculates the total cost of this expense for a specific month
     func totalForMonth(containing date: Date) -> Double {
-        let calendar = Calendar.current
-        
         // Get the start and end of the month
-        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
-        let monthEnd = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: monthStart)!
+        var components = Calendar.current.dateComponents([.year, .month], from: date)
+        components.timeZone = TimeZone(secondsFromGMT: 0)
+        let monthStart = Calendar.current.date(from: components)!
+        let monthEnd = Calendar.current.date(byAdding: DateComponents(month: 1, second: -1), to: monthStart)!
         
         var currentDate = self.date
         var monthTotal = 0.0
-        
-        // Keep advancing the date until we're past the month
+
         while currentDate <= monthEnd {
             if currentDate >= monthStart {
-                monthTotal += amount
+                monthTotal += self.amount
             }
             
             // Advance to next occurrence based on frequency
@@ -100,7 +99,7 @@ extension Expense {
             case .year: dateComponent = .year
             }
             
-            guard let nextDate = calendar.date(byAdding: dateComponent,
+            guard let nextDate = Calendar.current.date(byAdding: dateComponent,
                                              value: Int(frequencyValue),
                                              to: currentDate) else { break }
             currentDate = nextDate

@@ -50,8 +50,8 @@ struct SampleData {
     
     static let insuranceSample = Expense(from: ExpenseDraft(
             title: "Third Party",
-            amount: 12.99,
-            frequencyUnit: .year,
+            amount: 1,
+            frequencyUnit: .day,
             frequencyValue: 1,
             date: sampleDate,
             category: insurance,
@@ -62,7 +62,7 @@ struct SampleData {
     static var sampleDate: Date {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd"
-        guard let someDate = formatter.date(from: "2025/10/08") else { return Date() }
+        guard let someDate = formatter.date(from: "2025/07/31") else { return Date() }
         
         return someDate
     }
