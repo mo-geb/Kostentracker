@@ -53,10 +53,11 @@ struct CategoriesView: View {
         List {
             ForEach(categories) { category in
                 categoryRow(for: category)
+                    .listRowSeparator(.hidden)
             }
             .onMove(perform: moveCategory)
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
     }
     
     // MARK: - Add Button
@@ -150,7 +151,7 @@ struct CategoriesView: View {
         .padding(.horizontal, 18)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color(.tertiarySystemBackground))
+                .fill(Color(.secondarySystemBackground))
         )
         .contentShape(Rectangle())
         .onTapGesture {
