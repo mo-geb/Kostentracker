@@ -108,5 +108,7 @@ struct NotificationView: View {
 #Preview {
     return NavigationStack {
         NotificationView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }

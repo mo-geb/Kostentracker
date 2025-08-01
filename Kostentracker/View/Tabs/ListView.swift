@@ -15,7 +15,6 @@ struct ListView: View {
     
     // State
     @State private var activeSheet: ActiveExpenseSheet?
-    @State private var showingSettings = false
     @State private var selectedPeriod: CostPeriod = .monthly
     
     // MARK: - Body
@@ -41,7 +40,7 @@ struct ListView: View {
                         }
                     }
                 }
-                .sheet(isPresented: $showingSettings) {
+                .sheet(isPresented: $ui.showingSettings) {
                     SettingsView()
                 }
         }
@@ -171,7 +170,7 @@ struct ListView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                showingSettings = true
+                ui.showingSettings = true
             } label: {
                 Label("Settings", systemImage: "gearshape")
             }
@@ -336,6 +335,8 @@ struct ListView: View {
         return NavigationStack {
             ListView()
                 .modelContainer(container)
+                .environmentObject(UIState())
+                .environmentObject(UserSettings())
         }
         
     } catch {

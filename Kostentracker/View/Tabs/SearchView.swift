@@ -144,6 +144,8 @@ struct SearchView: View {
         return NavigationStack {
             SearchView()
                 .modelContainer(container)
+                .environmentObject(UIState())
+                .environmentObject(UserSettings())
         }
         
     } catch {

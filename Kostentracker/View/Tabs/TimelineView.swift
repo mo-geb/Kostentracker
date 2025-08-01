@@ -241,6 +241,8 @@ struct TimelineView: View {
         return NavigationStack {
             TimelineView()
                 .modelContainer(container)
+                .environmentObject(UIState())
+                .environmentObject(UserSettings())
         }
         
     } catch {

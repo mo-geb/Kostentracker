@@ -395,6 +395,8 @@ struct StatisticsView: View {
         return NavigationStack {
             StatisticsView()
                 .modelContainer(container)
+                .environmentObject(UIState())
+                .environmentObject(UserSettings())
         }
         
     } catch {

@@ -206,5 +206,7 @@ struct SettingsView: View {
 #Preview {
     return NavigationStack {
         SettingsView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }

@@ -523,6 +523,8 @@ struct ExpenseDetailView: View {
         return NavigationStack {
             ExpenseDetailView(initialState: .edit(SampleData.netflixSample))
                 .modelContainer(container)
+                .environmentObject(UIState())
+                .environmentObject(UserSettings())
         }
         
     } catch {
