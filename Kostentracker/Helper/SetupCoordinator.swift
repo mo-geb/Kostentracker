@@ -32,7 +32,7 @@ final class SetupCoordinator {
                 let count = try context.fetchCount(fetchDescriptor)
                 if count == 0 {
                     print("No categories found after delay. Creating default set...")
-                    Utils.resetDefaultCategories(in: context)
+                    ExpenseCategory.resetDefaultCategories(in: context)
                     let defaultCategory = ExpenseCategory.createDefault()
                     context.insert(defaultCategory)
                     print("Default categories created successfully.")

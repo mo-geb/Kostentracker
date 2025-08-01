@@ -69,6 +69,15 @@ extension ExpenseCategory {
             print("Failed to delete category: \(error)")
         }
     }
+    
+    static func resetDefaultCategories(in context: ModelContext) {
+        let descriptor = FetchDescriptor<ExpenseCategory>()
+        if let allCategories = try? context.fetch(descriptor) {
+            for cat in allCategories {
+                cat.isDefault = false
+            }
+        }
+    }
 }
 
 // MARK: - Color Util

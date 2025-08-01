@@ -184,7 +184,7 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        let filteredExpenses = Utils.applyFilters(expenses, filter: ui.selectedFilter)
+        let filteredExpenses = Expense.applyFilters(expenses, filter: ui.selectedFilter)
         let calendar = Calendar.current
         
         // 1. Group expenses by the start of their month

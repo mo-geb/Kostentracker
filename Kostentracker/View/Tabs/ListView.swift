@@ -235,7 +235,7 @@ struct ListView: View {
     
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedGroups: [ProcessedGroup] {
-        let filteredExpenses = Utils.applyFilters(expenses, filter: ui.selectedFilter)
+        let filteredExpenses = Expense.applyFilters(expenses, filter: ui.selectedFilter)
         let grouped: [String: [Expense]]
         
         switch ui.selectedGroupBy {
