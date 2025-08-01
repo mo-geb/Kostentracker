@@ -1,8 +1,3 @@
-//
-//  CategoryListView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 
@@ -74,11 +69,7 @@ struct ListView: View {
     @ViewBuilder
     private var mainContent: some View {
         if expenses.isEmpty {
-            ContentUnavailableView(
-                "No Expenses Found",
-                systemImage: "tray",
-                description: Text("Add expenses to see them grouped by category.")
-            )
+            EmptyExpensesView()
         } else {
             groupList
         }

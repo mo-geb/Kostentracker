@@ -1,8 +1,3 @@
-//
-//  CategoryManagementView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 

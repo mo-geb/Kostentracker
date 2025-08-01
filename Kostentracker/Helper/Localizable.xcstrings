@@ -85,26 +85,6 @@
         }
       }
     },
-    "Add expenses to see them grouped by category." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Füge Ausgaben hinzu, um sie gruppiert zu sehen."
-          }
-        }
-      }
-    },
-    "Add some expenses to see your statistics." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Füge Ausgaben hinzu, um Statistiken zu sehen."
-          }
-        }
-      }
-    },
     "All Expenses" : {
       "localizations" : {
         "de" : {
@@ -715,32 +695,12 @@
         }
       }
     },
-    "No Data to Analyze" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Daten zu analysieren"
-          }
-        }
-      }
-    },
     "No Expenses" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keine Ausgaben"
-          }
-        }
-      }
-    },
-    "No Expenses Found" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Ausgaben gefunden"
           }
         }
       }

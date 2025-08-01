@@ -1,8 +1,3 @@
-//
-//  ExpenseDetailView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 import PhotosUI

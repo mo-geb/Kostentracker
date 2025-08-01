@@ -1,8 +1,3 @@
-//
-//  StatisticsView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 import Charts
@@ -43,11 +38,7 @@ struct StatisticsView: View {
     @ViewBuilder
     private var mainContent: some View {
         if expenses.isEmpty {
-            ContentUnavailableView(
-                "No Data to Analyze",
-                systemImage: "chart.pie",
-                description: Text("Add some expenses to see your statistics.")
-            )
+            EmptyExpensesView()
         } else {
             ScrollView {
                 VStack(spacing: 30) {
@@ -320,8 +311,6 @@ struct StatisticsView: View {
         for (month, categoryAmounts) in monthCategoryAmounts {
             let dateComponents = DateComponents(year: currentYear, month: month)
                     guard let date = Calendar.current.date(from: dateComponents) else { continue }
-            // Sort categories by amount (descending) before adding to result
-            
             let sortedCategories = categoryAmounts.sorted { $0.value > $1.value }
             for (category, amount) in sortedCategories {
                 result.append(MonthlyCategoryExpense(
@@ -340,8 +329,6 @@ struct StatisticsView: View {
     private func getMonthsForExpense(_ expense: Expense, in year: Int) -> [Int] {
         let calendar = Calendar.current
         var months: [Int] = []
-        
-        // Start from the expense's date
         var currentDate = expense.date
         
         while calendar.component(.year, from: currentDate) >= year {

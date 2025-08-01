@@ -1,8 +1,3 @@
-//
-//  TimelineView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 
@@ -60,9 +55,7 @@ struct TimelineView: View {
     @ViewBuilder
     private var mainContent: some View {
         if expenses.isEmpty {
-            ContentUnavailableView("No Expenses",
-                                   systemImage: "list.bullet.clipboard",
-                                   description: Text("Tap the + button to add your first expense."))
+            EmptyExpensesView()
         } else {
             expenseList
         }
@@ -186,7 +179,7 @@ struct TimelineView: View {
         
     /// A struct to hold the processed data for each month's expenses.
     private struct MonthlyExpenseGroup: Identifiable {
-        let id: Date // The month can serve as a unique ID
+        let id: Date
         var month: Date
         var expenses: [Expense]
         var totalAmount: Double
@@ -194,7 +187,6 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        // Apply filters to expenses (like in ListView)
         let filteredExpenses = Utils.applyFilters(expenses, filter: selectedFilter)
         let calendar = Calendar.current
         

@@ -1,8 +1,3 @@
-//
-//  SearchView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 
@@ -10,15 +5,13 @@ struct SearchView: View {
     
     // MARK: - Properties
     
-    /// The user's current search query.
+    // State
     @State private var searchText = ""
+    @State private var selectedExpense: Expense?
 
     @Query private var allExpenses: [Expense]
     @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
-    
-    /// The expense selected by the user to view its details.
-    @State private var selectedExpense: Expense?
-    
+        
     // MARK: - Body
     
     var body: some View {
@@ -77,7 +70,6 @@ struct SearchView: View {
     /// A view for displaying a single search result row.
     private func resultRow(for expense: Expense) -> some View {
         HStack(spacing: 16) {
-            // Category icon with app-shaped background for custom images, circular for system icons
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
                 Image(uiImage: uiImage)
                     .resizable()

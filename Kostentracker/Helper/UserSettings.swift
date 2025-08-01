@@ -1,8 +1,3 @@
-//
-//  AppSettings.swift
-//  Kostentracker
-//
-
 import Foundation
 
 /// A central place to define keys for user settings stored in UserDefaults.

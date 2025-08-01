@@ -1,9 +1,6 @@
-//
-//  ExpenseUtils.swift
-//  Kostentracker
-//
-
 import Foundation
+import SwiftUI
+import SwiftData
 
 struct Utils {
     static func applyFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
@@ -21,6 +18,16 @@ struct Utils {
     }
 }
 
+struct EmptyExpensesView: View {
+    var body: some View {
+        ContentUnavailableView(
+            "No Expenses",
+            systemImage: "tray",
+            description: Text("Tap the + button to add your first expense.")
+        )
+    }
+}
+
 extension Bundle {
     var appVersion: String {
         infoDictionary?["CFBundleShortVersionString"] as? String ?? "N/A"
@@ -32,5 +39,14 @@ extension Bundle {
 
     var fullVersionString: String {
         "v\(appVersion) (Build \(buildNumber))"
+    }
+}
+
+func unsetAllDefaultCategories(in context: ModelContext) {
+    let descriptor = FetchDescriptor<ExpenseCategory>()
+    if let allCategories = try? context.fetch(descriptor) {
+        for cat in allCategories {
+            cat.isDefault = false
+        }
     }
 }

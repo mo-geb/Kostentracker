@@ -1,8 +1,3 @@
-//
-//  MainTabView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 
 struct MainTabView: View {

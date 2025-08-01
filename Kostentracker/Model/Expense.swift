@@ -1,8 +1,3 @@
-//
-//  Expense.swift
-//  Kostentracker
-//
-
 import Foundation
 import SwiftData
 import SwiftUI
@@ -18,7 +13,7 @@ class Expense: Identifiable {
     var notes: String = ""
     @Attribute(.externalStorage) var customImageData: Data?
     
-    // Create from an Expense
+    /// Create from a draft
     init(from draft: ExpenseDraft) {
         self.title = draft.title
         self.amount = draft.amount
@@ -30,6 +25,7 @@ class Expense: Identifiable {
         self.customImageData = draft.customImageData
     }
     
+    /// Update based on a draft
     func update(from draft: ExpenseDraft) {
         self.title = draft.title
         self.amount = draft.amount
@@ -76,7 +72,6 @@ extension Expense {
     
     /// Calculates the total cost of this expense for a specific month
     func totalForMonth(containing date: Date) -> Double {
-        // Get the start and end of the month
         var components = Calendar.current.dateComponents([.year, .month], from: date)
         components.timeZone = TimeZone(secondsFromGMT: 0)
         let monthStart = Calendar.current.date(from: components)!
@@ -90,7 +85,6 @@ extension Expense {
                 monthTotal += self.amount
             }
             
-            // Advance to next occurrence based on frequency
             let dateComponent: Calendar.Component
             switch frequencyUnit {
             case .day: dateComponent = .day
@@ -114,7 +108,7 @@ extension Expense {
         return total > amount
     }
     
-    // Compact row: just icon and title/cost
+    /// Compact row: just icon and title/cost
     func createCompactRow(convertedAmount: Double, currencyCode: String) -> some View {
         let isZero: Bool = convertedAmount == 0
 
@@ -146,7 +140,7 @@ extension Expense {
         }
     }
     
-    // Normal row: icon, title, subtitle, cost
+    /// Normal row: icon, title, subtitle, cost
     func createNormalRow(subtitle: String, convertedAmount: Double, currencyCode: String, displayTotal: Bool = false) -> some View {
         let isOverdue: Bool = {
             // Try to parse the subtitle as a date in the same format used in TimelineView
@@ -235,7 +229,7 @@ struct ExpenseDraft {
         self.customImageData = customImageData
     }
     
-    // Create from an Expense
+    /// Create from an Expense
     init(from expense: Expense) {
         self.title = expense.title
         self.amount = expense.amount
@@ -247,7 +241,7 @@ struct ExpenseDraft {
         self.customImageData = expense.customImageData
     }
     
-    // Create new (with context for default category)
+    /// Create new (with context for default category)
     static func createNew(with context: ModelContext) -> ExpenseDraft {
         ExpenseDraft(
             title: "",

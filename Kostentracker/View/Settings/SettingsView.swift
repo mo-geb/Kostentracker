@@ -1,8 +1,3 @@
-//
-//  SettingsView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 
 struct SettingsView: View {

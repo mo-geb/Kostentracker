@@ -1,8 +1,3 @@
-//
-//  NotificationManagement.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import UserNotifications
 import UIKit

@@ -1,8 +1,3 @@
-//
-//  KostentrackerApp.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 

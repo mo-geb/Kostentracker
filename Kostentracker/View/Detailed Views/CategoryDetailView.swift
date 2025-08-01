@@ -1,8 +1,3 @@
-//
-//  CategoryEditorView.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 
@@ -219,26 +214,14 @@ struct CategoryDetailView: View {
             Button {
                 switch initialState {
                 case .edit(let category):
-                    // If making this category default, unset all others
                     if draft.isDefault {
-                        let descriptor = FetchDescriptor<ExpenseCategory>()
-                        if let allCategories = try? context.fetch(descriptor) {
-                            for cat in allCategories where cat.id != category.id {
-                                cat.isDefault = false
-                            }
-                        }
+                        unsetAllDefaultCategories(in: context)
                     }
                     category.update(from: draft)
                     
                 case .new:
-                    // If making this new category default, unset all others
                     if draft.isDefault {
-                        let descriptor = FetchDescriptor<ExpenseCategory>()
-                        if let allCategories = try? context.fetch(descriptor) {
-                            for cat in allCategories {
-                                cat.isDefault = false
-                            }
-                        }
+                        unsetAllDefaultCategories(in: context)
                     }
                     let newCategory = ExpenseCategory(from: draft)
                     context.insert(newCategory)

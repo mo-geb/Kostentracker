@@ -1,8 +1,3 @@
-//
-//  AppSetupCoordinator.swift
-//  Kostentracker
-//
-
 import Foundation
 import SwiftData
 

@@ -1,8 +1,3 @@
-//
-//  PreviewSampleData.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 

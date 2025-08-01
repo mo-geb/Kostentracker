@@ -1,8 +1,3 @@
-//
-//  ExpenseCategory.swift
-//  Kostentracker
-//
-
 import SwiftUI
 import SwiftData
 import UIKit
@@ -21,7 +16,7 @@ final class ExpenseCategory: Identifiable {
         Color(hex: hexColor)
     }
     
-    // Main initializer for creating from a draft
+    /// Create Category based on draft
     init(from draft: CategoryDraft) {
         self.name = draft.name
         self.iconName = draft.iconName
@@ -30,7 +25,7 @@ final class ExpenseCategory: Identifiable {
         self.sortOrder = draft.sortOrder
     }
     
-    // Update from draft
+    /// Update based on draft
     func update(from draft: CategoryDraft) {
         self.name = draft.name
         self.iconName = draft.iconName
