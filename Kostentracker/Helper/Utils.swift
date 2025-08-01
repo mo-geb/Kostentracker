@@ -2,6 +2,24 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+final class UIState: ObservableObject {
+    static let shared = UIState()
+    
+    @Published var showingSettings: Bool = false
+    
+    @Published var selectedFilter: FilterOption = .nonZero
+    @Published var selectedSort: SortOption = .amountDescending
+    @Published var selectedGroupBy: GroupByOption = .categories
+    @Published var selectedViewMode: ViewMode = .normal
+}
+
+final class UserSettings: ObservableObject {
+    static let shared = UserSettings()
+
+    @AppStorage("currencyCode") var currencyCode: String = "EUR"
+}
+
+
 struct Utils {
     static func applyFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
         var filtered = expenses
@@ -15,6 +33,15 @@ struct Utils {
             filtered = filtered.filter { $0.date <= nextThirtyDays }
         }
         return filtered
+    }
+    
+    static func resetDefaultCategories(in context: ModelContext) {
+        let descriptor = FetchDescriptor<ExpenseCategory>()
+        if let allCategories = try? context.fetch(descriptor) {
+            for cat in allCategories {
+                cat.isDefault = false
+            }
+        }
     }
 }
 
@@ -39,14 +66,5 @@ extension Bundle {
 
     var fullVersionString: String {
         "v\(appVersion) (Build \(buildNumber))"
-    }
-}
-
-func unsetAllDefaultCategories(in context: ModelContext) {
-    let descriptor = FetchDescriptor<ExpenseCategory>()
-    if let allCategories = try? context.fetch(descriptor) {
-        for cat in allCategories {
-            cat.isDefault = false
-        }
     }
 }

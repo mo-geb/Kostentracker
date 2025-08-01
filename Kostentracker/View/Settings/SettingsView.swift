@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var userSettings: UserSettings
+
     @Environment(\.dismiss) private var dismiss
-    
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
 
     var body: some View {
         NavigationStack {
@@ -39,7 +39,7 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
             
             row(title: String(localized: "Display Currency"), icon: "eurosign", iconColor: .orange) {
-                Picker("Currency", selection: $currencyCode) {
+                Picker("Currency", selection: $userSettings.currencyCode) {
                     ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
                         Text(currencyDisplayName(for: code)).tag(code)
                     }

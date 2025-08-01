@@ -4,23 +4,19 @@ import SwiftData
 struct ListView: View {
     
     // MARK: - Properties
+    // Shared
+    @EnvironmentObject var userSettings: UserSettings
+    @EnvironmentObject var ui: UIState
     
     // SwiftData
     @Environment(\.modelContext) private var context
     @Query private var expenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
-    // User Settings
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
-    
     // State
     @State private var activeSheet: ActiveExpenseSheet?
     @State private var showingSettings = false
     @State private var selectedPeriod: CostPeriod = .monthly
-    @State private var selectedSort: SortOption = .amountDescending
-    @State private var selectedFilter: FilterOption = .nonZero
-    @State private var selectedGroupBy: GroupByOption = .categories
-    @State private var selectedViewMode: ViewMode = .normal
     
     // MARK: - Body
     
@@ -55,7 +51,7 @@ struct ListView: View {
     
     /// Returns the dynamic navigation title based on the selected grouping option.
     private var navigationTitle: String {
-        switch selectedGroupBy {
+        switch ui.selectedGroupBy {
         case .none:
             return String(localized: "All Expenses")
         case .categories:
@@ -93,7 +89,7 @@ struct ListView: View {
     /// The header for each category section, showing the name and total cost.
     private func groupHeader(for groupData: ProcessedGroup) -> some View {
         HStack {
-            switch selectedGroupBy {
+            switch ui.selectedGroupBy {
             case .categories:
                 if let firstExpense = groupData.expenses.first {
                     Image(systemName: firstExpense.categoryIconName)
@@ -126,7 +122,7 @@ struct ListView: View {
                             Capsule()
                                 .fill(Color.secondary.opacity(0.15))
                         )
-                    Text(groupData.totalCost, format: .currency(code: currencyCode))
+                    Text(groupData.totalCost, format: .currency(code: userSettings.currencyCode))
                         .font(.headline)
                 }
                 .contentShape(Rectangle())
@@ -140,7 +136,7 @@ struct ListView: View {
     /// A view for a single expense row.
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle: String
-        switch selectedGroupBy {
+        switch ui.selectedGroupBy {
         case .frequencyUnit:
             subtitle = expense.categoryName
         case .categories, .none:
@@ -149,11 +145,11 @@ struct ListView: View {
         
         @ViewBuilder
         var rowContent: some View {
-            switch selectedViewMode {
+            switch ui.selectedViewMode {
             case .compact:
-                expense.createCompactRow(convertedAmount: convertCost(for: expense), currencyCode: currencyCode)
+                expense.createCompactRow(convertedAmount: convertCost(for: expense), currencyCode: userSettings.currencyCode)
             case .normal:
-                expense.createNormalRow( subtitle: subtitle, convertedAmount: convertCost(for: expense), currencyCode: currencyCode)
+                expense.createNormalRow( subtitle: subtitle, convertedAmount: convertCost(for: expense), currencyCode: userSettings.currencyCode)
             }
         }
         
@@ -183,28 +179,28 @@ struct ListView: View {
         
         ToolbarItem() {
             Menu {
-                Picker(selection: $selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
+                Picker(selection: $ui.selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
                     ForEach(FilterOption.allCases) { option in
                         Text(option.rawValue).tag(option)
                     }
                 }
                 .pickerStyle(.menu)
                 
-                Picker(selection: $selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
+                Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                     ForEach(SortOption.allCases) { option in
                         Text(option.rawValue).tag(option)
                     }
                 }
                 .pickerStyle(.menu)
                 
-                Picker(selection: $selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
+                Picker(selection: $ui.selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
                     ForEach(GroupByOption.allCases) { option in
                         Text(option.rawValue).tag(option)
                     }
                 }
                 .pickerStyle(.menu)
                 
-                Picker(selection: $selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
+                Picker(selection: $ui.selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
                     ForEach(ViewMode.allCases) { mode in
                         Text(mode.rawValue).tag(mode)
                     }
@@ -240,10 +236,10 @@ struct ListView: View {
     
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedGroups: [ProcessedGroup] {
-        let filteredExpenses = Utils.applyFilters(expenses, filter: selectedFilter)
+        let filteredExpenses = Utils.applyFilters(expenses, filter: ui.selectedFilter)
         let grouped: [String: [Expense]]
         
-        switch selectedGroupBy {
+        switch ui.selectedGroupBy {
         case .none:
             grouped = ["all": filteredExpenses]
         case .categories:
@@ -255,7 +251,7 @@ struct ListView: View {
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
             let sortedExpenses = sortExpenses(expenses: expenses)
-            let title = selectedGroupBy == .none ? String(localized: "All Expenses") : key
+            let title = ui.selectedGroupBy == .none ? String(localized: "All Expenses") : key
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
         }
         
@@ -264,7 +260,7 @@ struct ListView: View {
 
     /// Sorts an array of expenses based on the `selectedSort` state.
     private func sortExpenses(expenses: [Expense]) -> [Expense] {
-        switch selectedSort {
+        switch ui.selectedSort {
         case .amountDescending:
             return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
         case .amountAscending:
@@ -276,7 +272,7 @@ struct ListView: View {
     
     /// Sorts an array of groups based on the `selectedGroupBy` state.
     private func sortGroups(groups: [ProcessedGroup]) -> [ProcessedGroup] {
-        switch selectedGroupBy {
+        switch ui.selectedGroupBy {
         case .none:
             return groups
         case .categories:

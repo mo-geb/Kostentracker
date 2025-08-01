@@ -20,7 +20,7 @@ struct ExpenseDetailView: View {
     @State private var selectedPhoto: PhotosPickerItem?
     
     // User Settings
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
+    @EnvironmentObject var userSettings: UserSettings
 
     // Focus management
     @FocusState private var focusedField: FocusedField?
@@ -211,7 +211,7 @@ struct ExpenseDetailView: View {
                         Text("0.00")
                             .foregroundStyle(.secondary)
                     } else if let amount = expense?.amount {
-                        Text(amount, format: .currency(code: currencyCode))
+                        Text(amount, format: .currency(code: userSettings.currencyCode))
                     }
                 }
             }
@@ -366,7 +366,7 @@ struct ExpenseDetailView: View {
         VStack(alignment: .leading) {
             Text(title)
                 .font(.headline)
-            Text(amount, format: .currency(code: currencyCode))
+            Text(amount, format: .currency(code: userSettings.currencyCode))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
                 .lineLimit(1)

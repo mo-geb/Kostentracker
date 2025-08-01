@@ -7,17 +7,16 @@ import Charts
 struct StatisticsView: View {
     
     // MARK: - Properties
+    // State
+    @EnvironmentObject var ui: UIState
+    @EnvironmentObject var userSettings: UserSettings
     
     // SwiftData
     @Query private var expenses: [Expense]
     
     // State
-    @State private var showingSettings = false
     @State private var displayedCategoryChart = CategoryChart.barChart
-    
-    // User Settings
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
-    
+
     // MARK: - Body
     
     var body: some View {
@@ -25,7 +24,7 @@ struct StatisticsView: View {
             mainContent
                 .navigationTitle("Statistics")
                 .toolbar { toolbarContent }
-                .sheet(isPresented: $showingSettings) {
+                .sheet(isPresented: $ui.showingSettings) {
                     SettingsView()
                 }
         }
@@ -219,7 +218,7 @@ struct StatisticsView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                showingSettings = true
+                ui.showingSettings = true
             } label: {
                 Label("Settings", systemImage: "gearshape")
             }
@@ -234,7 +233,7 @@ struct StatisticsView: View {
                 .font(.headline)
                 .minimumScaleFactor(0.3)
                 .lineLimit(1)
-            Text(amount, format: .currency(code: currencyCode))
+            Text(amount, format: .currency(code: userSettings.currencyCode))
                 .font(.title3.weight(.semibold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.3)

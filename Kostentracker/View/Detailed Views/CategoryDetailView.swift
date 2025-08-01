@@ -215,13 +215,13 @@ struct CategoryDetailView: View {
                 switch initialState {
                 case .edit(let category):
                     if draft.isDefault {
-                        unsetAllDefaultCategories(in: context)
+                        Utils.resetDefaultCategories(in: context)
                     }
                     category.update(from: draft)
                     
                 case .new:
                     if draft.isDefault {
-                        unsetAllDefaultCategories(in: context)
+                        Utils.resetDefaultCategories(in: context)
                     }
                     let newCategory = ExpenseCategory(from: draft)
                     context.insert(newCategory)

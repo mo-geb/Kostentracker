@@ -4,14 +4,15 @@ import SwiftData
 struct SearchView: View {
     
     // MARK: - Properties
+    // Shared
+    @EnvironmentObject var userSettings: UserSettings
     
     // State
     @State private var searchText = ""
     @State private var selectedExpense: Expense?
 
     @Query private var allExpenses: [Expense]
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
-        
+
     // MARK: - Body
     
     var body: some View {
@@ -50,10 +51,10 @@ struct SearchView: View {
     private var content: some View {
         if searchText.isEmpty {
             ContentUnavailableView("Search for Expenses", systemImage: "magnifyingglass")
-            
+                .background(Color(.systemGroupedBackground))
+
         } else if searchResults.isEmpty {
             ContentUnavailableView.search(text: searchText)
-            
         } else {
             ScrollView {
                 LazyVStack(spacing: 12) {
@@ -104,7 +105,7 @@ struct SearchView: View {
             
             Spacer()
             
-            Text(expense.amount, format: .currency(code: currencyCode))
+            Text(expense.amount, format: .currency(code: userSettings.currencyCode))
                 .fontWeight(.medium)
         }
         .padding(16)

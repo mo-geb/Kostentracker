@@ -5,6 +5,9 @@ import SwiftData
 struct KostentrackerApp: App {
     let modelContainer: ModelContainer
     
+    @StateObject private var ui = UIState.shared
+    @StateObject private var userSettings = UserSettings.shared
+    
     init() {
         do {
             modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self)
@@ -22,6 +25,8 @@ struct KostentrackerApp: App {
         WindowGroup {
             MainTabView()
                 .modelContainer(modelContainer)
+                .environmentObject(ui)
+                .environmentObject(userSettings)
        }
     }
 }

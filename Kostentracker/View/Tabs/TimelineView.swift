@@ -3,20 +3,17 @@ import SwiftData
 
 struct TimelineView: View {
     // MARK: - Properties
+    // Shared
+    @EnvironmentObject var ui: UIState
+    @EnvironmentObject var userSettings: UserSettings
     
     // SwiftData
     @Environment(\.modelContext) private var context
     @Query(sort: \Expense.date) private var expenses: [Expense]
     @Query private var categories: [ExpenseCategory]
     
-    // User Settings
-    @AppStorage(UserSettings.currencyKey) private var currencyCode: String = "EUR"
-    
     // State
     @State private var activeSheet: ActiveExpenseSheet?
-    @State private var showingSettings = false
-    @State private var selectedFilter: FilterOption = .nonZero
-    @State private var selectedViewMode: ViewMode = .normal
     @State private var listRefreshID = UUID()
 
     // MARK: - Body
@@ -42,7 +39,7 @@ struct TimelineView: View {
                         }
                     }
                 }
-                .sheet(isPresented: $showingSettings) {
+                .sheet(isPresented: $ui.showingSettings) {
                     SettingsView()
                 }
         }
@@ -73,7 +70,7 @@ struct TimelineView: View {
                     HStack {
                         Text(group.month, formatter: monthFormatter)
                         Spacer()
-                        Text(group.totalAmount, format: .currency(code: currencyCode))
+                        Text(group.totalAmount, format: .currency(code: userSettings.currencyCode))
                     }
                     .font(.headline)
                     .foregroundStyle(.secondary)
@@ -89,11 +86,11 @@ struct TimelineView: View {
         
         @ViewBuilder
         var rowContent: some View {
-            switch selectedViewMode {
+            switch ui.selectedViewMode {
             case .compact:
-                expense.createCompactRow(convertedAmount: expense.amount, currencyCode: currencyCode)
+                expense.createCompactRow(convertedAmount: expense.amount, currencyCode: userSettings.currencyCode)
             case .normal:
-                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: currencyCode, displayTotal: true)
+                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: userSettings.currencyCode, displayTotal: true)
             }
         }
         
@@ -132,7 +129,7 @@ struct TimelineView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             Button {
-                showingSettings = true
+                ui.showingSettings = true
             } label: {
                 Label("Settings", systemImage: "gearshape")
             }
@@ -140,7 +137,7 @@ struct TimelineView: View {
         
         ToolbarItem() {
                 Menu {
-                    Picker(selection: $selectedFilter) {
+                    Picker(selection: $ui.selectedFilter) {
                         ForEach(FilterOption.allCases) { option in
                             Text(option.rawValue).tag(option)
                         }
@@ -149,7 +146,7 @@ struct TimelineView: View {
                     }
                     .pickerStyle(.menu)
                     
-                    Picker(selection: $selectedViewMode) {
+                    Picker(selection: $ui.selectedViewMode) {
                         ForEach(ViewMode.allCases) { mode in
                             Text(mode.rawValue).tag(mode)
                         }
@@ -187,7 +184,7 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        let filteredExpenses = Utils.applyFilters(expenses, filter: selectedFilter)
+        let filteredExpenses = Utils.applyFilters(expenses, filter: ui.selectedFilter)
         let calendar = Calendar.current
         
         // 1. Group expenses by the start of their month
