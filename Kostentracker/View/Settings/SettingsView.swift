@@ -38,7 +38,7 @@ struct SettingsView: View {
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
             
-            row(title: String(localized: "Display Currency"), icon: "eurosign", iconColor: .orange) {
+            row(title: String(localized: "Currency"), icon: "eurosign", iconColor: .orange) {
                 Picker("Currency", selection: $userSettings.currencyCode) {
                     ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
                         Text(currencyDisplayName(for: code)).tag(code)

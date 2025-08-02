@@ -385,16 +385,6 @@
         }
       }
     },
-    "Display Currency" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Währung"
-          }
-        }
-      }
-    },
     "Edit" : {
       "localizations" : {
         "de" : {
