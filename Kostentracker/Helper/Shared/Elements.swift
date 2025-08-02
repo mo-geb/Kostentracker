@@ -114,29 +114,3 @@ enum SharedToolbarElements {
         }
     }
 }
-
-// MARK: - Sheets for shared elements
-    
-enum SharedSheets {
-    @ViewBuilder
-    static func expenseHandlingSheet(_ sheet: ActiveExpenseSheet) -> some View {
-        switch sheet {
-        case .view(let expense):
-            NavigationStack {
-                ExpenseDetailView(initialState: .view(expense))
-            }
-        case .new(let draft):
-            NavigationStack {
-                ExpenseDetailView(initialState: .new(draft))
-            }
-        case .edit(let expense):
-            NavigationStack {
-                ExpenseDetailView(initialState: .edit(expense))
-            }
-        }
-    }
-    
-    static var settingsSheet: some View {
-        SettingsView()
-    }
-}

@@ -24,12 +24,6 @@ struct StatisticsView: View {
             mainContent
                 .navigationTitle("Statistics")
                 .toolbar { toolbarContent }
-                .sheet(item: $ui.activeExpenseSheet) { sheet in
-                    SharedSheets.expenseHandlingSheet(sheet)
-                }
-                .sheet(isPresented: $ui.showingSettings) {
-                    SharedSheets.settingsSheet
-                }
         }
     }
     
