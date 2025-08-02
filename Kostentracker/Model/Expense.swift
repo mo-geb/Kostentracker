@@ -38,7 +38,7 @@ class Expense: Identifiable {
     }
 }
 
-// MARK: - Utility
+// MARK: - Access helpers
 
 extension Expense {
     var yearlyCost: Double {
@@ -52,6 +52,15 @@ extension Expense {
         }
     }
     
+    var categoryColor: Color { category?.color ?? .gray }
+    var categoryIconName: String { category?.iconName ?? "tag" }
+    var categoryName: String { category?.name ?? "Other" }
+    var categorySortOrder: Int { category?.sortOrder ?? 1 }
+}
+
+// MARK: - Functions
+
+extension Expense {
     func markAsPaid() {
         withAnimation {
             let calendar = Calendar.current
@@ -195,7 +204,11 @@ extension Expense {
         }
         .padding(.vertical, 4)
     }
-    
+}
+
+// MARK: - Static mathods to apply on collections
+
+extension Expense {
     static func applyFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
         var filtered = expenses
         switch filter {
@@ -209,15 +222,18 @@ extension Expense {
         }
         return filtered
     }
-}
-
-// MARK: - Safe Category Accessors
-
-extension Expense {
-    var categoryColor: Color { category?.color ?? .gray }
-    var categoryIconName: String { category?.iconName ?? "tag" }
-    var categoryName: String { category?.name ?? "Other" }
-    var categorySortOrder: Int { category?.sortOrder ?? 1 }
+    
+    /// Sorts an array of expenses based on the `selectedSort` state.
+    static func sortExpenses(expenses: [Expense], sortOption: SortOption) -> [Expense] {
+        switch sortOption {
+        case .amountDescending:
+            return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
+        case .amountAscending:
+            return expenses.sorted { $0.yearlyCost < $1.yearlyCost }
+        case .title:
+            return expenses.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        }
+    }
 }
 
 // MARK: - Expense Draft struct for creating and editing Expenses

@@ -24,8 +24,11 @@ struct StatisticsView: View {
             mainContent
                 .navigationTitle("Statistics")
                 .toolbar { toolbarContent }
+                .sheet(item: $ui.activeExpenseSheet) { sheet in
+                    SharedSheets.expenseHandlingSheet(sheet)
+                }
                 .sheet(isPresented: $ui.showingSettings) {
-                    SettingsView()
+                    SharedSheets.settingsSheet
                 }
         }
     }
@@ -217,11 +220,11 @@ struct StatisticsView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
-                ui.showingSettings = true
-            } label: {
-                Label("Settings", systemImage: "gearshape")
-            }
+            SharedToolbarElements.SettingsButton()
+        }
+        
+        ToolbarItem() {
+            SharedToolbarElements.AddExpenseButton()
         }
     }
     

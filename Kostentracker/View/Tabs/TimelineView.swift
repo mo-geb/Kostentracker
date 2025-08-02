@@ -13,7 +13,6 @@ struct TimelineView: View {
     @Query private var categories: [ExpenseCategory]
     
     // State
-    @State private var activeSheet: ActiveExpenseSheet?
     @State private var listRefreshID = UUID()
 
     // MARK: - Body
@@ -23,24 +22,11 @@ struct TimelineView: View {
             mainContent
                 .navigationTitle("Timeline")
                 .toolbar { toolbarContent }
-                .sheet(item: $activeSheet) { sheet in
-                    switch sheet {
-                    case .view(let expense):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .view(expense))
-                        }
-                    case .new(let draft):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .new(draft))
-                        }
-                    case .edit(let expense):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .edit(expense))
-                        }
-                    }
+                .sheet(item: $ui.activeExpenseSheet) { sheet in
+                    SharedSheets.expenseHandlingSheet(sheet)
                 }
                 .sheet(isPresented: $ui.showingSettings) {
-                    SettingsView()
+                    SharedSheets.settingsSheet
                 }
         }
     }
@@ -96,10 +82,10 @@ struct TimelineView: View {
         
         return rowContent
             .contentShape(Rectangle())
-            .onTapGesture { activeSheet = .view(expense) }
+            .onTapGesture { ui.activeExpenseSheet = .view(expense) }
             .contextMenu {
                 Button {
-                    activeSheet = .edit(expense)
+                    ui.activeExpenseSheet = .edit(expense)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
@@ -128,47 +114,18 @@ struct TimelineView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
-                ui.showingSettings = true
-            } label: {
-                Label("Settings", systemImage: "gearshape")
+            SharedToolbarElements.SettingsButton()
+        }
+        
+        ToolbarItem() {
+            SharedToolbarElements.OptionsMenu {
+                SharedToolbarElements.FilterPicker()
+                SharedToolbarElements.ViewModePicker()
             }
         }
         
         ToolbarItem() {
-                Menu {
-                    Picker(selection: $ui.selectedFilter) {
-                        ForEach(FilterOption.allCases) { option in
-                            Text(option.rawValue).tag(option)
-                        }
-                    } label: {
-                        Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
-                    }
-                    .pickerStyle(.menu)
-                    
-                    Picker(selection: $ui.selectedViewMode) {
-                        ForEach(ViewMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    } label: {
-                        Label("View Mode", systemImage: "list.bullet.rectangle")
-                    }
-                    .pickerStyle(.segmented)
-                    
-                } label: {
-                    Label("Options", systemImage: "ellipsis")
-                }
-            }
-//        if #available(iOS 26.0, *) {
-//            ToolbarSpacer(.fixed)
-//        }
-        
-        ToolbarItem() {
-            Button {
-                activeSheet = .new(ExpenseDraft.createNew(with: context))
-            } label: {
-                Label("Add Expense", systemImage: "plus")
-            }
+            SharedToolbarElements.AddExpenseButton()
         }
     }
 

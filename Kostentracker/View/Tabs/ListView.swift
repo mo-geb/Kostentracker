@@ -14,7 +14,6 @@ struct ListView: View {
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     // State
-    @State private var activeSheet: ActiveExpenseSheet?
     @State private var selectedPeriod: CostPeriod = .monthly
     
     // MARK: - Body
@@ -24,24 +23,11 @@ struct ListView: View {
             mainContent
                 .navigationTitle(navigationTitle)
                 .toolbar { toolbarContent }
-                .sheet(item: $activeSheet) { sheet in
-                    switch sheet {
-                    case .view(let expense):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .view(expense))
-                        }
-                    case .new(let draft):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .new(draft))
-                        }
-                    case .edit(let expense):
-                        NavigationStack {
-                            ExpenseDetailView(initialState: .edit(expense))
-                        }
-                    }
+                .sheet(item: $ui.activeExpenseSheet) { sheet in
+                    SharedSheets.expenseHandlingSheet(sheet)
                 }
                 .sheet(isPresented: $ui.showingSettings) {
-                    SettingsView()
+                    SharedSheets.settingsSheet
                 }
         }
     }
@@ -154,10 +140,10 @@ struct ListView: View {
         
         return rowContent
             .contentShape(Rectangle())
-            .onTapGesture { activeSheet = .view(expense) }
+            .onTapGesture { ui.activeExpenseSheet = .view(expense) }
             .contextMenu {
                 Button {
-                    activeSheet = .edit(expense)
+                    ui.activeExpenseSheet = .edit(expense)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
@@ -169,57 +155,20 @@ struct ListView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            Button {
-                ui.showingSettings = true
-            } label: {
-                Label("Settings", systemImage: "gearshape")
+            SharedToolbarElements.SettingsButton()
+        }
+        
+        ToolbarItem() {
+            SharedToolbarElements.OptionsMenu {
+                SharedToolbarElements.FilterPicker()
+                SharedToolbarElements.SortPicker()
+                SharedToolbarElements.GroupByPicker()
+                SharedToolbarElements.ViewModePicker()
             }
         }
         
         ToolbarItem() {
-            Menu {
-                Picker(selection: $ui.selectedFilter, label: Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")) {
-                    ForEach(FilterOption.allCases) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(.menu)
-                
-                Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
-                    ForEach(SortOption.allCases) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(.menu)
-                
-                Picker(selection: $ui.selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
-                    ForEach(GroupByOption.allCases) { option in
-                        Text(option.rawValue).tag(option)
-                    }
-                }
-                .pickerStyle(.menu)
-                
-                Picker(selection: $ui.selectedViewMode, label: Label("View Mode", systemImage: "list.bullet.rectangle")) {
-                    ForEach(ViewMode.allCases) { mode in
-                        Text(mode.rawValue).tag(mode)
-                    }
-                }
-                .pickerStyle(.segmented)
-            } label: {
-                Label("Options", systemImage: "ellipsis")
-            }
-        }
-        
-//        if #available(iOS 26.0, *) {
-//            ToolbarSpacer(.fixed)
-//        }
-        
-        ToolbarItem() {
-            Button {
-                activeSheet = .new(ExpenseDraft.createNew(with: context))
-            } label: {
-                Label("Add Expense", systemImage: "plus")
-            }
+            SharedToolbarElements.AddExpenseButton()
         }
     }
     
@@ -249,24 +198,12 @@ struct ListView: View {
         
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
             let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
-            let sortedExpenses = sortExpenses(expenses: expenses)
+            let sortedExpenses = Expense.sortExpenses(expenses: expenses, sortOption: ui.selectedSort)
             let title = ui.selectedGroupBy == .none ? String(localized: "All Expenses") : key
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
         }
         
         return sortGroups(groups: processed)
-    }
-
-    /// Sorts an array of expenses based on the `selectedSort` state.
-    private func sortExpenses(expenses: [Expense]) -> [Expense] {
-        switch ui.selectedSort {
-        case .amountDescending:
-            return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
-        case .amountAscending:
-            return expenses.sorted { $0.yearlyCost < $1.yearlyCost }
-        case .title:
-            return expenses.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
-        }
     }
     
     /// Sorts an array of groups based on the `selectedGroupBy` state.
