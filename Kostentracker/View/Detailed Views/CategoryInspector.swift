@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct CategoryDetailView: View {
+struct CategoryInspector: View {
     // MARK: - Properties
     
     // SwiftData
@@ -203,11 +203,7 @@ struct CategoryDetailView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button { 
-                dismiss()
-            } label: {
-                Label("Cancel", systemImage: "xmark")
-            }
+            SharedToolbarElements.DismissButton()
         }
         
         ToolbarItem(placement: .confirmationAction) {
@@ -289,7 +285,7 @@ struct CategoryDetailView: View {
         }
         
         return NavigationStack {
-            CategoryDetailView(initialState: .edit(SampleData.subscription))
+            CategoryInspector(initialState: .edit(SampleData.subscription))
                 .modelContainer(container)
         }
         

@@ -4,13 +4,14 @@ import SwiftData
 struct CategoriesView: View {
     
     // MARK: - Properties
-    
+    // Shared
+    @EnvironmentObject var ui: UIState
+
     // SwiftData
     @Environment(\.modelContext) private var context
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     // State
-    @State private var activeSheet: ActiveCategorySheet?
     @State private var showingDeleteAlert = false
     
     // MARK: - Body
@@ -21,15 +22,15 @@ struct CategoriesView: View {
                 .navigationTitle("Manage Categories")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent }
-                .sheet(item: $activeSheet) { sheet in
+                .sheet(item: $ui.activeCategorySheet) { sheet in
                     switch sheet {
                     case .new(let draft):
                         NavigationStack {
-                            CategoryDetailView(initialState: .new(draft))
+                            CategoryInspector(initialState: .new(draft))
                         }
                     case .edit(let expense):
                         NavigationStack {
-                            CategoryDetailView(initialState: .edit(expense))
+                            CategoryInspector(initialState: .edit(expense))
                         }
                     }
                 }
@@ -66,7 +67,7 @@ struct CategoriesView: View {
     private var addButton: some View {
         Button {
             let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
-            activeSheet = .new(draft)
+            ui.createCategory(from: draft)
         } label: {
             Label("Add Category", systemImage: "plus")
                 .font(.headline)
@@ -155,7 +156,7 @@ struct CategoriesView: View {
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            activeSheet = .edit(category)
+            ui.editCategory(category)
         }
     }
 }

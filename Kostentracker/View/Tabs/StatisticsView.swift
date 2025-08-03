@@ -7,7 +7,7 @@ import Charts
 struct StatisticsView: View {
     
     // MARK: - Properties
-    // State
+    // Shared
     @EnvironmentObject var ui: UIState
     @EnvironmentObject var userSettings: UserSettings
     

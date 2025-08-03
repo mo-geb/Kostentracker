@@ -3,9 +3,14 @@ import UserNotifications
 import UIKit
 
 struct NotificationView: View {
+    
+    // MARK: - Properties
+    // State
     @State private var isNotificationsEnabled = false
     @State private var selectedNotificationDays: Set<NotificationDay> = []
     @State private var showSettingsAlert = false
+    
+    // MARK: - Body
     
     var body: some View {
         NavigationStack {

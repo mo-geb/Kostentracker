@@ -76,15 +76,16 @@ struct TimelineView: View {
         
         return rowContent
             .contentShape(Rectangle())
-            .onTapGesture { ui.activeExpenseSheet = .view(expense) }
+            .onTapGesture { ui.viewExpense(expense) }
             .contextMenu {
                 Button {
-                    ui.activeExpenseSheet = .edit(expense)
+                    ui.editExpense(expense)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
                 Button {
                     expense.markAsPaid()
+                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {
@@ -94,6 +95,7 @@ struct TimelineView: View {
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
                     expense.markAsPaid()
+                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {

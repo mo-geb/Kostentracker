@@ -620,7 +620,17 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als bezahlt makieren"
+            "value" : "Als bezahlt markieren"
+          }
+        }
+      }
+    },
+    "Marked Expense\nas Paid" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe als bezahlt markiert"
           }
         }
       }

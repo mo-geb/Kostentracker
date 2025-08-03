@@ -5,11 +5,11 @@ struct SearchView: View {
     
     // MARK: - Properties
     // Shared
+    @EnvironmentObject var ui: UIState
     @EnvironmentObject var userSettings: UserSettings
     
     // State
     @State private var searchText = ""
-    @State private var selectedExpense: Expense?
 
     @Query private var allExpenses: [Expense]
 
@@ -20,11 +20,6 @@ struct SearchView: View {
             content
                 .navigationTitle("Search")
                 .searchable(text: $searchText, prompt: "Search by title or notes")
-                .sheet(item: $selectedExpense) { expense in
-                    NavigationStack {
-                        ExpenseDetailView(initialState: .view(expense))
-                    }
-                }
         }
     }
     
@@ -113,7 +108,7 @@ struct SearchView: View {
         .cornerRadius(16)
         .contentShape(Rectangle())
         .onTapGesture {
-            selectedExpense = expense
+            ui.viewExpense(expense)
         }
     }
 }

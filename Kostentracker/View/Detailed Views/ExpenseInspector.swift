@@ -2,9 +2,11 @@ import SwiftUI
 import SwiftData
 import PhotosUI
 
-struct ExpenseDetailView: View {
+struct ExpenseInspector: View {
     // MARK: - Properties
-    
+    // Shared
+    @EnvironmentObject var ui: UIState
+
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
     @Environment(\.modelContext) private var context
@@ -57,7 +59,7 @@ struct ExpenseDetailView: View {
                 if isEditing && expense != nil {
                     deleteButton
                 } else if !isEditing {
-//                    markAsPaidButton
+                    markAsPaidButton
                     statisticsSection
                 }
             }
@@ -68,6 +70,11 @@ struct ExpenseDetailView: View {
         }
         .onTapGesture {
             focusedField = nil
+        }
+        .overlay {
+            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.MarkedAsPaidOwner.inspector) {
+                MarkAsPaidPopup()
+            }
         }
     }
 
@@ -317,6 +324,7 @@ struct ExpenseDetailView: View {
     private var markAsPaidButton: some View {
         Button() {
             expense?.markAsPaid()
+            ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.inspector)
             try? context.save()
         } label: {
             HStack {
@@ -422,13 +430,12 @@ struct ExpenseDetailView: View {
                 Button {
                     do {
                         switch initialState {
-                        case .edit(_), .view(_): break
+                        case .edit(_), .view(_):
+                            isEditing = false
                         case .new:
                             dismiss()
-                            break
                         }
                     }
-                    isEditing = false
                 } label: {
                     Label("Cancel", systemImage: "xmark")
                 }
@@ -476,7 +483,7 @@ struct ExpenseDetailView: View {
     
     // MARK: - Helper Views
     
-    // A generic row builder to reduce duplication of HStack, Spacer, etc.
+    /// A generic row builder to reduce duplication of HStack, Spacer, etc.
     @ViewBuilder
     private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
@@ -521,7 +528,7 @@ struct ExpenseDetailView: View {
         }
         
         return NavigationStack {
-            ExpenseDetailView(initialState: .edit(SampleData.netflixSample))
+            ExpenseInspector(initialState: .edit(SampleData.netflixSample))
                 .modelContainer(container)
                 .environmentObject(UIState())
                 .environmentObject(UserSettings())

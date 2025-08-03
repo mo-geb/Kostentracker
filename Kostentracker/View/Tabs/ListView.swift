@@ -5,8 +5,8 @@ struct ListView: View {
     
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var userSettings: UserSettings
     @EnvironmentObject var ui: UIState
+    @EnvironmentObject var userSettings: UserSettings
     
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -134,10 +134,10 @@ struct ListView: View {
         
         return rowContent
             .contentShape(Rectangle())
-            .onTapGesture { ui.activeExpenseSheet = .view(expense) }
+            .onTapGesture { ui.viewExpense(expense) }
             .contextMenu {
                 Button {
-                    ui.activeExpenseSheet = .edit(expense)
+                    ui.editExpense(expense)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
