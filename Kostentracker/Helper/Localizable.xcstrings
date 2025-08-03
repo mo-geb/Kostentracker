@@ -65,6 +65,46 @@
       },
       "shouldTranslate" : false
     },
+    "Account Name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontoname"
+          }
+        }
+      }
+    },
+    "Account Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten"
+          }
+        }
+      }
+    },
+    "Accounts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten"
+          }
+        }
+      }
+    },
+    "Add Account" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto hinzufügen"
+          }
+        }
+      }
+    },
     "Add Category" : {
       "localizations" : {
         "de" : {
@@ -121,16 +161,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Betrag (Aufsteigend)"
-          }
-        }
-      }
-    },
-    "App Website" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "App Website"
           }
         }
       }
@@ -265,16 +295,6 @@
         }
       }
     },
-    "Contact Support" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Support kontaktieren"
-          }
-        }
-      }
-    },
     "Cost" : {
       "localizations" : {
         "de" : {
@@ -365,6 +385,16 @@
         }
       }
     },
+    "Delete Account?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto Löschen?"
+          }
+        }
+      }
+    },
     "Delete Category?" : {
       "localizations" : {
         "de" : {
@@ -395,12 +425,42 @@
         }
       }
     },
+    "Edit Account" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto bearbeiten"
+          }
+        }
+      }
+    },
     "Edit Category" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kategorie bearbeiten"
+          }
+        }
+      }
+    },
+    "Enable Accounts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accounts aktivieren"
+          }
+        }
+      }
+    },
+    "Enable accounts to further organize your expenses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiviere Account"
           }
         }
       }
@@ -595,6 +655,16 @@
         }
       }
     },
+    "Manage Accounts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten bearbeiten"
+          }
+        }
+      }
+    },
     "Manage Categories" : {
       "localizations" : {
         "de" : {
@@ -681,6 +751,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name"
+          }
+        }
+      }
+    },
+    "New Account" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Konto"
           }
         }
       }
@@ -825,6 +905,16 @@
         }
       }
     },
+    "Personal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persönlich"
+          }
+        }
+      }
+    },
     "Pie" : {
       "localizations" : {
         "de" : {
@@ -931,6 +1021,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Statistiken"
+          }
+        }
+      }
+    },
+    "Support" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
           }
         }
       }
@@ -1051,6 +1151,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Darstellung"
+          }
+        }
+      }
+    },
+    "Website" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Website"
           }
         }
       }

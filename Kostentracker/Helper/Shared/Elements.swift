@@ -50,6 +50,25 @@ enum SharedToolbarElements {
         }
     }
     
+    struct AccountsButton: View {
+        @EnvironmentObject var ui: UIState
+        
+        var body: some View {
+            Menu {
+                Picker(selection: $ui.selectedFilter) {
+                    ForEach(FilterOption.allCases) { option in
+                        Text(option.rawValue).tag(option)
+                    }
+                } label: {
+                    Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
+                }
+                .pickerStyle(.inline)
+            } label: {
+                Label("Accounts", systemImage: "person.2")
+            }
+        }
+    }
+    
     struct OptionsMenu<Content: View>: View {
         private let content: Content
         

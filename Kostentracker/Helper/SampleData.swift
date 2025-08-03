@@ -9,6 +9,13 @@ struct SampleData {
         insurance
     ]
     
+    static var accounts: [ExpenseAccount] = [
+        personal,
+        shared,
+        business
+    ]
+    
+    
     /// An array of sample expenses for use in list previews.
     static var expenses: [Expense] = [
         spotifySample,
@@ -16,19 +23,19 @@ struct SampleData {
         insuranceSample
     ]
     
+    // MARK: - Accounts
+    static let personal = ExpenseAccount(from: AccountDraft(name: "Personal", iconName: "person"))
+    static let shared = ExpenseAccount(from: AccountDraft(name: "Shared", iconName: "person.2", isDefault: true))
+    static let business = ExpenseAccount(from: AccountDraft(name: "Business", iconName: "tag"))
+
+    
     // MARK: - Categories
     static let subscription = ExpenseCategory(from: CategoryDraft(name: "Subscription", iconName: "dumbbell", color: .blue, isDefault: true))
     static let insurance = ExpenseCategory(from: CategoryDraft(name: "Insurance", iconName: "shield", color: .red))
     
     // MARK: - Expenses
-    static let spotifySample = Expense(from:ExpenseDraft(
-            title: "Spotify Premium",
-            amount: 10.99,
-            frequencyUnit: .month,
-            frequencyValue: 1,
-            date: Date(),
-            category: subscription,
-            notes: "Family plan."
+    static let spotifySample = Expense(from:ExpenseDraft(title: "Spotify Premium", amount: 10.99, frequencyUnit: .month, frequencyValue: 1,
+            date: Date(), category: subscription, notes: "Family plan."
         )
     )
     

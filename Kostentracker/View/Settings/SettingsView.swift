@@ -24,6 +24,7 @@ struct SettingsView: View {
     }
     
     // MARK: - View Components
+//  [Color.red, Color.orange, Color.yellow, Color.green, Color.mint, Color.teal, Color.cyan, Color.blue, Color.indigo, Color.purple]
     
     @ViewBuilder
     private var generalSection: some View {
@@ -32,7 +33,9 @@ struct SettingsView: View {
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
             
-            row(title: String(localized: "Currency"), icon: "eurosign", iconColor: .orange) {
+            
+            
+            row(title: String(localized: "Currency"), icon: "eurosign", iconColor: .mint) {
                 Picker("Currency", selection: $userSettings.currencyCode) {
                     ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
                         Text(currencyDisplayName(for: code)).tag(code)
@@ -44,7 +47,7 @@ struct SettingsView: View {
             NavigationLink {
                 CategoriesView()
             } label: {
-                row(title: String(localized: "Manage Categories"), icon: "paintbrush", iconColor: .purple) {
+                row(title: String(localized: "Categories"), icon: "paintbrush", iconColor: .teal) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -56,9 +59,23 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             
 //            NavigationLink {
+//                AccountsView()
+//            } label: {
+//                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .yellow) {
+//                    HStack {
+//                        Spacer()
+//                        Image(systemName: "chevron.right")
+//                            .font(.caption)
+//                            .foregroundStyle(.secondary)
+//                    }
+//                }
+//            }
+//            .buttonStyle(.plain)
+            
+//            NavigationLink {
 //                NotificationView()
 //            } label: {
-//                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .red) {
+//                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .green) {
 //                    HStack {
 //                        Spacer()
 //                        Image(systemName: "chevron.right")
@@ -85,7 +102,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "App Website"), icon: "globe", iconColor: .green) {
+                row(title: String(localized: "Website"), icon: "globe", iconColor: .cyan) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -103,7 +120,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .indigo) {
+                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .blue) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -121,7 +138,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "User Guide"), icon: "book", iconColor: .mint) {
+                row(title: String(localized: "User Guide"), icon: "book", iconColor: .indigo) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -140,7 +157,7 @@ struct SettingsView: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                row(title: String(localized: "Contact Support"), icon: "wrench.and.screwdriver", iconColor: .blue) {
+                row(title: String(localized: "Support"), icon: "wrench.and.screwdriver", iconColor: .purple) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")

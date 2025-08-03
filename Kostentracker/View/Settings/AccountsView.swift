@@ -1,15 +1,16 @@
 import SwiftUI
 import SwiftData
 
-struct CategoriesView: View {
+struct AccountsView: View {
     
     // MARK: - Properties
     // Shared
     @EnvironmentObject var ui: UIState
+    @EnvironmentObject var userSettings: UserSettings
 
     // SwiftData
     @Environment(\.modelContext) private var context
-    @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
+    private var accounts = SampleData.accounts
     
     // State
     @State private var showingDeleteAlert = false
@@ -19,18 +20,18 @@ struct CategoriesView: View {
     var body: some View {
         NavigationStack {
             mainContent
-                .navigationTitle("Manage Categories")
+                .navigationTitle("Manage Accounts")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent }
-                .sheet(item: $ui.activeCategorySheet) { sheet in
+                .sheet(item: $ui.activeAccountSheet) { sheet in
                     switch sheet {
                     case .new(let draft):
                         NavigationStack {
-                            CategoryInspector(initialState: .new(draft))
+                            AccountInspector(initialState: .new(draft))
                         }
-                    case .edit(let category):
+                    case .edit(let account):
                         NavigationStack {
-                            CategoryInspector(initialState: .edit(category))
+                            AccountInspector(initialState: .edit(account))
                         }
                     }
                 }
@@ -41,9 +42,21 @@ struct CategoriesView: View {
     
     @ViewBuilder
     private var mainContent: some View {
-        VStack(spacing: 0) {
-            listSection
-            addButton
+        List {
+            Section {
+                Toggle("Enable Accounts", isOn: $userSettings.enableAccounts)
+            } header: {
+                Text("Account Settings")
+            } footer: {
+                Text("Enable accounts to further organize your expenses")
+            }
+            
+            if userSettings.enableAccounts {
+                Section {
+                    listSection
+                    addButton
+                }
+            }
         }
     }
     
@@ -51,12 +64,11 @@ struct CategoriesView: View {
     
     @ViewBuilder
     private var listSection: some View {
-        List {
-            ForEach(categories) { category in
-                categoryRow(for: category)
+        Section {
+            ForEach(accounts) { account in
+                accountRow(for: account)
                     .listRowSeparator(.hidden)
             }
-            .onMove(perform: moveCategory)
         }
         .listStyle(.plain)
     }
@@ -66,10 +78,10 @@ struct CategoriesView: View {
     @ViewBuilder
     private var addButton: some View {
         Button {
-            let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
-            ui.createCategory(from: draft)
+            let draft = AccountDraft.createNew(sortOrder: (accounts.last?.sortOrder ?? 0) + 1)
+            ui.createAccount(from: draft)
         } label: {
-            Label("Add Category", systemImage: "plus")
+            Label("Add Account", systemImage: "plus")
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -78,7 +90,7 @@ struct CategoriesView: View {
                 .cornerRadius(14)
                 .padding([.horizontal, .top])
         }
-        .accessibilityIdentifier("addCategoryButton")
+        .accessibilityIdentifier("addAccountButton")
     }
     
     // MARK: - Toolbar
@@ -86,57 +98,38 @@ struct CategoriesView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            EditButton()
+            
         }
     }
-    
-    // MARK: - Move Support
-    
-    private func moveCategory(from source: IndexSet, to destination: Int) {
-        var revised = categories
-        revised.move(fromOffsets: source, toOffset: destination)
-        for (index, category) in revised.enumerated() {
-            category.sortOrder = index
-        }
-        do {
-            try context.save()
-        } catch {
-            print("Failed to save reordered categories: \(error)")
-        }
-    }
+
     
     // MARK: - View Components
     
     @ViewBuilder
-    private func categoryRow(for category: ExpenseCategory) -> some View {
+    private func accountRow(for account: ExpenseAccount) -> some View {
         HStack(alignment: .center, spacing: 18) {
-            // Category icon with rounded rectangle background
-            ZStack {
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(category.color.opacity(0.25))
-                    .frame(width: 60, height: 60)
-                Image(systemName: category.iconName)
+  
+                Image(systemName: account.iconName)
                     .font(.system(size: 28, weight: .medium))
-                    .foregroundStyle(category.color)
-            }
-            
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .frame(width: 40, height: 40)
             VStack(alignment: .leading, spacing: 6) {
-                Text(category.name)
+                Text(account.name)
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .layoutPriority(1)
                     .minimumScaleFactor(0.8)
                 HStack(alignment: .center, spacing: 8) {
-                    Text("\(category.expenses?.count ?? 0) expenses")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    if category.isDefault {
+//                    Text("\(account.expenses?.count ?? 0) expenses")
+//                        .font(.subheadline)
+//                        .foregroundStyle(.secondary)
+                    if account.isDefault {
                         Text("Default")
                             .font(.caption2)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(.thickMaterial)
+                            .background(Color(.systemGray5))
                             .foregroundStyle(.secondary)
                             .cornerRadius(7)
                     }
@@ -156,7 +149,7 @@ struct CategoriesView: View {
         )
         .contentShape(Rectangle())
         .onTapGesture {
-            ui.editCategory(category)
+            ui.editAccount(account)
         }
     }
 }
@@ -165,7 +158,6 @@ struct CategoriesView: View {
     do {
         let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
         let context = container.mainContext
-        let ui = UIState()
         
         #if DEBUG
         print("Entered App in DEBUG... Deleting models")
@@ -185,12 +177,10 @@ struct CategoriesView: View {
             container.mainContext.insert($0)
         }
         
-        
-        
         return NavigationStack {
-            SettingsView()
+            AccountsView()
                 .modelContainer(container)
-                .environmentObject(ui)
+                .environmentObject(UIState())
                 .environmentObject(UserSettings())
         }
         

@@ -7,6 +7,7 @@ final class UserSettings: ObservableObject {
     static let shared = UserSettings()
 
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
+    @AppStorage("enableAccounts") var enableAccounts: Bool = false
 }
 
 // MARK: - UI State
@@ -19,6 +20,7 @@ final class UIState: ObservableObject {
     // Modals / Sheets
     @Published var activeExpenseSheet: ActiveExpenseSheet?
     @Published var activeCategorySheet: ActiveCategorySheet?
+    @Published var activeAccountSheet: ActiveAccountSheet?
     @Published var showingSettings: Bool = false
 
     // Toasts
@@ -54,6 +56,14 @@ final class UIState: ObservableObject {
 
     func createCategory(from draft: CategoryDraft) {
         activeCategorySheet = .new(draft)
+    }
+    
+    func editAccount(_ account: ExpenseAccount) {
+        activeAccountSheet = .edit(account)
+    }
+
+    func createAccount(from draft: AccountDraft) {
+        activeAccountSheet = .new(draft)
     }
 
     func dismissAllSheets() {
