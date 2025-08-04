@@ -1,8 +1,19 @@
+import Foundation
+
 enum FrequencyUnit: String, Codable, CaseIterable {
     case day, week, month, year
 }
 
 extension FrequencyUnit {
+    var periodName: LocalizedStringResource {
+        switch self {
+        case .year: return "Yearly"
+        case .month: return "Monthly"
+        case .week: return "Weekly"
+        case .day: return "Daily"
+        }
+    }
+    
     /// Returns the properly capitalized and pluralized form of the frequency unit.
     func displayName(for value: Int16) -> String {
         let singular = value == 1

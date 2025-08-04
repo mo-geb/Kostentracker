@@ -14,7 +14,7 @@ struct ListView: View {
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     // State
-    @State private var selectedPeriod: CostPeriod = .monthly
+    @State private var selectedPeriod: FrequencyUnit = .month
     
     // MARK: - Body
     
@@ -87,13 +87,13 @@ struct ListView: View {
             Text(groupData.title)
             Spacer()
             Button(action: {
-                if let currentIndex = CostPeriod.allCases.firstIndex(of: selectedPeriod) {
-                    let nextIndex = (currentIndex + 1) % CostPeriod.allCases.count
-                    selectedPeriod = CostPeriod.allCases[nextIndex]
+                if let currentIndex = FrequencyUnit.allCases.firstIndex(of: selectedPeriod) {
+                    let nextIndex = (currentIndex + 1) % FrequencyUnit.allCases.count
+                    selectedPeriod = FrequencyUnit.allCases[nextIndex]
                 }
             }) {
                 HStack(spacing: 8) {
-                    Text(selectedPeriod.rawValue)
+                    Text(selectedPeriod.periodName)
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -228,13 +228,13 @@ struct ListView: View {
     private func convertCost(for expense: Expense) -> Double {
         let yearly = expense.yearlyCost
         switch selectedPeriod {
-        case .yearly:
+        case .year:
             return yearly
-        case .monthly:
+        case .month:
             return yearly / 12
-        case .weekly:
+        case .week:
             return yearly / 52
-        case .daily:
+        case .day:
             return yearly / 365
         }
     }

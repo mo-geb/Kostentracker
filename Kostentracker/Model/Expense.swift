@@ -81,19 +81,19 @@ extension Expense {
     
     /// Calculates the total cost of this expense for a specific month
     func totalForMonth(containing date: Date) -> Double {
-        var components = Calendar.current.dateComponents([.year, .month], from: date)
-        components.timeZone = TimeZone(secondsFromGMT: 0)
-        let monthStart = Calendar.current.date(from: components)!
-        let monthEnd = Calendar.current.date(byAdding: DateComponents(month: 1, second: -1), to: monthStart)!
-        
-        var currentDate = self.date
+        let calendar = Calendar.current
+        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        let monthEnd = calendar.date(byAdding: .month, value: 1, to: monthStart)!
+
+        let normalizedSelfDate = calendar.startOfDay(for: self.date)
+        var currentDate = normalizedSelfDate
         var monthTotal = 0.0
 
-        while currentDate <= monthEnd {
+        while currentDate < monthEnd {
             if currentDate >= monthStart {
                 monthTotal += self.amount
             }
-            
+
             let dateComponent: Calendar.Component
             switch frequencyUnit {
             case .day: dateComponent = .day
@@ -101,15 +101,14 @@ extension Expense {
             case .month: dateComponent = .month
             case .year: dateComponent = .year
             }
-            
-            guard let nextDate = Calendar.current.date(byAdding: dateComponent,
-                                             value: Int(frequencyValue),
-                                             to: currentDate) else { break }
+
+            guard let nextDate = calendar.date(byAdding: dateComponent, value: Int(frequencyValue), to: currentDate) else { break }
             currentDate = nextDate
         }
-        
+
         return monthTotal
     }
+
     
     /// Returns true if this expense occurs multiple times in the given month
     func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {

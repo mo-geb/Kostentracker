@@ -1,4 +1,4 @@
-import SwiftUICore
+import SwiftUI
 
 struct MarkAsPaidPopup: View {
     var body: some View {
