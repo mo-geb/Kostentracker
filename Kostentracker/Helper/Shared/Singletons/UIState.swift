@@ -7,7 +7,6 @@ final class UIState: ObservableObject {
     // MARK: - Published UI States
     
     // Modals / Sheets
-    @Published var activeSheet: ActiveSheet?
     @Published var activeExpenseSheet: ActiveExpenseSheet?
     @Published var activeCategorySheet: ActiveCategorySheet?
     @Published var activeAccountSheet: ActiveAccountSheet?
