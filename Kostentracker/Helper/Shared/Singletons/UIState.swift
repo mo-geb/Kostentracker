@@ -1,23 +1,13 @@
 import Foundation
 import SwiftUI
 
-// MARK: - User Settings
-
-final class UserSettings: ObservableObject {
-    static let shared = UserSettings()
-
-    @AppStorage("currencyCode") var currencyCode: String = "EUR"
-    @AppStorage("enableAccounts") var enableAccounts: Bool = false
-}
-
-// MARK: - UI State
-
 final class UIState: ObservableObject {
     static let shared = UIState()
 
     // MARK: - Published UI States
     
     // Modals / Sheets
+    @Published var activeSheet: ActiveSheet?
     @Published var activeExpenseSheet: ActiveExpenseSheet?
     @Published var activeCategorySheet: ActiveCategorySheet?
     @Published var activeAccountSheet: ActiveAccountSheet?
