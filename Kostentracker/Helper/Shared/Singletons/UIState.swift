@@ -20,6 +20,7 @@ final class UIState: ObservableObject {
     @Published var selectedSort: SortOption = .amountDescending
     @Published var selectedGroupBy: GroupByOption = .categories
     @Published var selectedViewMode: ViewMode = .normal
+    @Published var selectedDisplayPeriod: FrequencyUnit = .month
 
     // MARK: - Sheet Workflows
 
@@ -53,12 +54,6 @@ final class UIState: ObservableObject {
 
     func createAccount(from draft: AccountDraft) {
         activeAccountSheet = .new(draft)
-    }
-
-    func dismissAllSheets() {
-        activeExpenseSheet = nil
-        activeCategorySheet = nil
-        showingSettings = false
     }
 
     // MARK: - Popup / Transient Feedback

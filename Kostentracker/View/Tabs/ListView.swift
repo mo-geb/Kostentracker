@@ -13,9 +13,6 @@ struct ListView: View {
     @Query private var expenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
-    // State
-    @State private var selectedPeriod: FrequencyUnit = .month
-    
     // MARK: - Body
     
     var body: some View {
@@ -87,13 +84,13 @@ struct ListView: View {
             Text(groupData.title)
             Spacer()
             Button(action: {
-                if let currentIndex = FrequencyUnit.allCases.firstIndex(of: selectedPeriod) {
+                if let currentIndex = FrequencyUnit.allCases.firstIndex(of: ui.selectedDisplayPeriod) {
                     let nextIndex = (currentIndex + 1) % FrequencyUnit.allCases.count
-                    selectedPeriod = FrequencyUnit.allCases[nextIndex]
+                    ui.selectedDisplayPeriod = FrequencyUnit.allCases[nextIndex]
                 }
             }) {
                 HStack(spacing: 8) {
-                    Text(selectedPeriod.periodName)
+                    Text(ui.selectedDisplayPeriod.periodName)
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
@@ -122,17 +119,7 @@ struct ListView: View {
             subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
         }
         
-        @ViewBuilder
-        var rowContent: some View {
-            switch ui.selectedViewMode {
-            case .compact:
-                expense.createCompactRow(convertedAmount: convertCost(for: expense), currencyCode: userSettings.currencyCode)
-            case .normal:
-                expense.createNormalRow( subtitle: subtitle, convertedAmount: convertCost(for: expense), currencyCode: userSettings.currencyCode)
-            }
-        }
-        
-        return rowContent
+        return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
             .contentShape(Rectangle())
             .onTapGesture { ui.viewExpense(expense) }
             .contextMenu {
@@ -191,7 +178,7 @@ struct ListView: View {
         }
         
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
-            let total = expenses.reduce(0) { $0 + convertCost(for: $1) }
+            let total = expenses.reduce(0) { $0 + $1.getCostFor(for: ui.selectedDisplayPeriod) }
             let sortedExpenses = Expense.sortExpenses(expenses: expenses, sortOption: ui.selectedSort)
             let title = ui.selectedGroupBy == .none ? String(localized: "All Expenses") : key
             return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sortedExpenses)
@@ -221,21 +208,6 @@ struct ListView: View {
                 else { return false }
                 return unitA.sortOrder < unitB.sortOrder
             }
-        }
-    }
-
-    /// Converts an expense's cost to the currently selected time period.
-    private func convertCost(for expense: Expense) -> Double {
-        let yearly = expense.yearlyCost
-        switch selectedPeriod {
-        case .year:
-            return yearly
-        case .month:
-            return yearly / 12
-        case .week:
-            return yearly / 52
-        case .day:
-            return yearly / 365
         }
     }
 }

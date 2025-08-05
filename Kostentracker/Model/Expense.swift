@@ -52,6 +52,18 @@ extension Expense {
         }
     }
     
+    var monthlyCost: Double {
+        return yearlyCost / 12.0
+    }
+
+    var weeklyCost: Double {
+        return yearlyCost / 52.0
+    }
+
+    var dailyCost: Double {
+        return yearlyCost / 365.0
+    }
+    
     var categoryColor: Color { category?.color ?? .gray }
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }
@@ -61,6 +73,19 @@ extension Expense {
 // MARK: - Functions
 
 extension Expense {
+    func getCostFor(for selectedPeriod: FrequencyUnit) -> Double {
+        switch selectedPeriod {
+        case .year:
+            return yearlyCost
+        case .month:
+            return monthlyCost
+        case .week:
+            return weeklyCost
+        case .day:
+            return dailyCost
+        }
+    }
+    
     func markAsPaid() {
         withAnimation {
             let calendar = Calendar.current
@@ -114,94 +139,6 @@ extension Expense {
     func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {
         let total = totalForMonth(containing: date)
         return total > amount
-    }
-    
-    /// Compact row: just icon and title/cost
-    func createCompactRow(convertedAmount: Double, currencyCode: String) -> some View {
-        let isZero: Bool = convertedAmount == 0
-
-        return HStack(spacing: 8) {
-            if let imageData = customImageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20, height: 20)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-            } else {
-                ZStack {
-                    Circle()
-                        .fill(categoryColor.opacity(0.3))
-                        .frame(width: 20, height: 20)
-                    Image(systemName: categoryIconName)
-                        .font(.caption)
-                        .foregroundStyle(categoryColor)
-                }
-            }
-            Text(title)
-                .font(.body)
-                .foregroundStyle(isZero ? .secondary : .primary)
-            Spacer()
-            Text(convertedAmount, format: .currency(code: currencyCode))
-                .fontWeight(.medium)
-                .font(.body)
-                .foregroundStyle(isZero ? .secondary : .primary)
-        }
-    }
-    
-    /// Normal row: icon, title, subtitle, cost
-    func createNormalRow(subtitle: String, convertedAmount: Double, currencyCode: String, displayTotal: Bool = false) -> some View {
-        let isOverdue: Bool = {
-            // Try to parse the subtitle as a date in the same format used in TimelineView
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            if let date = formatter.date(from: subtitle) {
-                return date < Calendar.current.startOfDay(for: Date())
-            }
-            return false
-        }()
-        
-        let isZero: Bool = convertedAmount == 0
-        
-        return HStack(spacing: 12) {
-            if let imageData = customImageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else {
-                ZStack {
-                    Circle()
-                        .fill(categoryColor.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    Image(systemName: categoryIconName)
-                        .font(.title2)
-                        .foregroundStyle(categoryColor)
-                }
-            }
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundStyle(isZero ? .secondary : .primary)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(isOverdue ? Color.red : Color.secondary)
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(convertedAmount, format: .currency(code: currencyCode))
-                    .fontWeight(.medium)
-                    .foregroundStyle(isZero ? .secondary : .primary)
-                if displayTotal && hasMultipleOccurrencesInMonth(containing: date) {
-                    let monthTotal = totalForMonth(containing: date)
-                    Text(monthTotal, format: .currency(code: currencyCode))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-        .padding(.vertical, 4)
     }
 }
 

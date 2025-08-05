@@ -353,15 +353,11 @@ struct ExpenseInspector: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Statistics")
                     .font(.headline)
-
-                let yearlyCost = expense?.yearlyCost ?? 0
-                let monthlyCost = yearlyCost / 12
-                let weeklyCost = yearlyCost / 52
                 
                 HStack {
-                    costCard(title: "Yearly", amount: yearlyCost)
-                    costCard(title: "Monthly", amount: monthlyCost)
-                    costCard(title: "Weekly", amount: weeklyCost)
+                    costCard(title: "Yearly", amount: expense?.yearlyCost ?? 0)
+                    costCard(title: "Monthly", amount: expense?.monthlyCost ?? 0)
+                    costCard(title: "Weekly", amount: expense?.weeklyCost ?? 0)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)

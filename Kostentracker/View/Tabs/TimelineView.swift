@@ -64,17 +64,7 @@ struct TimelineView: View {
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle = DateFormatter.localizedString(from: expense.date, dateStyle: .medium, timeStyle: .none)
         
-        @ViewBuilder
-        var rowContent: some View {
-            switch ui.selectedViewMode {
-            case .compact:
-                expense.createCompactRow(convertedAmount: expense.amount, currencyCode: userSettings.currencyCode)
-            case .normal:
-                expense.createNormalRow(subtitle: subtitle, convertedAmount: expense.amount, currencyCode: userSettings.currencyCode, displayTotal: true)
-            }
-        }
-        
-        return rowContent
+        return ExpenseRow(expense: expense, subtitle: subtitle, tab: .timeline)
             .contentShape(Rectangle())
             .onTapGesture { ui.viewExpense(expense) }
             .contextMenu {
