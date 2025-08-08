@@ -206,6 +206,9 @@
 				en,
 				Base,
 				de,
+				es,
+				fr,
+				sv,
 			);
 			mainGroup = CD7B9E1A2E0E9E3700528A7A;
 			minimizedProjectReferenceProxies = 1;
@@ -411,7 +414,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kostentracker/Kostentracker.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3UC3S478RS;
 				ENABLE_APP_SANDBOX = YES;
@@ -458,7 +461,7 @@
 				CODE_SIGN_ENTITLEMENTS = Kostentracker/Kostentracker.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 22;
+				CURRENT_PROJECT_VERSION = 23;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = 3UC3S478RS;
 				ENABLE_APP_SANDBOX = YES;
