@@ -1,4 +1,4 @@
-enum NotificationDay: CaseIterable {
+enum NotificationDay: String, Codable, CaseIterable {
     case oneWeekBefore, threeDaysBefore, oneDayBefore, onDay, overdue
     
     var description: String {

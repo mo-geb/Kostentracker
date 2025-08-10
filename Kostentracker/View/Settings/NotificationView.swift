@@ -6,9 +6,9 @@ struct NotificationView: View {
     
     // MARK: - Properties
     // State
-    @State private var isNotificationsEnabled = false
-    @State private var selectedNotificationDays: Set<NotificationDay> = []
     @State private var showSettingsAlert = false
+    @EnvironmentObject var settings: UserSettings
+    @State private var selectedNotificationDays: Set<NotificationDay> = []
     
     // MARK: - Body
     
@@ -19,7 +19,7 @@ struct NotificationView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .alert("Notifications Disabled", isPresented: $showSettingsAlert) {
                     Button("Cancel", role: .cancel) {
-                        isNotificationsEnabled = false
+                        settings.isNotificationsEnabled = false
                     }
                     Button("Settings") {
                         if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
@@ -38,8 +38,8 @@ struct NotificationView: View {
     private var mainContent: some View {
         List {
             Section {
-                Toggle("Enable Notifications", isOn: $isNotificationsEnabled)
-                    .onChange(of: isNotificationsEnabled) { _, newValue in
+                Toggle("Enable Notifications", isOn: $settings.isNotificationsEnabled)
+                    .onChange(of: settings.isNotificationsEnabled) { _, newValue in
                         if newValue {
                             requestNotificationPermission()
                         }
@@ -50,7 +50,17 @@ struct NotificationView: View {
                 Text("Enable notifications to receive reminders about upcoming expenses")
             }
             
-            if isNotificationsEnabled {
+            if settings.isNotificationsEnabled {
+                Section {
+                    Toggle("Daily Summary Notifications", isOn: $settings.useDailySummaryNotifications)
+                } footer: {
+                    if settings.useDailySummaryNotifications {
+                        Text("You receive one single notification sumarizing the amount of due and overdue expenses based on your schedule")
+                    } else {
+                        Text("You receive one notification per expense based on your schedule")
+                    }
+                }
+                
                 Section {
                     ForEach(NotificationDay.allCases, id: \.self) { day in
                         scheduleRow(day: day)
@@ -59,6 +69,18 @@ struct NotificationView: View {
                     Text("Reminder Schedule")
                 } footer: {
                     Text("Select when you want to be notified about upcoming expenses")
+                }
+                
+                if selectedNotificationDays.contains(.overdue) {
+                    Section {
+                        Toggle("Repeat overdue Expenses", isOn: $settings.repeatOverdueNotifications)
+                    } footer: {
+                        if settings.repeatOverdueNotifications {
+                            Text("You get notified about overdue expenses as long as they are not paid")
+                        } else {
+                            Text("You get notified about overdue expenses once")
+                        }
+                    }
                 }
             }
         }
@@ -88,18 +110,18 @@ struct NotificationView: View {
     }
     
     private func requestNotificationPermission() {
-        UNUserNotificationCenter.current().getNotificationSettings { settings in
+        UNUserNotificationCenter.current().getNotificationSettings { systemSettings in
             DispatchQueue.main.async {
-                switch settings.authorizationStatus {
+                switch systemSettings.authorizationStatus {
                 case .authorized:
-                    isNotificationsEnabled = true
+                    settings.isNotificationsEnabled = true
                 case .denied:
-                    isNotificationsEnabled = false
+                    settings.isNotificationsEnabled = false
                     showSettingsAlert = true
                 case .notDetermined:
                     UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                         DispatchQueue.main.async {
-                            isNotificationsEnabled = granted
+                            settings.isNotificationsEnabled = granted
                         }
                     }
                 default:
