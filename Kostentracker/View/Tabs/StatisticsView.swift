@@ -90,6 +90,9 @@ struct StatisticsView: View {
                 }
                 .contentShape(Rectangle())
                 .buttonStyle(.plain)
+                .accessibilityLabel("Chart type: \(displayedCategoryChart.rawValue)")
+                .accessibilityHint("Switches between bar chart and pie chart")
+                .frame(minWidth: 44, minHeight: 44)
             }
             switch displayedCategoryChart {
             case .barChart:

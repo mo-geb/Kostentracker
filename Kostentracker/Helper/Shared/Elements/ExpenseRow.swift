@@ -18,6 +18,9 @@ struct ExpenseRow: View {
             amountSection
         }
         .padding(.vertical, 4)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(isOverdue ? "\(expense.accessibilityLabel), Overdue" : expense.accessibilityLabel)
+        .accessibilityHint("Double tap to view details")
     }
 
     // MARK: - Subviews for Normal Mode
@@ -32,6 +35,7 @@ struct ExpenseRow: View {
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .accessibilityLabel("Custom image for \(expense.categoryName)")
             } else {
                 ZStack {
                     Circle()
@@ -41,6 +45,7 @@ struct ExpenseRow: View {
                         .font(.title2)
                         .foregroundStyle(expense.categoryColor)
                 }
+                .accessibilityLabel("\(expense.categoryName) category")
             }
         case .compact:
             if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
@@ -49,6 +54,7 @@ struct ExpenseRow: View {
                     .scaledToFit()
                     .frame(width: 20, height: 20)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .accessibilityLabel("Custom image for \(expense.categoryName)")
             } else {
                 ZStack {
                     Circle()
@@ -58,6 +64,7 @@ struct ExpenseRow: View {
                         .font(.caption)
                         .foregroundStyle(expense.categoryColor)
                 }
+                .accessibilityLabel("\(expense.categoryName) category")
             }
         }
     }
@@ -70,15 +77,34 @@ struct ExpenseRow: View {
                 Text(expense.title)
                     .font(.headline)
                     .foregroundStyle(isZero ? .secondary : .primary)
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(isOverdue ? Color.red : Color.secondary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                HStack(spacing: 4) {
+                    if isOverdue {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.red)
+                            .accessibilityLabel("Overdue")
+                    }
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(isOverdue ? Color.red : Color.secondary)
+                }
             }
         case .compact:
-            Text(expense.title)
-                .font(.body)
-                .foregroundStyle(isZero ? .secondary : .primary)
-                .lineLimit(1)
+            HStack(spacing: 4) {
+                if isOverdue {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(Color.red)
+                        .accessibilityLabel("Overdue")
+                }
+                Text(expense.title)
+                    .font(.body)
+                    .foregroundStyle(isZero ? .secondary : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
         }
     }
     

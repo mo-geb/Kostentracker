@@ -73,6 +73,9 @@ struct TimelineView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
+                .accessibilityLabel("Edit expense")
+                .accessibilityHint("Opens expense for editing")
+                
                 Button {
                     expense.markAsPaid()
                     ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
@@ -81,6 +84,8 @@ struct TimelineView: View {
                 } label: {
                     Label("Mark as paid", systemImage: "checkmark")
                 }
+                .accessibilityLabel("Mark as paid")
+                .accessibilityHint("Marks this expense as paid")
             }
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
@@ -92,6 +97,8 @@ struct TimelineView: View {
                     Label("Paid", systemImage: "checkmark")
                 }
                 .tint(.green)
+                .accessibilityLabel("Mark as paid")
+                .accessibilityHint("Marks this expense as paid")
             }
     }
     

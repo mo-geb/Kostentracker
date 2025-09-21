@@ -78,6 +78,7 @@ struct CategoriesView: View {
                 .cornerRadius(14)
                 .padding([.horizontal, .top])
         }
+        .frame(minHeight: 44)
         .accessibilityIdentifier("addCategoryButton")
     }
     
@@ -124,9 +125,9 @@ struct CategoriesView: View {
                 Text(category.name)
                     .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(.primary)
-                    .lineLimit(1)
+                    .lineLimit(2)
                     .layoutPriority(1)
-                    .minimumScaleFactor(0.8)
+                    .minimumScaleFactor(0.7)
                 HStack(alignment: .center, spacing: 8) {
                     Text("\(category.expenses?.count ?? 0) expenses")
                         .font(.subheadline)
@@ -154,6 +155,7 @@ struct CategoriesView: View {
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Color(.secondarySystemBackground))
         )
+        .frame(minHeight: 44)
         .contentShape(Rectangle())
         .onTapGesture {
             ui.editCategory(category)

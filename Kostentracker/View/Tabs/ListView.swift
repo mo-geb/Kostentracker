@@ -58,8 +58,12 @@ struct ListView: View {
                 } header: {
                     groupHeader(for: groupData)
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Section: \(groupData.title)")
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Expenses list with \(processedGroups.count) sections")
     }
     
     /// The header for each category section, showing the name and total cost.
@@ -70,18 +74,24 @@ struct ListView: View {
                 if let firstExpense = groupData.expenses.first {
                     Image(systemName: firstExpense.categoryIconName)
                         .foregroundStyle(firstExpense.categoryColor)
+                        .accessibilityLabel("\(groupData.title) category icon")
                 } else {
                     Image(systemName: "tray")
+                        .accessibilityLabel("Default category icon")
                 }
             case .frequencyUnit:
                 Image(systemName: "clock")
                     .foregroundStyle(.blue)
+                    .accessibilityLabel("Frequency icon")
             case .none:
                 Image(systemName: "list.bullet")
                     .foregroundStyle(.gray)
+                    .accessibilityLabel("List icon")
             }
             
             Text(groupData.title)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityLabel("Section: \(groupData.title), \(groupData.expenses.count) expenses")
             Spacer()
             Button(action: {
                 if let currentIndex = FrequencyUnit.allCases.firstIndex(of: ui.selectedDisplayPeriod) {
@@ -104,9 +114,13 @@ struct ListView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Change display period")
-            .accessibilityHint("Cycles through yearly, monthly, weekly, daily")
+            .accessibilityLabel("Change display period from \(ui.selectedDisplayPeriod.periodName). Total: \(groupData.totalCost, format: .currency(code: userSettings.currencyCode))")
+            .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
+            .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
+            .frame(minWidth: 44, minHeight: 44)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
     }
     
     /// A view for a single expense row.
@@ -128,6 +142,8 @@ struct ListView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
+                .accessibilityLabel("Edit expense")
+                .accessibilityHint("Opens expense for editing")
             }
     }
     

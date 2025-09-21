@@ -8,15 +8,26 @@ struct MainTabView: View {
             Tab("Timeline", systemImage: "calendar") {
                 TimelineView()
             }
+            .accessibilityLabel("Timeline tab")
+            .accessibilityHint("View expenses organized by date")
+            
             Tab("List", systemImage: "list.bullet") {
                 ListView()
             }
+            .accessibilityLabel("List tab")
+            .accessibilityHint("View expenses in a categorized list")
+            
             Tab("Statistics", systemImage: "chart.bar") {
                 StatisticsView()
             }
+            .accessibilityLabel("Statistics tab")
+            .accessibilityHint("View expense charts and analytics")
+            
             Tab(role: .search) {
                 SearchView()
             }
+            .accessibilityLabel("Search tab")
+            .accessibilityHint("Search through your expenses")
         }
         .tabViewStyle(.automatic)
         .background(.thinMaterial)

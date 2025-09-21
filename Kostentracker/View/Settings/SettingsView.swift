@@ -56,6 +56,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .frame(minHeight: 44)
             .buttonStyle(.plain)
             
 //            NavigationLink {
@@ -111,6 +112,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .frame(minHeight: 44)
             .buttonStyle(.plain)
             
             Button {
@@ -129,6 +131,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .frame(minHeight: 44)
             .buttonStyle(.plain)
             
             Button {
@@ -147,6 +150,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .frame(minHeight: 44)
             .buttonStyle(.plain)
             
             Button {
@@ -166,6 +170,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .frame(minHeight: 44)
             .buttonStyle(.plain)
         }
     }

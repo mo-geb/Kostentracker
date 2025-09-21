@@ -10,6 +10,9 @@ enum SharedToolbarElements {
             } label: {
                 Label("Settings", systemImage: "gearshape")
             }
+            .accessibilityLabel("Settings")
+            .accessibilityHint("Opens app settings and preferences")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     
@@ -29,6 +32,9 @@ enum SharedToolbarElements {
             } label: {
                 Label("Accounts", systemImage: "person.2")
             }
+            .accessibilityLabel("Accounts filter")
+            .accessibilityHint("Opens menu to filter expenses by account")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     
@@ -45,6 +51,9 @@ enum SharedToolbarElements {
             } label: {
                 Label("Options", systemImage: "ellipsis")
             }
+            .accessibilityLabel("Options menu")
+            .accessibilityHint("Opens menu with filtering, sorting, and view options")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     
@@ -58,6 +67,9 @@ enum SharedToolbarElements {
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }
+            .accessibilityLabel("Add expense")
+            .accessibilityHint("Creates a new expense entry")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     
@@ -70,6 +82,9 @@ enum SharedToolbarElements {
             } label: {
                 Label("Cancel", systemImage: "xmark")
             }
+            .accessibilityLabel("Cancel")
+            .accessibilityHint("Closes this screen without saving changes")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     
@@ -87,6 +102,8 @@ enum SharedToolbarElements {
                 Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
             }
             .pickerStyle(.menu)
+            .accessibilityLabel("Filter expenses")
+            .accessibilityHint("Choose which expenses to display")
         }
     }
     
@@ -100,6 +117,8 @@ enum SharedToolbarElements {
                 }
             }
             .pickerStyle(.menu)
+            .accessibilityLabel("Sort expenses")
+            .accessibilityHint("Choose how to order the expense list")
         }
     }
     
@@ -113,6 +132,8 @@ enum SharedToolbarElements {
                 }
             }
             .pickerStyle(.menu)
+            .accessibilityLabel("Group expenses")
+            .accessibilityHint("Choose how to organize expenses into sections")
         }
     }
     
@@ -128,6 +149,8 @@ enum SharedToolbarElements {
                 Label("View Mode", systemImage: "list.bullet.rectangle")
             }
             .pickerStyle(.segmented)
+            .accessibilityLabel("View mode")
+            .accessibilityHint("Switch between different display modes")
         }
     }
 }

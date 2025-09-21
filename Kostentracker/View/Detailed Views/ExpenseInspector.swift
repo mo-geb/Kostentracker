@@ -52,15 +52,21 @@ struct ExpenseInspector: View {
         ScrollView {
             VStack(spacing: 20) {
                 pictureSection
+                    .accessibilitySortPriority(1)
                 titleSection
+                    .accessibilitySortPriority(2)
                 
                 detailsSection
+                    .accessibilitySortPriority(3)
                 
                 if isEditing && expense != nil {
                     deleteButton
+                        .accessibilitySortPriority(4)
                 } else if !isEditing {
                     markAsPaidButton
+                        .accessibilitySortPriority(4)
                     statisticsSection
+                        .accessibilitySortPriority(5)
                 }
             }
         }
@@ -90,8 +96,11 @@ struct ExpenseInspector: View {
                             Image(systemName: "pencil.circle.fill")
                                 .font(.title)
                                 .offset(x: 10, y: 10)
+                                .accessibilityHidden(true)
                         }
                 }
+                .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
+                .accessibilityHint("Double tap to select a photo from your library")
                 .onChange(of: selectedPhoto) {
                     Task {
                         if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
@@ -106,7 +115,10 @@ struct ExpenseInspector: View {
                     } label: {
                         Label("Remove", systemImage: "eraser")
                     }
+                    .frame(minWidth: 44, minHeight: 44)
                     .padding(.top, 8)
+                    .accessibilityLabel("Remove expense image")
+                    .accessibilityHint("Double tap to remove the current image")
                 }
             } else {
                 imageDisplay
@@ -124,6 +136,7 @@ struct ExpenseInspector: View {
                     .resizable()
                     .scaledToFill()
                     .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .accessibilityLabel("Custom expense image")
             } else {
                 ZStack {
                     Circle()
@@ -133,6 +146,7 @@ struct ExpenseInspector: View {
                         .font(.system(size: 40))
                         .foregroundStyle(isEditing ? (draft.category?.color ?? .gray) : (expense?.categoryColor ?? .gray))
                 }
+                .accessibilityLabel("Category icon: \(isEditing ? (draft.category?.iconName ?? "tag") : (expense?.categoryIconName ?? "tag"))")
             }
         }
         .frame(width: 100, height: 100)
@@ -147,9 +161,13 @@ struct ExpenseInspector: View {
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
                 .padding(.horizontal)
                 .padding(-10)
                 .focused($focusedField, equals: .expenseDetailTitle)
+                .accessibilityLabel("Expense title")
+                .accessibilityHint("Enter a title for this expense. Maximum 20 characters.")
+                .accessibilityValue(draft.title.isEmpty ? "Empty" : draft.title)
                 .onChange(of: draft.title) { _, newValue in
                     if newValue.count > 20 {
                         draft.title = String(newValue.prefix(20))
@@ -160,8 +178,11 @@ struct ExpenseInspector: View {
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
                 .padding(.horizontal)
                 .padding(-10)
+                .accessibilityLabel("Expense title: \(expense?.title ?? "No title")")
         }
     }
     
@@ -178,6 +199,9 @@ struct ExpenseInspector: View {
                         .background(Color(.secondarySystemBackground))
                         .cornerRadius(8)
                         .focused($focusedField, equals: .expenseDetailAmount)
+                        .accessibilityLabel("Expense amount")
+                        .accessibilityHint("Enter the cost amount using decimal format")
+                        .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
                         .onChange(of: amountText) { _, newValue in
                             let formatter = NumberFormatter()
                             formatter.locale = Locale.current
@@ -217,8 +241,10 @@ struct ExpenseInspector: View {
                     if let amount = expense?.amount, amount == 0 {
                         Text("0.00")
                             .foregroundStyle(.secondary)
+                            .accessibilityLabel("Amount: No amount set")
                     } else if let amount = expense?.amount {
                         Text(amount, format: .currency(code: userSettings.currencyCode))
+                            .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
                     }
                 }
             }
@@ -233,6 +259,9 @@ struct ExpenseInspector: View {
                         }
                         .pickerStyle(.wheel)
                         .frame(width: 80)
+                        .accessibilityLabel("Frequency value")
+                        .accessibilityHint("Select how often this expense occurs")
+                        .accessibilityValue("\(draft.frequencyValue)")
                         .onChange(of: draft.frequencyUnit) { _, newUnit in
                             let maxValue = newUnit.valueRange.upperBound
                             if draft.frequencyValue > maxValue {
@@ -247,10 +276,14 @@ struct ExpenseInspector: View {
                         }
                         .pickerStyle(.menu)
                         .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Frequency unit")
+                        .accessibilityHint("Select the time unit for frequency")
+                        .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
                     }
                 } else {
                     if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
                         Text(freqUnit.displayText(for: freqValue))
+                            .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
                     }
                 }
             }
@@ -259,9 +292,13 @@ struct ExpenseInspector: View {
                 if isEditing {
                     DatePicker("", selection: $draft.date, displayedComponents: [.date])
                         .labelsHidden()
+                        .accessibilityLabel("Expense date")
+                        .accessibilityHint("Select the date for this expense")
+                        .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
                 } else {
                     if let date = expense?.date {
                         Text(date, style: .date)
+                            .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
                     }
                 }
             }
@@ -274,6 +311,7 @@ struct ExpenseInspector: View {
                                 Image(systemName: category.iconName)
                                     .foregroundStyle(category.color)
                                     .frame(width: 16)
+                                    .accessibilityLabel("\(category.iconName) icon")
                                 Text(category.name)
                             }
                             .tag(Optional(category))
@@ -281,16 +319,22 @@ struct ExpenseInspector: View {
                     }
                     .pickerStyle(.menu)
                     .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Expense category")
+                    .accessibilityHint("Select a category for this expense")
+                    .accessibilityValue(draft.category?.name ?? "No category selected")
                 } else {
                     if let name = expense?.categoryName, let icon = expense?.categoryIconName {
                         Label(name, systemImage: icon)
+                            .accessibilityLabel("Category: \(name)")
                     }
                 }
             }
             
             // Notes section
             VStack(alignment: .leading) {
-                Text("Notes").font(.headline)
+                Text("Notes")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 if isEditing {
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: $draft.notes)
@@ -300,14 +344,19 @@ struct ExpenseInspector: View {
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             .scrollContentBackground(.hidden)
                             .focused($focusedField, equals: .expenseDetailNotes)
+                            .accessibilityLabel("Expense notes")
+                            .accessibilityHint("Add optional notes or details about this expense")
+                            .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
                     }
                 } else {
                     VStack {
                         if let notes = expense?.notes, !notes.isEmpty {
                             Text(notes)
+                                .accessibilityLabel("Notes: \(notes)")
                         } else {
                             Text("No notes provided.")
                                 .foregroundStyle(.secondary)
+                                .accessibilityLabel("Notes: No notes provided")
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -343,6 +392,8 @@ struct ExpenseInspector: View {
         .frame(maxWidth: 260)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
+        .accessibilityLabel("Mark expense as paid")
+        .accessibilityHint("Mark this expense as paid and update its status")
     }
     
     @ViewBuilder
@@ -353,12 +404,15 @@ struct ExpenseInspector: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Statistics")
                     .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
                 
                 HStack {
                     costCard(title: "Yearly", amount: expense?.yearlyCost ?? 0)
                     costCard(title: "Monthly", amount: expense?.monthlyCost ?? 0)
                     costCard(title: "Weekly", amount: expense?.weeklyCost ?? 0)
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Cost breakdown")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
@@ -373,13 +427,15 @@ struct ExpenseInspector: View {
             Text(amount, format: .currency(code: userSettings.currencyCode))
                 .font(.title3.weight(.semibold))
                 .foregroundStyle(.primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+                .lineLimit(2)
+                .minimumScaleFactor(0.6)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(10)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title) cost: \(amount, format: .currency(code: userSettings.currencyCode))")
     }
     
     @ViewBuilder
@@ -404,6 +460,8 @@ struct ExpenseInspector: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
         .padding(.horizontal)
+        .accessibilityLabel("Delete expense")
+        .accessibilityHint("Permanently delete this expense. This action cannot be undone.")
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if let expense = expense {
@@ -411,7 +469,9 @@ struct ExpenseInspector: View {
                 }
                 dismiss()
             }
+            .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }
+            .accessibilityLabel("Cancel delete")
         } message: {
             Text("Are you sure? This action cannot be undone.")
         }
@@ -435,12 +495,16 @@ struct ExpenseInspector: View {
                 } label: {
                     Label("Cancel", systemImage: "xmark")
                 }
+                .accessibilityLabel("Cancel editing")
+                .accessibilityHint("Discard changes and return to view mode")
             } else {
                 Button {
                     dismiss()
                 } label: {
                     Label("Close", systemImage: "chevron.down")
                 }
+                .accessibilityLabel("Close expense details")
+                .accessibilityHint("Return to the previous screen")
             }
         }
         
@@ -467,12 +531,16 @@ struct ExpenseInspector: View {
                 }
                 .disabled(draft.title.isEmpty)
                 .tint(.green)
+                .accessibilityLabel("Save expense")
+                .accessibilityHint(draft.title.isEmpty ? "Title is required to save" : "Save changes to this expense")
             } else {
                 Button {
                     isEditing = true
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
+                .accessibilityLabel("Edit expense")
+                .accessibilityHint("Switch to edit mode to modify this expense")
             }
         }
     }
