@@ -1,9 +1,18 @@
 import Foundation
 
-enum SortOption: LocalizedStringResource, CaseIterable, Identifiable {
-    case amountDescending = "Amount (High to Low)"
-    case amountAscending = "Amount (Low to High)"
-    case title = "Title (A-Z)"
+enum SortOption: String, CaseIterable, Identifiable {
+    case amountDescending, amountAscending, title
     
     var id: Self { self }
+    
+    var localizedName: String {
+        switch self {
+        case .amountDescending:
+            return String(localized: "Amount (High to Low)")
+        case .amountAscending:
+            return String(localized: "Amount (Low to High)")
+        case .title:
+            return String(localized: "Title (A-Z)")
+        }
+    }
 }

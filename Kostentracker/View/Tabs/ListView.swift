@@ -32,7 +32,7 @@ struct ListView: View {
             return String(localized: "All Expenses")
         case .categories:
             return String(localized: "Categories")
-        case .frequencyUnit:
+        case .frequency:
             return String(localized: "Frequency Units")
         }
     }
@@ -79,7 +79,7 @@ struct ListView: View {
                     Image(systemName: "tray")
                         .accessibilityLabel("Default category icon")
                 }
-            case .frequencyUnit:
+            case .frequency:
                 Image(systemName: "clock")
                     .foregroundStyle(.blue)
                     .accessibilityLabel("Frequency icon")
@@ -127,7 +127,7 @@ struct ListView: View {
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle: String
         switch ui.selectedGroupBy {
-        case .frequencyUnit:
+        case .frequency:
             subtitle = expense.categoryName
         case .categories, .none:
             subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
@@ -181,7 +181,7 @@ struct ListView: View {
     
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedGroups: [ProcessedGroup] {
-        let filteredExpenses = Expense.applyFilters(expenses, filter: ui.selectedFilter)
+        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: ui.selectedFilter)
         let grouped: [String: [Expense]]
         
         switch ui.selectedGroupBy {
@@ -189,7 +189,7 @@ struct ListView: View {
             grouped = ["all": filteredExpenses]
         case .categories:
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.categoryName })
-        case .frequencyUnit:
+        case .frequency:
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.frequencyUnit.rawValue.capitalized })
         }
         
@@ -216,7 +216,7 @@ struct ListView: View {
                 else { return false }
                 return firstA.categorySortOrder < firstB.categorySortOrder
             }
-        case .frequencyUnit:
+        case .frequency:
             return groups.sorted {
                 guard
                     let unitA = FrequencyUnit(rawValue: $0.title.lowercased()),

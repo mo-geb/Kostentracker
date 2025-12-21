@@ -6,7 +6,7 @@ struct ExpenseInspector: View {
     // MARK: - Properties
     // Shared
     @EnvironmentObject var ui: UIState
-
+    
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
     @Environment(\.modelContext) private var context
@@ -23,10 +23,10 @@ struct ExpenseInspector: View {
     
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
-
+    
     // Focus management
     @FocusState private var focusedField: FocusedField?
-
+    
     // Construct
     init(initialState: ActiveExpenseSheet) {
         self.initialState = initialState
@@ -47,7 +47,7 @@ struct ExpenseInspector: View {
     }
     
     // MARK: - Body
-
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -83,7 +83,7 @@ struct ExpenseInspector: View {
             }
         }
     }
-
+    
     // MARK: - View Components
     
     @ViewBuilder
@@ -108,7 +108,7 @@ struct ExpenseInspector: View {
                         }
                     }
                 }
-
+                
                 if draft.customImageData != nil {
                     Button() {
                         draft.customImageData = nil
@@ -206,7 +206,7 @@ struct ExpenseInspector: View {
                             let formatter = NumberFormatter()
                             formatter.locale = Locale.current
                             formatter.numberStyle = .decimal
-
+                            
                             if let number = formatter.number(from: newValue) {
                                 draft.amount = max(0, number.doubleValue)
                             } else {
@@ -220,7 +220,7 @@ struct ExpenseInspector: View {
                                 formatter.numberStyle = .decimal
                                 formatter.minimumFractionDigits = 2
                                 formatter.maximumFractionDigits = 2
-
+                                
                                 if draft.amount > 0 {
                                     amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
                                 } else {
@@ -234,7 +234,7 @@ struct ExpenseInspector: View {
                             formatter.numberStyle = .decimal
                             formatter.minimumFractionDigits = 2
                             formatter.maximumFractionDigits = 2
-
+                            
                             amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
                         }
                 } else {
@@ -249,57 +249,36 @@ struct ExpenseInspector: View {
                 }
             }
             
-            row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                if isEditing {
-                    HStack {
-                        Picker("Frequency Value", selection: $draft.frequencyValue) {
-                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                                Text("\(value)").tag(Int16(value))
+            if isEditing {
+                rowGroup {
+                    if isEditing {
+                        innerRow(title: String(localized: "Next Due"), icon: "calendar") {
+                            DatePicker("", selection: $draft.date, displayedComponents: [.date])
+                                .labelsHidden()
+                                .accessibilityLabel("Expense date")
+                                .accessibilityHint("Select the date for this expense")
+                                .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
+                        }
+                        
+                        innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                            if isEditing {
+                                frequencyPicker
+                            } else {
+                                if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
+                                    Text(freqUnit.displayText(for: freqValue))
+                                        .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
+                                }
                             }
                         }
-                        .pickerStyle(.wheel)
-                        .frame(width: 80)
-                        .accessibilityLabel("Frequency value")
-                        .accessibilityHint("Select how often this expense occurs")
-                        .accessibilityValue("\(draft.frequencyValue)")
-                        .onChange(of: draft.frequencyUnit) { _, newUnit in
-                            let maxValue = newUnit.valueRange.upperBound
-                            if draft.frequencyValue > maxValue {
-                                draft.frequencyValue = maxValue
-                            }
-                        }
-                        Picker("Unit", selection: $draft.frequencyUnit) {
-                            ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                Text(unit.displayName(for: draft.frequencyValue))
-                                    .tag(unit)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityLabel("Frequency unit")
-                        .accessibilityHint("Select the time unit for frequency")
-                        .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
-                    }
-                } else {
-                    if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                        Text(freqUnit.displayText(for: freqValue))
-                            .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
                     }
                 }
-            }
-            
-            row(title: String(localized: "Date"), icon: "calendar") {
-                if isEditing {
-                    DatePicker("", selection: $draft.date, displayedComponents: [.date])
-                        .labelsHidden()
-                        .accessibilityLabel("Expense date")
-                        .accessibilityHint("Select the date for this expense")
-                        .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
-                } else {
+            } else {
+                row(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
                     if let date = expense?.date {
                         Text(date, style: .date)
                             .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
                     }
+                    
                 }
             }
             
@@ -367,6 +346,38 @@ struct ExpenseInspector: View {
             }
         }
         .padding()
+    }
+    @ViewBuilder
+    private var frequencyPicker: some View {
+        HStack {
+            Picker("Frequency Value", selection: $draft.frequencyValue) {
+                ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                    Text("\(value)").tag(Int16(value))
+                }
+            }
+            .pickerStyle(.wheel)
+            .frame(width: 80)
+            .accessibilityLabel("Frequency value")
+            .accessibilityHint("Select how often this expense occurs")
+            .accessibilityValue("\(draft.frequencyValue)")
+            .onChange(of: draft.frequencyUnit) { _, newUnit in
+                let maxValue = newUnit.valueRange.upperBound
+                if draft.frequencyValue > maxValue {
+                    draft.frequencyValue = maxValue
+                }
+            }
+            Picker("Unit", selection: $draft.frequencyUnit) {
+                ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                    Text(unit.displayName(for: draft.frequencyValue))
+                        .tag(unit)
+                }
+            }
+            .pickerStyle(.menu)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel("Frequency unit")
+            .accessibilityHint("Select the time unit for frequency")
+            .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
+        }
     }
     
     @ViewBuilder
@@ -471,7 +482,7 @@ struct ExpenseInspector: View {
             }
             .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }
-            .accessibilityLabel("Cancel delete")
+                .accessibilityLabel("Cancel delete")
         } message: {
             Text("Are you sure? This action cannot be undone.")
         }
@@ -563,6 +574,32 @@ struct ExpenseInspector: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(16)
+    }
+    
+    @ViewBuilder
+    private func innerRow<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
+        HStack {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+            }
+            Text(title)
+            Spacer()
+            content()
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    private func rowGroup<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) {
+            content()
+        }
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)
     }

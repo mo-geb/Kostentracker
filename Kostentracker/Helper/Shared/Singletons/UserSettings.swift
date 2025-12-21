@@ -15,4 +15,5 @@ final class UserSettings: ObservableObject {
 
     // Accounts
     @AppStorage("enableAccounts") var enableAccounts: Bool = false
+    
 }

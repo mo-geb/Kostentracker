@@ -23,7 +23,7 @@ enum SharedToolbarElements {
             Menu {
                 Picker(selection: $ui.selectedFilter) {
                     ForEach(FilterOption.allCases) { option in
-                        Text(option.rawValue).tag(option)
+                        Text(option.localizedName).tag(option)
                     }
                 } label: {
                     Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
@@ -96,7 +96,7 @@ enum SharedToolbarElements {
         var body: some View {
             Picker(selection: $ui.selectedFilter) {
                 ForEach(FilterOption.allCases) { option in
-                    Text(option.rawValue).tag(option)
+                    Text(option.localizedName).tag(option)
                 }
             } label: {
                 Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")

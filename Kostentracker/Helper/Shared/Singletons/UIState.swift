@@ -16,11 +16,12 @@ final class UIState: ObservableObject {
     @Published var activePopup: ActivePopup?
 
     // UI Configuration
-    @Published var selectedFilter: FilterOption = .nonZero
-    @Published var selectedSort: SortOption = .amountDescending
-    @Published var selectedGroupBy: GroupByOption = .categories
-    @Published var selectedViewMode: ViewMode = .normal
-    @Published var selectedDisplayPeriod: FrequencyUnit = .month
+    @AppStorage("selectedFilter") var selectedFilter: FilterOption = .nonZero
+    @AppStorage("selectedSort") var selectedSort: SortOption = .amountDescending
+    @AppStorage("selectedGroupBy") var selectedGroupBy: GroupByOption = .categories
+    @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
+    @AppStorage("selectedDisplayPeriod") var selectedDisplayPeriod: FrequencyUnit = .month
+    @AppStorage("displayedCategoryChart") var displayedCategoryChart: CategoryChart = .barChart
 
     // MARK: - Sheet Workflows
 

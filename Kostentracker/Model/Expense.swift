@@ -81,6 +81,7 @@ extension Expense {
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }
     var categorySortOrder: Int { category?.sortOrder ?? 1 }
+    var dateActive: Bool { date != Date.distantPast }
 }
 
 // MARK: - Functions
@@ -158,7 +159,7 @@ extension Expense {
 // MARK: - Static mathods to apply on collections
 
 extension Expense {
-    static func applyFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
+    static func applyCustomFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
         var filtered = expenses
         switch filter {
         case .all:

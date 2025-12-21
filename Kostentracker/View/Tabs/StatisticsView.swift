@@ -13,9 +13,6 @@ struct StatisticsView: View {
     
     // SwiftData
     @Query private var expenses: [Expense]
-    
-    // State
-    @State private var displayedCategoryChart = CategoryChart.barChart
 
     // MARK: - Body
     
@@ -74,12 +71,12 @@ struct StatisticsView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(action: {
-                    if let currentIndex = CategoryChart.allCases.firstIndex(of: displayedCategoryChart) {
+                    if let currentIndex = CategoryChart.allCases.firstIndex(of: ui.displayedCategoryChart) {
                         let nextIndex = (currentIndex + 1) % CategoryChart.allCases.count
-                        displayedCategoryChart = CategoryChart.allCases[nextIndex]
+                        ui.displayedCategoryChart = CategoryChart.allCases[nextIndex]
                     }
                 }) {
-                    Text(displayedCategoryChart.rawValue)
+                    Text(ui.displayedCategoryChart.localizedName)
                         .font(.subheadline)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
@@ -90,11 +87,11 @@ struct StatisticsView: View {
                 }
                 .contentShape(Rectangle())
                 .buttonStyle(.plain)
-                .accessibilityLabel("Chart type: \(displayedCategoryChart.rawValue)")
+                .accessibilityLabel("Chart type: \(ui.displayedCategoryChart.localizedName)")
                 .accessibilityHint("Switches between bar chart and pie chart")
                 .frame(minWidth: 44, minHeight: 44)
             }
-            switch displayedCategoryChart {
+            switch ui.displayedCategoryChart {
             case .barChart:
                 categoryBarChart
             case .pieChart:
