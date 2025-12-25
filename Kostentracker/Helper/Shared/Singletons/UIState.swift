@@ -14,6 +14,7 @@ final class UIState: ObservableObject {
 
     // Toasts
     @Published var activePopup: ActivePopup?
+    @Published var feedbackTrigger: Bool = false
 
     // UI Configuration
     @AppStorage("selectedFilter") var selectedFilter: FilterOption = .nonZero
@@ -60,22 +61,14 @@ final class UIState: ObservableObject {
     // MARK: - Popup / Transient Feedback
 
     func showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner, duration: TimeInterval = 1.5) {
-        performHapticFeedback()
         withAnimation {
+            self.feedbackTrigger.toggle()
             self.activePopup = .markedAsPaid(owner: owner)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
             withAnimation {
                 self.activePopup = nil
             }
-        }
-    }
-
-    func performHapticFeedback(style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
-        DispatchQueue.main.async {
-            let generator = UIImpactFeedbackGenerator(style: style)
-            generator.prepare()
-            generator.impactOccurred()
         }
     }
 }

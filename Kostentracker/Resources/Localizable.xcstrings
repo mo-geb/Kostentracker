@@ -1258,59 +1258,6 @@
     "Category: %@" : {
 
     },
-    "Change display period" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Periodenanzeige Ändern"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Cambiar periodo de visualización"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer la période d'affichage"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambia Periodo di Visualizzazione"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Weergaveperiode wijzigen"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zmeniť zobrazované obdobie"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ändra visningsperiod"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Змінити період відображення"
-          }
-        }
-      }
-    },
     "Change display period from %@. Total: %@" : {
       "localizations" : {
         "en" : {
@@ -1617,59 +1564,6 @@
     "Custom image for %@" : {
 
     },
-    "Cycles through yearly, monthly, weekly, daily" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wechselt zwischen jährlich, monatlich, wöchentlich und täglich"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Alterna entre anual, mensual, semanal y diario"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alterner entre annuel, mensuel, hebdomadaire et quotidien"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scorre tra annuale, mensile, settimanale e giornaliero"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Wisselt tussen jaarlijks, maandelijks, wekelijks en dagelijks"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Cycles through yearly, monthly, weekly, daily"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Växlar mellan årlig, månadsvis, veckovis och daglig"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Перемикає між річним, місячним, тижневим і денним"
-          }
-        }
-      }
-    },
     "Daily" : {
       "localizations" : {
         "de" : {
@@ -1770,59 +1664,6 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Щоденні сповіщення-звіти"
-          }
-        }
-      }
-    },
-    "Date" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datum"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Fecha"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Date"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Datum"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dátum"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datum"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Дата"
           }
         }
       }
@@ -6923,59 +6764,6 @@
     },
     "You receive one notification per expense based on your schedule" : {
 
-    },
-    "You receive one notification per expense on your scheduled dates" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du erhältst eine Benachrichtigung pro Ausgabe basierend auf deiner Auswahl"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Recibes una notificación por cada gasto en las fechas programadas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous recevez une notification par dépense aux dates prévues"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ricevi una notifica per ogni spesa nelle date pianificate"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Je ontvangt één melding per uitgave op de geplande datums"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Budeš dostávať jedno oznámenie za každý "
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du får en avisering per utgift på dina schemalagda datum"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Ви отримуєте одне сповіщення на кожну витрату у заплановані дати"
-          }
-        }
-      }
     },
     "You receive one single notification sumarizing the amount of due and overdue expenses based on your schedule" : {
       "localizations" : {

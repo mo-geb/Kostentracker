@@ -1,0 +1,205 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : "automatic"
+    },
+    {
+      "appearance" : "dark",
+      "value" : "automatic"
+    }
+  ],
+  "groups" : [
+    {
+      "blend-mode" : "hard-light",
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "value" : "normal"
+            },
+            {
+              "appearance" : "dark",
+              "value" : "normal"
+            }
+          ],
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.85327,0.96611,0.81217,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : "automatic"
+            }
+          ],
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "Circle copy 2.png",
+          "name" : "Circle copy 2",
+          "opacity-specializations" : [
+            {
+              "value" : 0.6
+            },
+            {
+              "appearance" : "dark",
+              "value" : 0.6
+            }
+          ],
+          "position" : {
+            "scale" : 0.9,
+            "translation-in-points" : [
+              227.6858611712409,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "normal"
+            }
+          ],
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.40672,0.64283,0.37868,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "display-p3:0.54179,0.85630,0.50443,1.00000"
+              }
+            }
+          ],
+          "image-name" : "Rectangle copy.png",
+          "name" : "Rectangle copy",
+          "opacity-specializations" : [
+            {
+              "value" : 0.6
+            },
+            {
+              "appearance" : "dark",
+              "value" : 0.6
+            }
+          ],
+          "position" : {
+            "scale" : 1.4,
+            "translation-in-points" : [
+              267,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.15230,0.24071,0.14180,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : "automatic"
+            }
+          ],
+          "glass" : true,
+          "image-name" : "Rounded-Rectangle copy 2.png",
+          "name" : "Rounded-Rectangle copy 2",
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    },
+    {
+      "layers" : [
+        {
+          "fill" : {
+            "solid" : "display-p3:0.21286,0.33642,0.19818,1.00000"
+          },
+          "image-name" : "Rounded-Rectangle-copy copy 3.png",
+          "name" : "Rounded-Rectangle-copy copy 3",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              0,
+              -24.808912799450276
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "solid" : "display-p3:0.22620,0.35751,0.21060,1.00000"
+          },
+          "image-name" : "Rounded-Rectangle-copy-2 copy 2 4.png",
+          "name" : "Rounded-Rectangle-copy-2 copy 2 4",
+          "opacity" : 0.7,
+          "position" : {
+            "scale" : 1.1,
+            "translation-in-points" : [
+              -30,
+              -40.923441831940146
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
