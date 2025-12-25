@@ -25,7 +25,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.85327,0.96611,0.81217,1.00000"
+                "solid" : "display-p3:0.80245,0.90308,0.76340,1.00000"
               }
             },
             {
@@ -36,14 +36,14 @@
           "glass" : true,
           "hidden" : false,
           "image-name" : "Circle copy 2.png",
-          "name" : "Circle copy 2",
+          "name" : "Button",
           "opacity-specializations" : [
             {
-              "value" : 0.6
+              "value" : 1
             },
             {
               "appearance" : "dark",
-              "value" : 0.6
+              "value" : 1
             }
           ],
           "position" : {
@@ -76,25 +76,23 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.40672,0.64283,0.37868,1.00000"
+                "solid" : "display-p3:0.31724,0.65930,0.30790,1.00000"
               }
             },
             {
               "appearance" : "dark",
-              "value" : {
-                "solid" : "display-p3:0.54179,0.85630,0.50443,1.00000"
-              }
+              "value" : "automatic"
             }
           ],
           "image-name" : "Rectangle copy.png",
-          "name" : "Rectangle copy",
+          "name" : "Band",
           "opacity-specializations" : [
             {
-              "value" : 0.6
+              "value" : 1
             },
             {
               "appearance" : "dark",
-              "value" : 0.6
+              "value" : 1
             }
           ],
           "position" : {
@@ -122,7 +120,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.15230,0.24071,0.14180,1.00000"
+                "solid" : "display-p3:0.20571,0.42030,0.19741,1.00000"
               }
             },
             {
@@ -132,7 +130,8 @@
           ],
           "glass" : true,
           "image-name" : "Rounded-Rectangle copy 2.png",
-          "name" : "Rounded-Rectangle copy 2",
+          "name" : "Wallet",
+          "opacity" : 1,
           "position" : {
             "scale" : 1.1,
             "translation-in-points" : [
@@ -154,11 +153,19 @@
     {
       "layers" : [
         {
-          "fill" : {
-            "solid" : "display-p3:0.21286,0.33642,0.19818,1.00000"
-          },
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.16619,0.34751,0.16445,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : "automatic"
+            }
+          ],
           "image-name" : "Rounded-Rectangle-copy copy 3.png",
-          "name" : "Rounded-Rectangle-copy copy 3",
+          "name" : "MiddleCard",
           "opacity" : 1,
           "position" : {
             "scale" : 1.1,
@@ -170,12 +177,29 @@
         },
         {
           "blend-mode" : "normal",
-          "fill" : {
-            "solid" : "display-p3:0.22620,0.35751,0.21060,1.00000"
-          },
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.16033,0.33526,0.15865,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : "automatic"
+            }
+          ],
+          "hidden" : false,
           "image-name" : "Rounded-Rectangle-copy-2 copy 2 4.png",
-          "name" : "Rounded-Rectangle-copy-2 copy 2 4",
-          "opacity" : 0.7,
+          "name" : "LastCard",
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "dark",
+              "value" : 1
+            }
+          ],
           "position" : {
             "scale" : 1.1,
             "translation-in-points" : [
@@ -186,6 +210,7 @@
         }
       ],
       "lighting" : "individual",
+      "name" : "Cards",
       "shadow" : {
         "kind" : "neutral",
         "opacity" : 0.5
