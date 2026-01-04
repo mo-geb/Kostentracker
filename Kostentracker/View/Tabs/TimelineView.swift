@@ -77,8 +77,14 @@ struct TimelineView: View {
                 .accessibilityHint("Opens expense for editing")
                 
                 Button {
-                    expense.markAsPaid()
-                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                    switch expense.type {
+                    case .oneTime:
+                        context.delete(expense)
+                    case .recurring:
+                        expense.advanceDueDate()
+                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                    }
+                   
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {
@@ -89,8 +95,14 @@ struct TimelineView: View {
             }
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
-                    expense.markAsPaid()
-                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                    switch expense.type {
+                    case .oneTime:
+                        context.delete(expense)
+                    case .recurring:
+                        expense.advanceDueDate()
+                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                    }
+                   
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {
@@ -134,8 +146,7 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        let activeExpenses = expenses.filter { $0.dateActive }
-        let filteredExpenses = Expense.applyCustomFilters(activeExpenses, filter: ui.selectedFilter)
+        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: ui.selectedFilter)
         let calendar = Calendar.current
         
         // 1. Group expenses by the start of their month
@@ -178,9 +189,7 @@ struct TimelineView: View {
 
         UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
+                
         SampleData.categories.forEach {
             container.mainContext.insert($0)
         }

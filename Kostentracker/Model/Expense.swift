@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 @Model
-class Expense: Identifiable {
+final class Expense: Identifiable {
     var title: String = ""
     var amount: Double = 0
     var frequencyUnit: FrequencyUnit = FrequencyUnit.month
@@ -81,7 +81,7 @@ extension Expense {
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }
     var categorySortOrder: Int { category?.sortOrder ?? 1 }
-    var dateActive: Bool { date != Date.distantPast }
+    var type: ExpenseType { frequencyValue == 0 ? .oneTime : .recurring}
 }
 
 // MARK: - Functions
@@ -100,7 +100,7 @@ extension Expense {
         }
     }
     
-    func markAsPaid() {
+    func advanceDueDate() {
         withAnimation {
             let calendar = Calendar.current
             var dateComponent: Calendar.Component
@@ -234,4 +234,8 @@ struct ExpenseDraft {
             customImageData: nil
         )
     }
+}
+
+extension ExpenseDraft {
+    var type: ExpenseType { frequencyValue == 0 ? .oneTime : .recurring}
 }

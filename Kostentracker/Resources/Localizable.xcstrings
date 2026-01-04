@@ -4102,6 +4102,7 @@
       }
     },
     "Non-Zero Cost" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -4470,6 +4471,9 @@
           }
         }
       }
+    },
+    "Only Active (Cost not zero" : {
+
     },
     "Opens app settings and preferences" : {
 
@@ -4909,6 +4913,9 @@
       }
     },
     "Remove expense image" : {
+
+    },
+    "Repeat" : {
 
     },
     "Repeat overdue Expenses" : {

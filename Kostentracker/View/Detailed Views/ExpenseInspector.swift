@@ -189,6 +189,7 @@ struct ExpenseInspector: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
+            // Amount Section
             row(title: String(localized: "Amount"), icon: "number") {
                 if isEditing {
                     TextField("0.00", text: $amountText)
@@ -249,39 +250,85 @@ struct ExpenseInspector: View {
                 }
             }
             
-            if isEditing {
-                rowGroup {
-                    if isEditing {
-                        innerRow(title: String(localized: "Next Due"), icon: "calendar") {
-                            DatePicker("", selection: $draft.date, displayedComponents: [.date])
-                                .labelsHidden()
-                                .accessibilityLabel("Expense date")
-                                .accessibilityHint("Select the date for this expense")
-                                .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
-                        }
+            // Due / Frequency Section
+            rowGroup {
+                if isEditing {
+                    innerRow(title: String(localized: "Next Due"), icon: "calendar") {
+                        DatePicker("", selection: $draft.date, displayedComponents: [.date])
+                            .labelsHidden()
+                            .accessibilityLabel("Expense date")
+                            .accessibilityHint("Select the date for this expense")
+                            .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
+                    }
+                    
+                    customDivider
+                    
+                    innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                        Toggle("", isOn: Binding(
+                            get: { draft.frequencyValue != 0 },
+                            set: { newValue in
+                                draft.frequencyValue = newValue ? 1 : 0
+                            }))
+                    }
+                    
+                    if draft.type == .recurring {
+                        customDivider
                         
                         innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                            if isEditing {
-                                frequencyPicker
-                            } else {
-                                if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                                    Text(freqUnit.displayText(for: freqValue))
-                                        .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
+                            HStack {
+                                Picker("Frequency Value", selection: $draft.frequencyValue) {
+                                    ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                                        Text("\(value)").tag(Int16(value))
+                                    }
                                 }
+                                .pickerStyle(.wheel)
+                                .frame(width: 80)
+                                .accessibilityLabel("Frequency value")
+                                .accessibilityHint("Select how often this expense occurs")
+                                .accessibilityValue("\(draft.frequencyValue)")
+                                .onChange(of: draft.frequencyUnit) { _, newUnit in
+                                    let maxValue = newUnit.valueRange.upperBound
+                                    if draft.frequencyValue > maxValue {
+                                        draft.frequencyValue = maxValue
+                                    }
+                                }
+                                Picker("Unit", selection: $draft.frequencyUnit) {
+                                    ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                                        Text(unit.displayName(for: draft.frequencyValue))
+                                            .tag(unit)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .fixedSize(horizontal: true, vertical: false)
+                                .accessibilityLabel("Frequency unit")
+                                .accessibilityHint("Select the time unit for frequency")
+                                .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
+                                .layoutPriority(1)
+                                
+                            }
+                        }
+                    }
+                } else {
+                    innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
+                        if let date = expense?.date {
+                            Text(date, style: .date)
+                                .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
+                        }
+                    }
+                    if expense?.type == .recurring {
+                        customDivider
+                        
+                        innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                            if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
+                                Text(freqUnit.displayText(for: freqValue))
+                                    .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
                             }
                         }
                     }
                 }
-            } else {
-                row(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
-                    if let date = expense?.date {
-                        Text(date, style: .date)
-                            .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
-                    }
-                    
-                }
             }
             
+            // Category section
             row(title: String(localized: "Category"), icon: "archivebox") {
                 if isEditing {
                     Picker("Category", selection: $draft.category) {
@@ -347,45 +394,21 @@ struct ExpenseInspector: View {
         }
         .padding()
     }
-    @ViewBuilder
-    private var frequencyPicker: some View {
-        HStack {
-            Picker("Frequency Value", selection: $draft.frequencyValue) {
-                ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                    Text("\(value)").tag(Int16(value))
-                }
-            }
-            .pickerStyle(.wheel)
-            .frame(width: 80)
-            .accessibilityLabel("Frequency value")
-            .accessibilityHint("Select how often this expense occurs")
-            .accessibilityValue("\(draft.frequencyValue)")
-            .onChange(of: draft.frequencyUnit) { _, newUnit in
-                let maxValue = newUnit.valueRange.upperBound
-                if draft.frequencyValue > maxValue {
-                    draft.frequencyValue = maxValue
-                }
-            }
-            Picker("Unit", selection: $draft.frequencyUnit) {
-                ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                    Text(unit.displayName(for: draft.frequencyValue))
-                        .tag(unit)
-                }
-            }
-            .pickerStyle(.menu)
-            .fixedSize(horizontal: false, vertical: true)
-            .accessibilityLabel("Frequency unit")
-            .accessibilityHint("Select the time unit for frequency")
-            .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
-        }
-    }
     
     @ViewBuilder
     private var markAsPaidButton: some View {
         Button() {
-            expense?.markAsPaid()
-            ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.inspector)
-            try? context.save()
+            if let e = expense {
+                switch e.type {
+                case .oneTime:
+                    context.delete(e)
+                    dismiss()
+                case .recurring:
+                    e.advanceDueDate()
+                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.inspector)
+                }
+                try? context.save()
+            }
         } label: {
             HStack {
                 Image(systemName: "checkmark")
@@ -591,7 +614,7 @@ struct ExpenseInspector: View {
             Spacer()
             content()
         }
-        .padding(12)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
@@ -602,6 +625,13 @@ struct ExpenseInspector: View {
         }
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)
+    }
+    
+    @ViewBuilder
+    private var customDivider: some View {
+        Divider()
+            .padding(.leading, 44)
+            .padding(.trailing, 20)
     }
 }
 

@@ -90,6 +90,7 @@ struct ListView: View {
             }
             
             Text(groupData.title)
+                .lineLimit(1)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityLabel("Section: \(groupData.title), \(groupData.expenses.count) expenses")
             Spacer()
@@ -104,21 +105,27 @@ struct ListView: View {
                         .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
+                        .lineLimit(1)
                         .background(
                             Capsule()
                                 .fill(Color.secondary.opacity(0.15))
                         )
                     Text(groupData.totalCost, format: .currency(code: userSettings.currencyCode))
                         .font(.headline)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                 }
                 .contentShape(Rectangle())
+                .fixedSize(horizontal: true, vertical: false)
             }
             .buttonStyle(.plain)
+            .layoutPriority(1)
             .accessibilityLabel("Change display period from \(ui.selectedDisplayPeriod.periodName). Total: \(groupData.totalCost, format: .currency(code: userSettings.currencyCode))")
             .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
             .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
             .frame(minWidth: 44, minHeight: 44)
         }
+        .lineLimit(1)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
     }
@@ -237,11 +244,7 @@ struct ListView: View {
         print("Entered App in DEBUG... Deleting models")
         try? context.delete(model: Expense.self)
         try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
         
         SampleData.categories.forEach {
             container.mainContext.insert($0)

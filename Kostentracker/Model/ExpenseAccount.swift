@@ -1,7 +1,7 @@
 import SwiftData
 import Foundation
 
-class ExpenseAccount: Identifiable {
+final class ExpenseAccount: Identifiable {
     var name: String = ""
     var iconName: String = ""
     var isDefault: Bool = false

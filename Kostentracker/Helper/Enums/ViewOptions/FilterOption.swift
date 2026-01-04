@@ -8,7 +8,7 @@ enum FilterOption: String, CaseIterable, Identifiable {
     var localizedName: String {
         switch self {
         case .all: return String(localized: "All Expenses")
-        case .nonZero: return String(localized: "Non-Zero Cost")
+        case .nonZero: return String(localized: "Only Active (Cost not zero")
         case .upcoming: return String(localized: "Upcoming (Next 30 Days)")
         }
     }
