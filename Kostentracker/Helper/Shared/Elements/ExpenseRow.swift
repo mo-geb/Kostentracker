@@ -52,14 +52,14 @@ struct ExpenseRow: View {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 20, height: 20)
+                    .frame(width: 25, height: 25)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .accessibilityLabel("Custom image for \(expense.categoryName)")
             } else {
                 ZStack {
                     Circle()
                         .fill(expense.categoryColor.opacity(0.3))
-                        .frame(width: 20, height: 20)
+                        .frame(width: 25, height: 25)
                     Image(systemName: expense.categoryIconName)
                         .font(.caption)
                         .foregroundStyle(expense.categoryColor)
@@ -93,17 +93,17 @@ struct ExpenseRow: View {
             }
         case .compact:
             HStack(spacing: 4) {
+                Text(expense.title)
+                    .font(.body)
+                    .foregroundStyle(isZero ? .secondary : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 if isOverdue {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption2)
                         .foregroundStyle(Color.red)
                         .accessibilityLabel("Overdue")
                 }
-                Text(expense.title)
-                    .font(.body)
-                    .foregroundStyle(isZero ? .secondary : .primary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
             }
         }
     }
