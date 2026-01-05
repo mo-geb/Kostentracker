@@ -283,7 +283,7 @@ struct ExpenseInspector: View {
                                 }
                                 .pickerStyle(.wheel)
                                 .frame(width: 80)
-                                .accessibilityLabel("Frequency value")
+                                .accessibilityLabel("Frequency Value")
                                 .accessibilityHint("Select how often this expense occurs")
                                 .accessibilityValue("\(draft.frequencyValue)")
                                 .onChange(of: draft.frequencyUnit) { _, newUnit in

@@ -79,7 +79,7 @@ struct StatisticsView: View {
                     Text(ui.displayedCategoryChart.localizedName)
                         .font(.subheadline)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 4)
+                        .padding(.vertical, 4) // ?
                         .background(
                             Capsule()
                                 .fill(Color.secondary.opacity(0.15))
@@ -326,6 +326,13 @@ struct StatisticsView: View {
         let calendar = Calendar.current
         var months: [Int] = []
         var currentDate = expense.date
+        
+        if expense.type == .oneTime {
+            if calendar.component(.year, from: currentDate) == year {
+                months.append(calendar.component(.month, from: currentDate))
+            }
+            return months
+        }
         
         while calendar.component(.year, from: currentDate) >= year {
             currentDate = advanceDate(currentDate, by: -expense.frequencyValue, unit: expense.frequencyUnit)

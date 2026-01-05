@@ -104,7 +104,6 @@ struct ListView: View {
                     Text(ui.selectedDisplayPeriod.periodName)
                         .font(.caption2)
                         .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
                         .lineLimit(1)
                         .background(
                             Capsule()
@@ -123,7 +122,7 @@ struct ListView: View {
             .accessibilityLabel("Change display period from \(ui.selectedDisplayPeriod.periodName). Total: \(groupData.totalCost, format: .currency(code: userSettings.currencyCode))")
             .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
             .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
-            .frame(minWidth: 44, minHeight: 44)
+            .frame(minWidth: 44, minHeight: 44) // ?
         }
         .lineLimit(1)
         .accessibilityElement(children: .combine)

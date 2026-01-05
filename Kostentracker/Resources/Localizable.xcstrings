@@ -397,7 +397,14 @@
       }
     },
     "Accounts filter" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konten filter"
+          }
+        }
+      }
     },
     "Add Account" : {
       "localizations" : {
@@ -502,9 +509,6 @@
           }
         }
       }
-    },
-    "Add expense" : {
-
     },
     "Add Expense" : {
       "localizations" : {
@@ -3031,9 +3035,6 @@
         }
       }
     },
-    "Frequency value" : {
-
-    },
     "Frequency Value" : {
       "localizations" : {
         "de" : {
@@ -4101,59 +4102,6 @@
         }
       }
     },
-    "Non-Zero Cost" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht-Null Kosten"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Costo distinto de cero"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coût non nul"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Costo non nullo"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Niet-nul kosten"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Výdavky vyššie ako nula"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Icke-noll kostnad"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Ненульова вартість"
-          }
-        }
-      }
-    },
     "None" : {
       "localizations" : {
         "de" : {
@@ -4472,7 +4420,7 @@
         }
       }
     },
-    "Only Active (Cost not zero" : {
+    "Only Active (Cost not zero)" : {
 
     },
     "Opens app settings and preferences" : {
@@ -6090,9 +6038,6 @@
     "View expenses organized by date" : {
 
     },
-    "View mode" : {
-
-    },
     "View Mode" : {
       "localizations" : {
         "de" : {
@@ -6770,7 +6715,14 @@
       }
     },
     "You receive one notification per expense based on your schedule" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du erhältst eine Benachrichtigung pro Ausgabe basierend auf deiner Auswahl"
+          }
+        }
+      }
     },
     "You receive one single notification sumarizing the amount of due and overdue expenses based on your schedule" : {
       "localizations" : {

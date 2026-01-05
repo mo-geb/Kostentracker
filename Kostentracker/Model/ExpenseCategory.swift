@@ -78,6 +78,76 @@ extension ExpenseCategory {
             }
         }
     }
+    
+    static func deleteEmptyDefaultCategories(in context: ModelContext) {
+        let defaultCategory = createDefault()
+        let targetName = defaultCategory.name
+        let targetIcon = defaultCategory.iconName
+        let targetColor = defaultCategory.hexColor
+
+        let defaultPredicate = FetchDescriptor<ExpenseCategory>(
+            predicate: #Predicate<ExpenseCategory> { category in
+                category.name == targetName &&
+                category.iconName == targetIcon &&
+                category.hexColor == targetColor
+            }
+        )
+        
+        do {
+            let defaultCategories = try context.fetch(defaultPredicate)
+            let emptyDefaultCategories = defaultCategories.filter { ($0.expenses?.count ?? 0) == 0 }
+            guard emptyDefaultCategories.count > 0 else { return }
+            
+            for empty in emptyDefaultCategories {
+                empty.deleteSafely(from: context)
+            }
+            try context.save()
+            print("Consolidation complete. One default category remains.")
+            
+        } catch {
+            print("Failed to consolidate default categories: \(error)")
+        }
+    }
+    
+    static func consolidateDefaultCategories(in context: ModelContext) {
+            let descriptor = FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.isDefault })
+            
+            do {
+                let defaultCategories = try context.fetch(descriptor)
+
+                guard defaultCategories.count > 1 else { return }
+                
+                print("Found \(defaultCategories.count) default categories. Starting consolidation...")
+                
+                let sortedDefaults = defaultCategories.sorted {
+                    ($0.expenses?.count ?? 0) > ($1.expenses?.count ?? 0)
+                }
+                
+                let survivor = sortedDefaults[0]
+                let duplicates = sortedDefaults.dropFirst()
+                
+                for duplicate in duplicates {
+                    print("Merging duplicate default category: \(duplicate.name) with \(duplicate.expenses?.count ?? 0) expenses")
+                    
+                    if let expensesToMove = duplicate.expenses {
+                        // Create a copy of the array to avoid mutation issues during iteration
+                        let expensesArray = Array(expensesToMove)
+                        for expense in expensesArray {
+                            expense.category = survivor
+                        }
+                    }
+                    context.delete(duplicate)
+                }
+                resetDefaultCategories(in: context)
+                survivor.isDefault = true
+                
+                try context.save()
+                print("Consolidation complete. One default category remains.")
+                
+            } catch {
+                print("Failed to consolidate default categories: \(error)")
+            }
+        }
 }
 
 // MARK: - Category Draft struct for creating and editing Categories

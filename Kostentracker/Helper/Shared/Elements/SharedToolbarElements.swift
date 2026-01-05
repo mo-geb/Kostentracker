@@ -67,7 +67,7 @@ enum SharedToolbarElements {
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }
-            .accessibilityLabel("Add expense")
+            .accessibilityLabel("Add Expense")
             .accessibilityHint("Creates a new expense entry")
             .frame(minWidth: 44, minHeight: 44)
         }
@@ -113,7 +113,7 @@ enum SharedToolbarElements {
         var body: some View {
             Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                 ForEach(SortOption.allCases) { option in
-                    Text(option.rawValue).tag(option)
+                    Text(option.localizedName).tag(option)
                 }
             }
             .pickerStyle(.menu)
@@ -128,7 +128,7 @@ enum SharedToolbarElements {
         var body: some View {
             Picker(selection: $ui.selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
                 ForEach(GroupByOption.allCases) { option in
-                    Text(option.rawValue).tag(option)
+                    Text(option.localizedName).tag(option)
                 }
             }
             .pickerStyle(.menu)
@@ -143,13 +143,13 @@ enum SharedToolbarElements {
         var body: some View {
             Picker(selection: $ui.selectedViewMode) {
                 ForEach(ViewMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(mode.localizedName).tag(mode)
                 }
             } label: {
                 Label("View Mode", systemImage: "list.bullet.rectangle")
             }
             .pickerStyle(.segmented)
-            .accessibilityLabel("View mode")
+            .accessibilityLabel("View Mode")
             .accessibilityHint("Switch between different display modes")
         }
     }

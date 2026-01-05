@@ -127,6 +127,10 @@ extension Expense {
         let normalizedSelfDate = calendar.startOfDay(for: self.date)
         var currentDate = normalizedSelfDate
         var monthTotal = 0.0
+        
+        if type == .oneTime {
+            return currentDate < monthEnd && currentDate >= monthStart ? self.amount : 0
+        }
 
         while currentDate < monthEnd {
             if currentDate >= monthStart {
@@ -151,6 +155,7 @@ extension Expense {
     
     /// Returns true if this expense occurs multiple times in the given month
     func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {
+        if type == .oneTime { return false }
         let total = totalForMonth(containing: date)
         return total > amount
     }
