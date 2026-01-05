@@ -21,6 +21,8 @@ struct ExpenseInspector: View {
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
     
+    @State private var isShowingPicker = false
+    
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
     
@@ -275,36 +277,46 @@ struct ExpenseInspector: View {
                         customDivider
                         
                         innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                            HStack {
-                                Picker("Frequency Value", selection: $draft.frequencyValue) {
-                                    ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                                        Text("\(value)").tag(Int16(value))
+                            Button {
+                                isShowingPicker = true
+                            } label: {
+                                Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
+                                    .padding(8)
+                                    .background(Color(.secondarySystemBackground))
+                                    .cornerRadius(8)
+                                    .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+                            }
+                            .sheet(isPresented: $isShowingPicker) {
+                                VStack(spacing: 0) {
+                                    HStack {
+                                        Spacer()
+                                        Button("Done") {
+                                            isShowingPicker = false
+                                        }
+                                        .fontWeight(.bold)
+                                    }
+                                    .padding()
+                                    .background(Color(.systemGroupedBackground))
+
+                                    HStack(spacing: 0) {
+                                        Picker("Value", selection: $draft.frequencyValue) {
+                                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                                                Text("\(value)").tag(Int16(value))
+                                            }
+                                        }
+                                        .pickerStyle(.wheel)
+                                        
+                                        Picker("Unit", selection: $draft.frequencyUnit) {
+                                            ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                                                Text(unit.displayName(for: draft.frequencyValue))
+                                                    .tag(unit)
+                                            }
+                                        }
+                                        .pickerStyle(.wheel)
                                     }
                                 }
-                                .pickerStyle(.wheel)
-                                .frame(width: 80)
-                                .accessibilityLabel("Frequency Value")
-                                .accessibilityHint("Select how often this expense occurs")
-                                .accessibilityValue("\(draft.frequencyValue)")
-                                .onChange(of: draft.frequencyUnit) { _, newUnit in
-                                    let maxValue = newUnit.valueRange.upperBound
-                                    if draft.frequencyValue > maxValue {
-                                        draft.frequencyValue = maxValue
-                                    }
-                                }
-                                Picker("Unit", selection: $draft.frequencyUnit) {
-                                    ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                        Text(unit.displayName(for: draft.frequencyValue))
-                                            .tag(unit)
-                                    }
-                                }
-                                .pickerStyle(.menu)
-                                .fixedSize(horizontal: true, vertical: false)
-                                .accessibilityLabel("Frequency unit")
-                                .accessibilityHint("Select the time unit for frequency")
-                                .accessibilityValue(draft.frequencyUnit.displayName(for: draft.frequencyValue))
-                                .layoutPriority(1)
-                                
+                                .presentationDetents([.height(300)])
+                                .presentationDragIndicator(.hidden)
                             }
                         }
                     }
@@ -595,7 +607,7 @@ struct ExpenseInspector: View {
             Spacer()
             content()
         }
-        .padding(12)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)
@@ -614,7 +626,7 @@ struct ExpenseInspector: View {
             Spacer()
             content()
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     

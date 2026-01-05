@@ -74,18 +74,22 @@ struct ListView: View {
                 if let firstExpense = groupData.expenses.first {
                     Image(systemName: firstExpense.categoryIconName)
                         .foregroundStyle(firstExpense.categoryColor)
+                        .imageScale(.small)
                         .accessibilityLabel("\(groupData.title) category icon")
                 } else {
                     Image(systemName: "tray")
+                        .imageScale(.small)
                         .accessibilityLabel("Default category icon")
                 }
             case .frequency:
                 Image(systemName: "clock")
                     .foregroundStyle(.blue)
+                    .imageScale(.small)
                     .accessibilityLabel("Frequency icon")
             case .none:
                 Image(systemName: "list.bullet")
                     .foregroundStyle(.gray)
+                    .imageScale(.small)
                     .accessibilityLabel("List icon")
             }
             
@@ -104,13 +108,13 @@ struct ListView: View {
                     Text(ui.selectedDisplayPeriod.periodName)
                         .font(.caption2)
                         .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
                         .lineLimit(1)
                         .background(
                             Capsule()
                                 .fill(Color.secondary.opacity(0.15))
                         )
                     Text(groupData.totalCost, format: .currency(code: userSettings.currencyCode))
-                        .font(.headline)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                 }
@@ -122,8 +126,9 @@ struct ListView: View {
             .accessibilityLabel("Change display period from \(ui.selectedDisplayPeriod.periodName). Total: \(groupData.totalCost, format: .currency(code: userSettings.currencyCode))")
             .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
             .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
-            .frame(minWidth: 44, minHeight: 44) // ?
         }
+        .font(.headline)
+        .foregroundStyle(.secondary)
         .lineLimit(1)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")

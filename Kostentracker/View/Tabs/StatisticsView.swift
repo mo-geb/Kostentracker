@@ -79,7 +79,7 @@ struct StatisticsView: View {
                     Text(ui.displayedCategoryChart.localizedName)
                         .font(.subheadline)
                         .padding(.horizontal, 12)
-                        .padding(.vertical, 4) // ?
+                        .padding(.vertical, 4)
                         .background(
                             Capsule()
                                 .fill(Color.secondary.opacity(0.15))
@@ -89,7 +89,6 @@ struct StatisticsView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Chart type: \(ui.displayedCategoryChart.localizedName)")
                 .accessibilityHint("Switches between bar chart and pie chart")
-                .frame(minWidth: 44, minHeight: 44)
             }
             switch ui.displayedCategoryChart {
             case .barChart:
@@ -267,6 +266,7 @@ struct StatisticsView: View {
         return groupedByCategory.compactMap { (category, expenses) in
             guard let firstExpense = expenses.first else { return nil }
             let totalCostForCategory = expenses.reduce(0) { $0 + $1.yearlyCost }
+            guard totalCostForCategory > 0 else { return nil }
             return CategoryCost(id: category ?? ExpenseCategory.createDefault(), category: firstExpense, totalCost: totalCostForCategory)
         }
         .sorted { $0.totalCost > $1.totalCost }
@@ -391,6 +391,9 @@ struct StatisticsView: View {
         SampleData.categories.forEach {
             container.mainContext.insert($0)
         }
+        let leer = ExpenseCategory(from: CategoryDraft(name: "leer", iconName: "tag", color: .blue, isDefault: false, sortOrder: 4))
+        container.mainContext.insert(leer)
+        container.mainContext.insert(Expense(from: ExpenseDraft(title: "ller", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: .now, category: leer, notes: "")))
         
         SampleData.expenses.forEach {
             container.mainContext.insert($0)
