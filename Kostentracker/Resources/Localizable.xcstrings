@@ -19,13 +19,33 @@
       "shouldTranslate" : false
     },
     "%@ category" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Kategorie"
+          }
+        }
+      }
     },
     "%@ category icon" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Kategorie Icon"
+          }
+        }
+      }
     },
     "%@ cost: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ Kosten: %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -35,7 +55,14 @@
       }
     },
     "%@ icon" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Icon"
+          }
+        }
+      }
     },
     "%d" : {
       "shouldTranslate" : false
@@ -242,7 +269,14 @@
       "shouldTranslate" : false
     },
     "A-Z" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A-Z"
+          }
+        }
+      }
     },
     "Account Name" : {
       "localizations" : {
@@ -577,7 +611,14 @@
       }
     },
     "Add optional notes or details about this expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge optional Notizen oder Details zu dieser Ausgabe hinzu"
+          }
+        }
+      }
     },
     "All Expenses" : {
       "localizations" : {
@@ -679,112 +720,6 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Сума"
-          }
-        }
-      }
-    },
-    "Amount (High to Low)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betrag (Absteigend)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Monto (de mayor a menor)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montant (du plus élevé au plus bas)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importo (Decrescente)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Bedrag (hoog naar laag)"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suma (od najvyššej po najnižšiu)"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Belopp (hög till låg)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Сума (за спаданням)"
-          }
-        }
-      }
-    },
-    "Amount (Low to High)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Betrag (Aufsteigend)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Monto (de menor a mayor)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montant (du plus bas au plus élevé)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importo (Crescente)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Bedrag (laag naar hoog)"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suma (od najnižšej po najvyššiu)"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Belopp (låg till hög)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Сума (за зростанням)"
           }
         }
       }
@@ -1246,7 +1181,14 @@
       }
     },
     "Category icon: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorie icon: %@"
+          }
+        }
+      }
     },
     "Category Name" : {
       "localizations" : {
@@ -1301,10 +1243,23 @@
       }
     },
     "Category: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorie: %@"
+          }
+        }
+      }
     },
     "Change display period from %@. Total: %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändere den Anzeigezeitraum von %1$@. Gesamt: %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -1324,16 +1279,44 @@
       }
     },
     "Chart type: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagramm-Typ: %@"
+          }
+        }
+      }
     },
     "Choose how to order the expense list" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle die Sortierung der Ausgabenliste"
+          }
+        }
+      }
     },
     "Choose how to organize expenses into sections" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle in welche Bereiche die Ausgaben eingeteilt werden"
+          }
+        }
+      }
     },
     "Choose which expenses to display" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle welche Ausgabe angezeigt wird"
+          }
+        }
+      }
     },
     "Close" : {
       "localizations" : {
@@ -1388,10 +1371,24 @@
       }
     },
     "Close expense details" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließe die Ausgabendetails"
+          }
+        }
+      }
     },
     "Closes this screen without saving changes" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließt diesen Bildschirm ohne die Änderungen zu speichern"
+          }
+        }
+      }
     },
     "Color" : {
       "localizations" : {
@@ -1498,7 +1495,14 @@
       }
     },
     "Confirm delete" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen bestätigen"
+          }
+        }
+      }
     },
     "Cost" : {
       "localizations" : {
@@ -1553,10 +1557,24 @@
       }
     },
     "Cost breakdown" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kostenübersicht"
+          }
+        }
+      }
     },
     "Creates a new expense entry" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstellt einen neuen Ausgaben-Eintrag"
+          }
+        }
+      }
     },
     "Currency" : {
       "localizations" : {
@@ -1611,10 +1629,24 @@
       }
     },
     "Custom expense image" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Ausgaben-Bild"
+          }
+        }
+      }
     },
     "Custom image for %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Bild für %@"
+          }
+        }
+      }
     },
     "Daily" : {
       "localizations" : {
@@ -1721,7 +1753,14 @@
       }
     },
     "Date: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum: %@"
+          }
+        }
+      }
     },
     "Day" : {
       "localizations" : {
@@ -1880,7 +1919,14 @@
       }
     },
     "Default category icon" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard Kategorien-Icon"
+          }
+        }
+      }
     },
     "Delete" : {
       "localizations" : {
@@ -2039,7 +2085,14 @@
       }
     },
     "Delete expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben Löschen"
+          }
+        }
+      }
     },
     "Delete Expense?" : {
       "localizations" : {
@@ -2094,22 +2147,64 @@
       }
     },
     "Discard changes and return to view mode" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwirf Änderungen und kehrt zur Ansicht zurück"
+          }
+        }
+      }
     },
     "Done" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        }
+      }
     },
     "Double tap to cycle through yearly, monthly, weekly, and daily periods" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drücke zwei mal, um zwischen jährlich, monatlich, wöchentlich und täglich zu wechseln"
+          }
+        }
+      }
     },
     "Double tap to remove the current image" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drücke zwei mal, um das aktuelle Foto zu entfernen"
+          }
+        }
+      }
     },
     "Double tap to select a photo from your library" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drücke zwei mal, um ein Foto aus deiner Mediathek auszuwählen"
+          }
+        }
+      }
     },
     "Double tap to view details" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drücke zwei mal, um Details einzusehen"
+          }
+        }
+      }
     },
     "Edit" : {
       "localizations" : {
@@ -2268,7 +2363,14 @@
       }
     },
     "Edit expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe bearbeiten"
+          }
+        }
+      }
     },
     "Enable Accounts" : {
       "localizations" : {
@@ -2479,10 +2581,24 @@
       }
     },
     "Enter a title for this expense. Maximum 20 characters." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge einen Titel für diese Ausgabe hinzu. Maximal 20 Zeichen."
+          }
+        }
+      }
     },
     "Enter the cost amount using decimal format" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge einen Betrag mit Komma ein"
+          }
+        }
+      }
     },
     "Every %d days" : {
       "localizations" : {
@@ -2901,28 +3017,84 @@
       }
     },
     "Expense amount" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabenbetrag"
+          }
+        }
+      }
     },
     "Expense category" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabenkategorie"
+          }
+        }
+      }
     },
     "Expense date" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabendatum"
+          }
+        }
+      }
     },
     "Expense Deleted" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe gelöscht"
+          }
+        }
+      }
     },
     "Expense notes" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabennotizen"
+          }
+        }
+      }
     },
     "Expense title" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabentitel"
+          }
+        }
+      }
     },
     "Expense title: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabentitel: %@"
+          }
+        }
+      }
     },
     "Expenses list with %lld sections" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabenübersicht mit %lld Bereichen"
+          }
+        }
+      }
     },
     "Filter By" : {
       "localizations" : {
@@ -2977,7 +3149,14 @@
       }
     },
     "Filter expenses" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben filtern"
+          }
+        }
+      }
     },
     "Frequency" : {
       "localizations" : {
@@ -3032,7 +3211,14 @@
       }
     },
     "Frequency icon" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufigkeit-Icon"
+          }
+        }
+      }
     },
     "Frequency Units" : {
       "localizations" : {
@@ -3087,7 +3273,14 @@
       }
     },
     "Frequency: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufigkeit: %@"
+          }
+        }
+      }
     },
     "General" : {
       "localizations" : {
@@ -3194,16 +3387,44 @@
       }
     },
     "Group expenses" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben gruppieren"
+          }
+        }
+      }
     },
     "Hide cost zero" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verstecke null-Kosten"
+          }
+        }
+      }
     },
     "Hide expenses with no date" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verstecke ausgaben ohne Datum"
+          }
+        }
+      }
     },
     "High to Low" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoch zu niedrig"
+          }
+        }
+      }
     },
     "Icon" : {
       "localizations" : {
@@ -3310,13 +3531,34 @@
       }
     },
     "List icon" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listenicon"
+          }
+        }
+      }
     },
     "List tab" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listentab"
+          }
+        }
+      }
     },
     "Low to High" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niedrig zu hoch"
+          }
+        }
+      }
     },
     "Make Default" : {
       "localizations" : {
@@ -3579,10 +3821,24 @@
       }
     },
     "Mark expense as paid" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe als bezahlt markieren"
+          }
+        }
+      }
     },
     "Mark this expense as paid and update its status" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markiere diese Ausgabe als bezahlt und aktualisiere ihren Status"
+          }
+        }
+      }
     },
     "Marked Expense\nas Paid" : {
       "localizations" : {
@@ -3637,7 +3893,14 @@
       }
     },
     "Marks this expense as paid" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markiert diese Ausgabe als bezahlt"
+          }
+        }
+      }
     },
     "Month" : {
       "localizations" : {
@@ -4004,13 +4267,34 @@
       }
     },
     "Next 30 Days" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächste 30 Tage"
+          }
+        }
+      }
     },
     "Next Due" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als nächstes fällig"
+          }
+        }
+      }
     },
     "No amount entered" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Betrag hinzugefügt"
+          }
+        }
+      }
     },
     "No Expenses" : {
       "localizations" : {
@@ -4273,10 +4557,24 @@
       }
     },
     "Notes: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notizen: %@"
+          }
+        }
+      }
     },
     "Notes: No notes provided" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notizen: Leer"
+          }
+        }
+      }
     },
     "Notification Settings" : {
       "localizations" : {
@@ -4383,7 +4681,14 @@
       }
     },
     "One time" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einmalig"
+          }
+        }
+      }
     },
     "One week before due" : {
       "localizations" : {
@@ -4438,22 +4743,64 @@
       }
     },
     "Only active" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur aktive"
+          }
+        }
+      }
     },
     "Only Non-Zero" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur nicht-null"
+          }
+        }
+      }
     },
     "Opens app settings and preferences" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet App-Einstellungen"
+          }
+        }
+      }
     },
     "Opens expense for editing" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet Ausgabe zum bearbeiten"
+          }
+        }
+      }
     },
     "Opens menu to filter expenses by account" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet Menü um Ausgaben nach Konto zu filtern"
+          }
+        }
+      }
     },
     "Opens menu with filtering, sorting, and view options" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet Menü mit Filtern, Sortierungen und Ansichtsmodi"
+          }
+        }
+      }
     },
     "Options" : {
       "localizations" : {
@@ -4508,7 +4855,14 @@
       }
     },
     "Options menu" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optionenmenü"
+          }
+        }
+      }
     },
     "Other" : {
       "localizations" : {
@@ -4615,7 +4969,14 @@
       }
     },
     "Overdue" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überfällig"
+          }
+        }
+      }
     },
     "Paid" : {
       "localizations" : {
@@ -4670,7 +5031,14 @@
       }
     },
     "Permanently delete this expense. This action cannot be undone." : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löscht diese Ausgabe dauerhaft. Das kann nicht rückgängig gemacht werden."
+          }
+        }
+      }
     },
     "Personal" : {
       "localizations" : {
@@ -4881,10 +5249,24 @@
       }
     },
     "Remove expense image" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernt Ausgaben-Icon"
+          }
+        }
+      }
     },
     "Repeat" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederholen"
+          }
+        }
+      }
     },
     "Repeat overdue Expenses" : {
       "localizations" : {
@@ -4939,7 +5321,14 @@
       }
     },
     "Return to the previous screen" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kehre zur vorherigen Ansicht zurück"
+          }
+        }
+      }
     },
     "Save" : {
       "localizations" : {
@@ -4994,10 +5383,24 @@
       }
     },
     "Save changes to this expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichert Änderungen für diese Ausgabe"
+          }
+        }
+      }
     },
     "Save expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe speichern"
+          }
+        }
+      }
     },
     "Search" : {
       "localizations" : {
@@ -5156,13 +5559,33 @@
       }
     },
     "Search tab" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche"
+          }
+        }
+      }
     },
     "Search through your expenses" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durchsuche deine Ausgaben"
+          }
+        }
+      }
     },
     "Section header: %@ with %lld expenses, total %@ per %@" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich: %1$@ mit %2$lld Ausgaben, gesamt %3$@ pro %4$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -5172,10 +5595,23 @@
       }
     },
     "Section: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich: %@"
+          }
+        }
+      }
     },
     "Section: %@, %lld expenses" : {
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich: %1$@, %2$lld Ausgaben"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
@@ -5185,10 +5621,24 @@
       }
     },
     "Select a category for this expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle eine Kategorie für diese Ausgabe"
+          }
+        }
+      }
     },
     "Select the date for this expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle ein Datum für diese Ausgabe"
+          }
+        }
+      }
     },
     "Select when you want to be notified about upcoming expenses" : {
       "localizations" : {
@@ -5347,7 +5797,14 @@
       }
     },
     "Sort expenses" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben sortieren"
+          }
+        }
+      }
     },
     "Statistics" : {
       "localizations" : {
@@ -5402,7 +5859,14 @@
       }
     },
     "Statistics tab" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistik-Tab"
+          }
+        }
+      }
     },
     "Support" : {
       "localizations" : {
@@ -5457,13 +5921,34 @@
       }
     },
     "Switch between different display modes" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechselt zwischen verschiedenen Anzeigeoptionen"
+          }
+        }
+      }
     },
     "Switch to edit mode to modify this expense" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechsel zu Bearbeitungsmodus"
+          }
+        }
+      }
     },
     "Switches between bar chart and pie chart" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wechselt zwischen Balken- und Kuchendiagram"
+          }
+        }
+      }
     },
     "Tap the + button to add your first expense." : {
       "localizations" : {
@@ -5726,7 +6211,14 @@
       }
     },
     "Timeline tab" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timeline-Tab"
+          }
+        }
+      }
     },
     "Title" : {
       "localizations" : {
@@ -5780,61 +6272,15 @@
         }
       }
     },
-    "Title (A-Z)" : {
-      "extractionState" : "stale",
+    "Title is required to save" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Name (A-Z)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Título (A-Z)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titre (A-Z)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titolo (A-Z)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Titel (A-Z)"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Názov (A-Z)"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Titel (A-Ö)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Назва (A–Я)"
+            "value" : "Titel ist zum speichern benötigt"
           }
         }
       }
-    },
-    "Title is required to save" : {
-
     },
     "To enable notifications, please grant permission in Settings." : {
       "localizations" : {
@@ -5941,57 +6387,11 @@
       }
     },
     "Upcoming" : {
-
-    },
-    "Upcoming (Next 30 Days)" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Anstehend (nächste 30 Tage)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Próximos (siguientes 30 días)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "À venir (30 prochains jours)"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In arrivo (prossimi 30 giorni)"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Aankomend (volgende 30 dagen)"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nadchádzajúce (najbližších 30 dní)"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kommande (nästa 30 dagar)"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Найближчі (наступні 30 днів)"
+            "value" : "Anstehend"
           }
         }
       }
@@ -6049,16 +6449,44 @@
       }
     },
     "Value" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wert"
+          }
+        }
+      }
     },
     "View expense charts and analytics" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt Diagramme und Analysen"
+          }
+        }
+      }
     },
     "View expenses in a categorized list" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt Ausgaben in einer Kategorisierten Liste"
+          }
+        }
+      }
     },
     "View expenses organized by date" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt Ausgaben nach Datum"
+          }
+        }
+      }
     },
     "View Mode" : {
       "localizations" : {
