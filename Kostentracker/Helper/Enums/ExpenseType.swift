@@ -1,3 +1,3 @@
 enum ExpenseType {
-    case oneTime, recurring
+    case oneTime, recurring, inactive
 }

@@ -81,7 +81,7 @@ extension Expense {
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }
     var categorySortOrder: Int { category?.sortOrder ?? 1 }
-    var type: ExpenseType { frequencyValue == 0 ? .oneTime : .recurring}
+    var type: ExpenseType { date == .distantPast ? .inactive : frequencyValue == 0 ? .oneTime : .recurring}
 }
 
 // MARK: - Functions
@@ -155,9 +155,12 @@ extension Expense {
     
     /// Returns true if this expense occurs multiple times in the given month
     func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {
-        if type == .oneTime { return false }
-        let total = totalForMonth(containing: date)
-        return total > amount
+        switch type {
+        case .inactive, .oneTime: return false
+        case .recurring:
+            let total = totalForMonth(containing: date)
+            return total > amount
+        }
     }
 }
 

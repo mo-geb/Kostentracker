@@ -78,7 +78,7 @@ struct TimelineView: View {
                 
                 Button {
                     switch expense.type {
-                    case .oneTime:
+                    case .oneTime, .inactive:
                         context.delete(expense)
                     case .recurring:
                         expense.advanceDueDate()
@@ -96,7 +96,7 @@ struct TimelineView: View {
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
                     switch expense.type {
-                    case .oneTime:
+                    case .oneTime, .inactive:
                         context.delete(expense)
                     case .recurring:
                         expense.advanceDueDate()

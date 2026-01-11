@@ -412,14 +412,14 @@ struct ExpenseInspector: View {
         Button() {
             if let e = expense {
                 switch e.type {
-                case .oneTime:
+                case .oneTime, .inactive:
                     context.delete(e)
                     dismiss()
                 case .recurring:
                     e.advanceDueDate()
                     ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.inspector)
+                    try? context.save()
                 }
-                try? context.save()
             }
         } label: {
             HStack {
