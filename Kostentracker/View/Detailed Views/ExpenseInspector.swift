@@ -565,7 +565,7 @@ struct ExpenseInspector: View {
                             let newExpense = Expense(from: draft)
                             context.insert(newExpense)
                             self.expense = newExpense
-                            self.isEditing = false
+                            self.initialState = .view(newExpense)
                         }
                         try context.save()
                         isEditing = false
