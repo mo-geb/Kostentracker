@@ -31,6 +31,7 @@ extension FrequencyUnit {
     
     /// Returns the properly capitalized and pluralized form of the frequency unit.
     func displayText(for value: Int16) -> String {
+        if value == 0 { return String(localized: "One time") }
         let singular = value == 1
         switch self {
         case .day:

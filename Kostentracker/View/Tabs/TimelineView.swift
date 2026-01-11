@@ -80,15 +80,21 @@ struct TimelineView: View {
                     switch expense.type {
                     case .oneTime, .inactive:
                         context.delete(expense)
+                        ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
                     case .recurring:
                         expense.advanceDueDate()
-                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
                     }
                    
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {
-                    Label("Mark as paid", systemImage: "checkmark")
+                    switch expense.type {
+                    case .oneTime, .inactive:
+                        Label("Mark as paid", systemImage: "trash")
+                    case .recurring:
+                        Label("Mark as paid", systemImage: "checkmark")
+                    }
                 }
                 .accessibilityLabel("Mark as paid")
                 .accessibilityHint("Marks this expense as paid")
@@ -98,17 +104,23 @@ struct TimelineView: View {
                     switch expense.type {
                     case .oneTime, .inactive:
                         context.delete(expense)
+                        ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
                     case .recurring:
                         expense.advanceDueDate()
-                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.main)
+                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
                     }
                    
                     try? context.save()
                     listRefreshID = UUID()
                 } label: {
-                    Label("Paid", systemImage: "checkmark")
+                    switch expense.type {
+                    case .oneTime, .inactive:
+                        Label("Paid", systemImage: "trash")
+                    case .recurring:
+                        Label("Paid", systemImage: "checkmark")
+                    }
                 }
-                .tint(.green)
+                .tint(expense.type == .recurring ? .green : .red)
                 .accessibilityLabel("Mark as paid")
                 .accessibilityHint("Marks this expense as paid")
             }
@@ -124,7 +136,6 @@ struct TimelineView: View {
         
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
-                SharedToolbarElements.FilterPicker()
                 SharedToolbarElements.ViewModePicker()
             }
         }
@@ -146,7 +157,7 @@ struct TimelineView: View {
     
     /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: ui.selectedFilter)
+        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: .active)
         let calendar = Calendar.current
         
         // 1. Group expenses by the start of their month

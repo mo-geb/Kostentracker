@@ -95,8 +95,13 @@ enum SharedToolbarElements {
         
         var body: some View {
             Picker(selection: $ui.selectedFilter) {
-                ForEach(FilterOption.allCases) { option in
-                    Text(option.localizedName).tag(option)
+                ForEach(FilterOption.allCases.filter{ $0 != .active }) { option in
+                    
+                    Button {} label: {
+                        Label(option.localizedName, systemImage: "")
+                        Text(option.localizedDescription)
+                    }
+                    .tag(option)
                 }
             } label: {
                 Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
@@ -113,7 +118,11 @@ enum SharedToolbarElements {
         var body: some View {
             Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                 ForEach(SortOption.allCases) { option in
-                    Text(option.localizedName).tag(option)
+                    Button {} label: {
+                        Label(option.localizedName, systemImage: "")
+                        Text(option.localizedDescription)
+                    }
+                    .tag(option)
                 }
             }
             .pickerStyle(.menu)
@@ -141,14 +150,12 @@ enum SharedToolbarElements {
         @EnvironmentObject var ui: UIState
         
         var body: some View {
-            Picker(selection: $ui.selectedViewMode) {
+            Picker("View Mode", selection: $ui.selectedViewMode) {
                 ForEach(ViewMode.allCases) { mode in
                     Text(mode.localizedName).tag(mode)
                 }
-            } label: {
-                Label("View Mode", systemImage: "list.bullet.rectangle")
             }
-            .pickerStyle(.segmented)
+            .pickerStyle(.palette)
             .accessibilityLabel("View Mode")
             .accessibilityHint("Switch between different display modes")
         }

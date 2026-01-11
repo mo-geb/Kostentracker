@@ -5,7 +5,7 @@
       "shouldTranslate" : false
     },
     "%@" : {
-
+      "shouldTranslate" : false
     },
     "%@ %@" : {
       "localizations" : {
@@ -15,7 +15,8 @@
             "value" : "%1$@ %2$@"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "%@ category" : {
 
@@ -239,6 +240,9 @@
         }
       },
       "shouldTranslate" : false
+    },
+    "A-Z" : {
+
     },
     "Account Name" : {
       "localizations" : {
@@ -563,7 +567,14 @@
       }
     },
     "Add expense image" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben-Icon hinzufügen"
+          }
+        }
+      }
     },
     "Add optional notes or details about this expense" : {
 
@@ -673,6 +684,7 @@
       }
     },
     "Amount (High to Low)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -725,6 +737,7 @@
       }
     },
     "Amount (Low to High)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -777,10 +790,24 @@
       }
     },
     "Amount: %@" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag: %@"
+          }
+        }
+      }
     },
     "Amount: No amount set" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrag: Kein Betrag festgelegt"
+          }
+        }
+      }
     },
     "Are you sure? This action cannot be undone." : {
       "localizations" : {
@@ -1095,10 +1122,24 @@
       }
     },
     "Cancel delete" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen abbrechen"
+          }
+        }
+      }
     },
     "Cancel editing" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten abbrechen"
+          }
+        }
+      }
     },
     "Categories" : {
       "localizations" : {
@@ -1273,7 +1314,14 @@
       }
     },
     "Change expense image" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben-Bild ändern"
+          }
+        }
+      }
     },
     "Chart type: %@" : {
 
@@ -2046,6 +2094,9 @@
       }
     },
     "Discard changes and return to view mode" : {
+
+    },
+    "Done" : {
 
     },
     "Double tap to cycle through yearly, monthly, weekly, and daily periods" : {
@@ -2858,6 +2909,9 @@
     "Expense date" : {
 
     },
+    "Expense Deleted" : {
+
+    },
     "Expense notes" : {
 
     },
@@ -2980,9 +3034,6 @@
     "Frequency icon" : {
 
     },
-    "Frequency unit" : {
-
-    },
     "Frequency Units" : {
       "localizations" : {
         "de" : {
@@ -3031,58 +3082,6 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Одиниці частоти"
-          }
-        }
-      }
-    },
-    "Frequency Value" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Häufigkeit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Valor de frecuencia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valeur de fréquence"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valore della frequenza"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Frequentiewaarde"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Frequency Value"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frekvensvärde"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Значення частоти"
           }
         }
       }
@@ -3197,6 +3196,15 @@
     "Group expenses" : {
 
     },
+    "Hide cost zero" : {
+
+    },
+    "Hide expenses with no date" : {
+
+    },
+    "High to Low" : {
+
+    },
     "Icon" : {
       "localizations" : {
         "de" : {
@@ -3305,6 +3313,9 @@
 
     },
     "List tab" : {
+
+    },
+    "Low to High" : {
 
     },
     "Make Default" : {
@@ -3992,6 +4003,9 @@
         }
       }
     },
+    "Next 30 Days" : {
+
+    },
     "Next Due" : {
 
     },
@@ -4368,6 +4382,9 @@
         }
       }
     },
+    "One time" : {
+
+    },
     "One week before due" : {
       "localizations" : {
         "de" : {
@@ -4420,7 +4437,10 @@
         }
       }
     },
-    "Only Active (Cost not zero)" : {
+    "Only active" : {
+
+    },
+    "Only Non-Zero" : {
 
     },
     "Opens app settings and preferences" : {
@@ -5167,13 +5187,7 @@
     "Select a category for this expense" : {
 
     },
-    "Select how often this expense occurs" : {
-
-    },
     "Select the date for this expense" : {
-
-    },
-    "Select the time unit for frequency" : {
 
     },
     "Select when you want to be notified about upcoming expenses" : {
@@ -5767,6 +5781,7 @@
       }
     },
     "Title (A-Z)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -5925,7 +5940,11 @@
         }
       }
     },
+    "Upcoming" : {
+
+    },
     "Upcoming (Next 30 Days)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -6028,6 +6047,9 @@
           }
         }
       }
+    },
+    "Value" : {
+
     },
     "View expense charts and analytics" : {
 

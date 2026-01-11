@@ -80,7 +80,7 @@ struct ExpenseInspector: View {
             focusedField = nil
         }
         .overlay {
-            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.MarkedAsPaidOwner.inspector) {
+            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.inspector) {
                 MarkAsPaidPopup()
             }
         }
@@ -415,9 +415,10 @@ struct ExpenseInspector: View {
                 case .oneTime, .inactive:
                     context.delete(e)
                     dismiss()
+                    ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
                 case .recurring:
                     e.advanceDueDate()
-                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner.inspector)
+                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.inspector)
                     try? context.save()
                 }
             }
@@ -514,6 +515,7 @@ struct ExpenseInspector: View {
                     context.delete(expense)
                 }
                 dismiss()
+                ui.showDeletedPopup(owner: ActivePopup.PopupOwner.inspector)
             }
             .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }

@@ -55,13 +55,18 @@ extension Expense {
 
 extension Expense {
     var yearlyCost: Double {
-        let frequencyValue = Double(self.frequencyValue)
-        guard frequencyValue > 0 else { return 0 }
-        switch self.frequencyUnit {
-        case .day: return self.amount * (365.0 / frequencyValue)
-        case .week: return self.amount * (52.0 / frequencyValue)
-        case .month: return self.amount * (12.0 / frequencyValue)
-        case .year: return self.amount / frequencyValue
+        switch self.type {
+        case .inactive: return 0
+        case .oneTime: return amount
+        case .recurring:
+            let frequencyValue = Double(self.frequencyValue)
+            guard frequencyValue > 0 else { return 0 }
+            switch self.frequencyUnit {
+            case .day: return self.amount * (365.0 / frequencyValue)
+            case .week: return self.amount * (52.0 / frequencyValue)
+            case .month: return self.amount * (12.0 / frequencyValue)
+            case .year: return self.amount / frequencyValue
+            }
         }
     }
     
@@ -173,10 +178,12 @@ extension Expense {
         case .all:
             break
         case .nonZero:
-            filtered = filtered.filter { $0.yearlyCost > 0 }
+            filtered = filtered.filter { $0.amount > 0 }
         case .upcoming:
             let nextThirtyDays = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
             filtered = filtered.filter { $0.date <= nextThirtyDays }
+        case .active:
+            filtered = filtered.filter { $0.type != .inactive }
         }
         return filtered
     }
@@ -245,5 +252,5 @@ struct ExpenseDraft {
 }
 
 extension ExpenseDraft {
-    var type: ExpenseType { frequencyValue == 0 ? .oneTime : .recurring}
+    var type: ExpenseType { date == .distantPast ? .inactive : frequencyValue == 0 ? .oneTime : .recurring}
 }

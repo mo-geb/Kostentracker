@@ -60,10 +60,22 @@ final class UIState: ObservableObject {
 
     // MARK: - Popup / Transient Feedback
 
-    func showMarkedAsPaidConfirmation(owner: ActivePopup.MarkedAsPaidOwner, duration: TimeInterval = 1.5) {
+    func showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner, duration: TimeInterval = 1.5) {
         withAnimation {
             self.feedbackTrigger.toggle()
             self.activePopup = .markedAsPaid(owner: owner)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+            withAnimation {
+                self.activePopup = nil
+            }
+        }
+    }
+    
+    func showDeletedPopup(owner: ActivePopup.PopupOwner, duration: TimeInterval = 1.5) {
+        withAnimation {
+            self.feedbackTrigger.toggle()
+            self.activePopup = .deleted(owner: owner)
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
             withAnimation {

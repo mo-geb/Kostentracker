@@ -1,15 +1,25 @@
 import Foundation
 
 enum FilterOption: String, CaseIterable, Identifiable {
-    case all, nonZero, upcoming
+    case all, nonZero, upcoming, active
     
     var id: Self { self }
     
     var localizedName: String {
         switch self {
         case .all: return String(localized: "All Expenses")
-        case .nonZero: return String(localized: "Only Active (Cost not zero)")
-        case .upcoming: return String(localized: "Upcoming (Next 30 Days)")
+        case .nonZero: return String(localized: "Only Non-Zero")
+        case .active: return String(localized: "Only active")
+        case .upcoming: return String(localized: "Upcoming")
+        }
+    }
+    
+    var localizedDescription: String {
+        switch self {
+        case .all: return String(localized: "")
+        case .nonZero: return String(localized: "Hide cost zero")
+        case .active: return String(localized: "Hide expenses with no date")
+        case .upcoming: return String(localized: "Next 30 Days")
         }
     }
 }

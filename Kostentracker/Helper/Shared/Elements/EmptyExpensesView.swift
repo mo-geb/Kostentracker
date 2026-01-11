@@ -7,5 +7,6 @@ struct EmptyExpensesView: View {
             systemImage: "tray",
             description: Text("Tap the + button to add your first expense.")
         )
+        .background(Color(.systemGroupedBackground))
     }
 }

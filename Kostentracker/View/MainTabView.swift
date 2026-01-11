@@ -51,8 +51,12 @@ struct MainTabView: View {
             SettingsView()
         }
         .overlay {
-            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.MarkedAsPaidOwner.main) {
+            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.main) {
                 MarkAsPaidPopup()
+            }
+            
+            if ui.activePopup == ActivePopup.deleted(owner: ActivePopup.PopupOwner.main) {
+                DeletedPopup()
             }
         }
     }
