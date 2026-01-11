@@ -61,14 +61,21 @@ struct ExpenseInspector: View {
                 detailsSection
                     .accessibilitySortPriority(3)
                 
-                if isEditing && expense != nil {
-                    deleteButton
-                        .accessibilitySortPriority(4)
-                } else if !isEditing {
-                    markAsPaidButton
-                        .accessibilitySortPriority(4)
-                    statisticsSection
-                        .accessibilitySortPriority(5)
+                if isEditing {
+                    if expense != nil {
+                        deleteButton
+                            .accessibilitySortPriority(4)
+                    }
+                } else {
+                    if draft.type == .inactive {
+                        inactiveInfo
+                            .accessibilitySortPriority(4)
+                    } else {
+                        markAsPaidButton
+                            .accessibilitySortPriority(4)
+                        statisticsSection
+                            .accessibilitySortPriority(5)
+                    }
                 }
             }
         }
@@ -253,92 +260,114 @@ struct ExpenseInspector: View {
             }
             
             // Due / Frequency Section
-            rowGroup {
-                if isEditing {
-                    innerRow(title: String(localized: "Next Due"), icon: "calendar") {
-                        DatePicker("", selection: $draft.date, displayedComponents: [.date])
-                            .labelsHidden()
-                            .accessibilityLabel("Expense date")
-                            .accessibilityHint("Select the date for this expense")
-                            .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
-                    }
-                    
-                    customDivider
-                    
-                    innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+            if isEditing {
+                rowGroup {
+                    innerRow(title: String(localized: "Active"), icon: "arrow.trianglehead.counterclockwise") {
                         Toggle("", isOn: Binding(
-                            get: { draft.frequencyValue != 0 },
+                            get: { draft.date != Date.distantPast },
                             set: { newValue in
-                                draft.frequencyValue = newValue ? 1 : 0
+                                draft.date = newValue ? Date.now : Date.distantPast
                             }))
                     }
                     
-                    if draft.type == .recurring {
+                    if draft.type != .inactive {
                         customDivider
                         
-                        innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                            Button {
-                                isShowingPicker = true
-                            } label: {
-                                Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
-                                    .padding(8)
-                                    .background(Color(.secondarySystemBackground))
-                                    .cornerRadius(8)
-                                    .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
-                            }
-                            .sheet(isPresented: $isShowingPicker) {
-                                VStack(spacing: 0) {
-                                    HStack {
-                                        Spacer()
-                                        Button("Done") {
-                                            isShowingPicker = false
-                                        }
-                                        .fontWeight(.bold)
-                                    }
-                                    .padding()
-                                    .background(Color(.systemGroupedBackground))
-
-                                    HStack(spacing: 0) {
-                                        Picker("Value", selection: $draft.frequencyValue) {
-                                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                                                Text("\(value)").tag(Int16(value))
-                                            }
-                                        }
-                                        .pickerStyle(.wheel)
-                                        
-                                        Picker("Unit", selection: $draft.frequencyUnit) {
-                                            ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                                Text(unit.displayName(for: draft.frequencyValue))
-                                                    .tag(unit)
-                                            }
-                                        }
-                                        .pickerStyle(.wheel)
-                                    }
-                                }
-                                .presentationDetents([.height(300)])
-                                .presentationDragIndicator(.hidden)
-                            }
+                        innerRow(title: String(localized: "Next Due"), icon: "calendar") {
+                            DatePicker("", selection: $draft.date, displayedComponents: [.date])
+                                .labelsHidden()
+                                .accessibilityLabel("Expense date")
+                                .accessibilityHint("Select the date for this expense")
+                                .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
                         }
                     }
-                } else {
-                    innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
-                        if let date = expense?.date {
-                            Text(date, style: .date)
-                                .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
-                        }
-                    }
-                    if expense?.type == .recurring {
-                        customDivider
-                        
+                }
+            }
+            
+            if isEditing {
+                if draft.type != .inactive {
+                    rowGroup {
                         innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
-                            if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                                Text(freqUnit.displayText(for: freqValue))
-                                    .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
+                            Toggle("", isOn: Binding(
+                                get: { draft.frequencyValue != 0 },
+                                set: { newValue in
+                                    draft.frequencyValue = newValue ? 1 : 0
+                                }))
+                        }
+                        
+                        if draft.type == .recurring {
+                            customDivider
+                            
+                            innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                                Button {
+                                    isShowingPicker = true
+                                } label: {
+                                    Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
+                                        .padding(8)
+                                        .background(Color(.secondarySystemBackground))
+                                        .cornerRadius(8)
+                                        .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+                                }
+                                .sheet(isPresented: $isShowingPicker) {
+                                    VStack(spacing: 0) {
+                                        HStack {
+                                            Spacer()
+                                            Button("Done") {
+                                                isShowingPicker = false
+                                            }
+                                            .fontWeight(.bold)
+                                        }
+                                        .padding()
+                                        .background(Color(.systemGroupedBackground))
+                                        
+                                        HStack(spacing: 0) {
+                                            Picker("Value", selection: $draft.frequencyValue) {
+                                                ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                                                    Text("\(value)").tag(Int16(value))
+                                                }
+                                            }
+                                            .pickerStyle(.wheel)
+                                            
+                                            Picker("Unit", selection: $draft.frequencyUnit) {
+                                                ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                                                    Text(unit.displayName(for: draft.frequencyValue))
+                                                        .tag(unit)
+                                                }
+                                            }
+                                            .pickerStyle(.wheel)
+                                        }
+                                    }
+                                    .presentationDetents([.height(300)])
+                                    .presentationDragIndicator(.hidden)
+                                }
                             }
                         }
                     }
                 }
             }
+            
+            if !isEditing {
+                if draft.type != .inactive {
+                    rowGroup {
+                        innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
+                            if let date = expense?.date {
+                                Text(date, style: .date)
+                                    .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
+                            }
+                        }
+                        
+                        if draft.type == .recurring {
+                            innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                                if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
+                                    Text(freqUnit.displayText(for: freqValue))
+                                        .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        
             
             // Category section
             row(title: String(localized: "Category"), icon: "archivebox") {
@@ -405,6 +434,19 @@ struct ExpenseInspector: View {
             }
         }
         .padding()
+    }
+    
+    @ViewBuilder
+    private var inactiveInfo: some View {
+        ContentUnavailableView(
+            "Expense Inactive",
+            systemImage: "info.circle.fill",
+            description: Text("Edit Expense and add a date to make active again"))
+        .frame(maxWidth: 260)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
+        .accessibilityLabel("Mark expense as paid")
+        .accessibilityHint("Mark this expense as paid and update its status")
     }
     
     @ViewBuilder
