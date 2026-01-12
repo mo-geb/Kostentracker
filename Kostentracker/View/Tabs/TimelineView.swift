@@ -52,8 +52,6 @@ struct TimelineView: View {
                         Spacer()
                         Text(group.totalAmount, format: .currency(code: userSettings.currencyCode))
                     }
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
                 }
             }
         }
@@ -189,35 +187,8 @@ struct TimelineView: View {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-                
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return NavigationStack {
-            TimelineView()
-                .modelContainer(container)
-                .environmentObject(UIState())
-                .environmentObject(UserSettings())
-        }
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        TimelineView()
     }
 }

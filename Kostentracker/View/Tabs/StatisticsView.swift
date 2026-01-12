@@ -375,40 +375,8 @@ struct StatisticsView: View {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        let leer = ExpenseCategory(from: CategoryDraft(name: "leer", iconName: "tag", color: .blue, isDefault: false, sortOrder: 4))
-        container.mainContext.insert(leer)
-        container.mainContext.insert(Expense(from: ExpenseDraft(title: "ller", amount: 0, frequencyUnit: .month, frequencyValue: 1, date: .now, category: leer, notes: "")))
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return NavigationStack {
-            StatisticsView()
-                .modelContainer(container)
-                .environmentObject(UIState())
-                .environmentObject(UserSettings())
-        }
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        StatisticsView()
     }
 }
