@@ -444,6 +444,16 @@
         }
       }
     },
+    "Active" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiv"
+          }
+        }
+      }
+    },
     "Add Account" : {
       "localizations" : {
         "de" : {
@@ -2372,6 +2382,16 @@
         }
       }
     },
+    "Edit Expense and add a date to make active again" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeite die Ausgabe und füge ein Datum hinzu, um sie wieder aktiv zu machen"
+          }
+        }
+      }
+    },
     "Enable Accounts" : {
       "localizations" : {
         "de" : {
@@ -3052,6 +3072,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ausgabe gelöscht"
+          }
+        }
+      }
+    },
+    "Expense Inactive" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe Inaktiv"
           }
         }
       }

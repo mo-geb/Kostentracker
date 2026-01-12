@@ -262,7 +262,7 @@ struct ExpenseInspector: View {
             // Due / Frequency Section
             if isEditing {
                 rowGroup {
-                    innerRow(title: String(localized: "Active"), icon: "arrow.trianglehead.counterclockwise") {
+                    innerRow(title: String(localized: "Active"), icon: "lightbulb") {
                         Toggle("", isOn: Binding(
                             get: { draft.date != Date.distantPast },
                             set: { newValue in
