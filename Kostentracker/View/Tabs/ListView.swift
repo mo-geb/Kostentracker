@@ -127,8 +127,6 @@ struct ListView: View {
             .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
             .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
         }
-        .font(.headline)
-        .foregroundStyle(.secondary)
         .lineLimit(1)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
