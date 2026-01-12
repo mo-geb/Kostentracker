@@ -136,6 +136,7 @@ struct TimelineView: View {
         
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
+                SharedToolbarElements.FilterPicker()
                 SharedToolbarElements.ViewModePicker()
             }
         }

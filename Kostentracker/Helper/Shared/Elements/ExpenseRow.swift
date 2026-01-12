@@ -196,6 +196,6 @@ struct ExpenseRow: View {
     }
     
     private var isZero: Bool {
-        expense.amount == 0
+        expense.amount == 0 || expense.type == .inactive
     }
 }

@@ -461,8 +461,8 @@ struct ExpenseInspector: View {
                 case .recurring:
                     e.advanceDueDate()
                     ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.inspector)
-                    try? context.save()
                 }
+                try? context.save()
             }
         } label: {
             HStack {
@@ -557,7 +557,7 @@ struct ExpenseInspector: View {
                     context.delete(expense)
                 }
                 dismiss()
-                ui.showDeletedPopup(owner: ActivePopup.PopupOwner.inspector)
+                ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
             }
             .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }

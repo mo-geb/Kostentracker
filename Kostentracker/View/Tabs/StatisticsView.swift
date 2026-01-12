@@ -327,33 +327,35 @@ struct StatisticsView: View {
         var months: [Int] = []
         var currentDate = expense.date
         
-        if expense.type == .oneTime {
+        switch expense.type {
+        case .inactive: break
+        case .oneTime:
             if calendar.component(.year, from: currentDate) == year {
                 months.append(calendar.component(.month, from: currentDate))
             }
-            return months
-        }
-        
-        while calendar.component(.year, from: currentDate) >= year {
-            currentDate = advanceDate(currentDate, by: -expense.frequencyValue, unit: expense.frequencyUnit)
-        }
-        
-        while calendar.component(.year, from: currentDate) < year {
-            currentDate = advanceDate(currentDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
-        }
-        
-        // Now collect all occurrences in the selected year
-        var checkDate = currentDate
-        while calendar.component(.year, from: checkDate) == year {
-            let month = calendar.component(.month, from: checkDate)
-            if !months.contains(month) {
-                months.append(month)
+        case .recurring:
+            while calendar.component(.year, from: currentDate) >= year {
+                currentDate = advanceDate(currentDate, by: -expense.frequencyValue, unit: expense.frequencyUnit)
             }
             
-            checkDate = advanceDate(checkDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
+            while calendar.component(.year, from: currentDate) < year {
+                currentDate = advanceDate(currentDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
+            }
+            
+            // Now collect all occurrences in the selected year
+            var checkDate = currentDate
+            while calendar.component(.year, from: checkDate) == year {
+                let month = calendar.component(.month, from: checkDate)
+                if !months.contains(month) {
+                    months.append(month)
+                }
+                
+                checkDate = advanceDate(checkDate, by: expense.frequencyValue, unit: expense.frequencyUnit)
+            }
+            
+            months = months.sorted()
         }
-        
-        return months.sorted()
+        return months
     }
     
     /// Advances a date by the specified frequency value and unit.
