@@ -261,6 +261,8 @@ struct ExpenseInspector: View {
             
             // Due / Frequency Section
             if isEditing {
+                
+                // Active / Date
                 rowGroup {
                     innerRow(title: String(localized: "Active"), icon: "lightbulb") {
                         Toggle("", isOn: Binding(
@@ -282,9 +284,8 @@ struct ExpenseInspector: View {
                         }
                     }
                 }
-            }
-            
-            if isEditing {
+                
+                // Repeat / Frequency
                 if draft.type != .inactive {
                     rowGroup {
                         innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
@@ -318,7 +319,6 @@ struct ExpenseInspector: View {
                                             .fontWeight(.bold)
                                         }
                                         .padding()
-                                        .background(Color(.systemGroupedBackground))
                                         
                                         HStack(spacing: 0) {
                                             Picker("Value", selection: $draft.frequencyValue) {
@@ -348,6 +348,7 @@ struct ExpenseInspector: View {
             
             if !isEditing {
                 if draft.type != .inactive {
+                    // Due
                     rowGroup {
                         innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
                             if let date = expense?.date {
@@ -356,7 +357,10 @@ struct ExpenseInspector: View {
                             }
                         }
                         
+                        // Repeat Frequency
                         if draft.type == .recurring {
+                            customDivider
+                            
                             innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
                                 if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
                                     Text(freqUnit.displayText(for: freqValue))
@@ -691,37 +695,10 @@ struct ExpenseInspector: View {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return NavigationStack {
-            ExpenseInspector(initialState: .edit(SampleData.netflixSample))
-                .modelContainer(container)
-                .environmentObject(UIState())
-                .environmentObject(UserSettings())
-        }
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        ExpenseInspector(initialState: .edit(SampleData.netflixSample))
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }
