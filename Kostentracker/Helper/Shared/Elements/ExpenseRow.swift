@@ -19,7 +19,7 @@ struct ExpenseRow: View {
         }
         .padding(.vertical, 4)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(isOverdue ? "\(expense.accessibilityLabel), Overdue" : expense.accessibilityLabel)
+        .accessibilityLabel(showOverdue ? "\(expense.accessibilityLabel), Overdue" : expense.accessibilityLabel)
         .accessibilityHint("Double tap to view details")
     }
 
@@ -76,11 +76,11 @@ struct ExpenseRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(.headline)
-                    .foregroundStyle(isZero ? .secondary : .primary)
+                    .foregroundStyle(isInactive ? .secondary : .primary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
                 HStack(spacing: 4) {
-                    if isOverdue {
+                    if showOverdue {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(Color.red)
@@ -88,17 +88,17 @@ struct ExpenseRow: View {
                     }
                     Text(subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(isOverdue ? Color.red : Color.secondary)
+                        .foregroundStyle(showOverdue ? Color.red : Color.secondary)
                 }
             }
         case .compact:
             HStack(spacing: 4) {
                 Text(expense.title)
                     .font(.body)
-                    .foregroundStyle(isZero ? .secondary : .primary)
+                    .foregroundStyle(isInactive ? .secondary : .primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
-                if isOverdue {
+                if showOverdue {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption2)
                         .foregroundStyle(Color.red)
@@ -144,7 +144,15 @@ struct ExpenseRow: View {
 //                }
                 
                 // Regular
-            amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
+            VStack(alignment: .trailing, spacing: 2) {
+                amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
+                
+                if expense.type == .oneTime {
+                    Text(expense.amount, format: .currency(code: userSettings.currencyCode))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
 //            }
         default:
             EmptyView()
@@ -182,10 +190,11 @@ struct ExpenseRow: View {
         Text(amount, format: .currency(code: userSettings.currencyCode))
             .font(uiState.selectedViewMode == .normal ? .headline : .body)
             .fontWeight(.medium)
-            .foregroundStyle(isZero ? .secondary : .primary)
+            .foregroundStyle(isInactive ? .secondary : .primary)
     }
     
-    private var isOverdue: Bool {
+    private var showOverdue: Bool {
+        if tab != .timeline { return false }
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
@@ -195,7 +204,7 @@ struct ExpenseRow: View {
         return false
     }
     
-    private var isZero: Bool {
-        expense.amount == 0 || expense.type == .inactive
+    private var isInactive: Bool {
+        expense.type == .inactive
     }
 }

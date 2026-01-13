@@ -3250,58 +3250,6 @@
         }
       }
     },
-    "Frequency Units" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Häufigkeit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Unidades de frecuencia"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unités de fréquence"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unità di frequenza"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Frequentie-eenheden"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Frequency Units"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frekvensenheter"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Одиниці частоти"
-          }
-        }
-      }
-    },
     "Frequency: %@" : {
       "localizations" : {
         "de" : {
@@ -3436,12 +3384,12 @@
         }
       }
     },
-    "Hide expenses with no date" : {
+    "Hide inactive" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Verstecke ausgaben ohne Datum"
+            "value" : "Verstecke inaktive Kosten"
           }
         }
       }
@@ -3504,6 +3452,16 @@
           "stringUnit" : {
             "state" : "needs_review",
             "value" : "Іконка"
+          }
+        }
+      }
+    },
+    "Inactive" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inaktiv"
           }
         }
       }
@@ -4296,16 +4254,6 @@
         }
       }
     },
-    "Next 30 Days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nächste 30 Tage"
-          }
-        }
-      }
-    },
     "Next Due" : {
       "localizations" : {
         "de" : {
@@ -4778,6 +4726,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nur aktive"
+          }
+        }
+      }
+    },
+    "Only next 30 Days" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur nächste 30 Tage"
           }
         }
       }

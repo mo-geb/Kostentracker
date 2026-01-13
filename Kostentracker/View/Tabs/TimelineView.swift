@@ -134,7 +134,6 @@ struct TimelineView: View {
         
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
-                SharedToolbarElements.FilterPicker()
                 SharedToolbarElements.ViewModePicker()
             }
         }
@@ -190,5 +189,7 @@ struct TimelineView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         TimelineView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }

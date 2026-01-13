@@ -33,7 +33,7 @@ struct ListView: View {
         case .categories:
             return String(localized: "Categories")
         case .frequency:
-            return String(localized: "Frequency Units")
+            return String(localized: "Frequency")
         }
     }
     
@@ -139,7 +139,11 @@ struct ListView: View {
         case .frequency:
             subtitle = expense.categoryName
         case .categories, .none:
-            subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
+            switch expense.type {
+            case .inactive: subtitle = String(localized: "Inactive")
+            case .oneTime, .recurring: subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
+
+            }
         }
         
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
@@ -199,7 +203,16 @@ struct ListView: View {
         case .categories:
             grouped = Dictionary(grouping: filteredExpenses, by: { $0.categoryName })
         case .frequency:
-            grouped = Dictionary(grouping: filteredExpenses, by: { $0.frequencyUnit.rawValue.capitalized })
+            grouped = Dictionary(grouping: filteredExpenses) { expense in
+                switch expense.type {
+                case .oneTime:
+                    return String(localized: "One time")
+                case .inactive:
+                    return String(localized: "Inactive")
+                case .recurring:
+                    return expense.frequencyUnit.rawValue.capitalized
+                }
+            }
         }
         
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
@@ -226,12 +239,31 @@ struct ListView: View {
                 return firstA.categorySortOrder < firstB.categorySortOrder
             }
         case .frequency:
-            return groups.sorted {
-                guard
-                    let unitA = FrequencyUnit(rawValue: $0.title.lowercased()),
-                    let unitB = FrequencyUnit(rawValue: $1.title.lowercased())
-                else { return false }
-                return unitA.sortOrder < unitB.sortOrder
+            return groups.sorted { a, b in
+                func rank(_ title: String) -> (Int, Int) {
+                    let key = title.lowercased()
+                    
+                    // Special groups
+                    if key == "inactive" {
+                        return (2, 0)
+                    }
+                    if key == "one-time" {
+                        return (1, 0)
+                    }
+                    
+                    // Normal frequency units
+                    if let unit = FrequencyUnit(rawValue: key) {
+                        return (0, unit.sortOrder)
+                    }
+                    
+                    // Fallback (should not happen, but keep stable)
+                    return (0, Int.max)
+                }
+                
+                let ra = rank(a.title)
+                let rb = rank(b.title)
+                
+                return ra < rb
             }
         }
     }
@@ -240,5 +272,7 @@ struct ListView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         ListView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }

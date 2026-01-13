@@ -20,7 +20,9 @@ struct SampleData {
     static var expenses: [Expense] = [
         spotifySample,
         netflixSample,
-        insuranceSample
+        insuranceSample,
+        oneTime,
+        inactive
     ]
     
     // MARK: - Accounts
@@ -34,8 +36,14 @@ struct SampleData {
     static let insurance = ExpenseCategory(from: CategoryDraft(name: "Insurance", iconName: "shield", color: .red))
     
     // MARK: - Expenses
-    static let spotifySample = Expense(from:ExpenseDraft(title: "Spotify Premium", amount: 10.99, frequencyUnit: .month, frequencyValue: 1,
-            date: Date(), category: subscription, notes: "Family plan."
+    static let spotifySample = Expense(from:ExpenseDraft(
+        title: "Spotify Premium",
+        amount: 10.99,
+        frequencyUnit: .month,
+        frequencyValue: 1,
+        date: Date(),
+        category: subscription,
+        notes: "Family plan."
         )
     )
     
@@ -57,6 +65,28 @@ struct SampleData {
             frequencyValue: 1,
             date: sampleDate,
             category: insurance,
+            notes: ""
+        )
+    )
+    
+    static let oneTime = Expense(from: ExpenseDraft(
+            title: "One Time",
+            amount: 10,
+            frequencyUnit: .day,
+            frequencyValue: 0,
+            date: .now,
+            category: insurance,
+            notes: ""
+        )
+    )
+    
+    static let inactive = Expense(from: ExpenseDraft(
+            title: "Inactive Expense",
+            amount: 1,
+            frequencyUnit: .day,
+            frequencyValue: 1,
+            date: .distantPast,
+            category: subscription,
             notes: ""
         )
     )

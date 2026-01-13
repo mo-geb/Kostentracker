@@ -18,8 +18,8 @@ enum FilterOption: String, CaseIterable, Identifiable {
         switch self {
         case .all: return String(localized: "")
         case .nonZero: return String(localized: "Hide cost zero")
-        case .active: return String(localized: "Hide expenses with no date")
-        case .upcoming: return String(localized: "Next 30 Days")
+        case .active: return String(localized: "Hide inactive")
+        case .upcoming: return String(localized: "Only next 30 Days")
         }
     }
 }

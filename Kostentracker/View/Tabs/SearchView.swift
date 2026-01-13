@@ -89,13 +89,20 @@ struct SearchView: View {
                     .font(.headline)
                     .foregroundStyle(.primary)
                 
-                Text(expense.date, style: .date)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Text(expense.frequencyUnit.displayName(for: expense.frequencyValue))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                switch expense.type {
+                case .inactive:
+                    Text("Inactive")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                case .oneTime, .recurring:
+                    Text(expense.date, style: .date)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    
+                    Text(expense.frequencyUnit.displayText(for: expense.frequencyValue))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
             
             Spacer()
@@ -113,37 +120,10 @@ struct SearchView: View {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return NavigationStack {
-            SearchView()
-                .modelContainer(container)
-                .environmentObject(UIState())
-                .environmentObject(UserSettings())
-        }
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        SearchView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }
