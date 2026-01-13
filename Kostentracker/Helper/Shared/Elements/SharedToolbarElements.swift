@@ -152,13 +152,9 @@ enum SharedToolbarElements {
         var body: some View {
             Picker("View Mode", selection: $ui.selectedViewMode) {
                 ForEach(ViewMode.allCases) { mode in
-                    Label {
-                        Text(mode.localizedName)
-                    } icon: {
-                        Image(systemName: "square")
-                            .hidden() // invisible for rendering
-                    }
-                    .tag(mode)
+                    Text(mode.localizedName)
+                        .frame(minWidth: 60)
+                        .tag(mode)
                 }
             }
             .pickerStyle(.palette)
