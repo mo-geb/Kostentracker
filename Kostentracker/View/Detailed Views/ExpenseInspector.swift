@@ -87,6 +87,15 @@ struct ExpenseInspector: View {
         .onTapGesture {
             focusedField = nil
         }
+        .sheet(item: $ui.activeCategorySheet) { sheet in
+            switch sheet {
+            case .new(let draft):
+                NavigationStack {
+                    CategoryInspector(initialState: .new(draft))
+                }
+            default: EmptyView()
+            }
+        }
         .overlay {
             if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.inspector) {
                 MarkAsPaidPopup()
@@ -199,260 +208,267 @@ struct ExpenseInspector: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
-            // Amount Section
-            row(title: String(localized: "Amount"), icon: "number") {
-                if isEditing {
-                    TextField("0.00", text: $amountText)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .fixedSize()
-                        .padding(8)
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(8)
-                        .focused($focusedField, equals: .expenseDetailAmount)
-                        .accessibilityLabel("Expense amount")
-                        .accessibilityHint("Enter the cost amount using decimal format")
-                        .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
-                        .onChange(of: amountText) { _, newValue in
-                            let formatter = NumberFormatter()
-                            formatter.locale = Locale.current
-                            formatter.numberStyle = .decimal
-                            
-                            if let number = formatter.number(from: newValue) {
-                                draft.amount = max(0, number.doubleValue)
-                            } else {
-                                draft.amount = 0
-                            }
+            amountSection
+            dateSection
+            categorySection
+            notesSection
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    private var amountSection: some View {
+        row(title: String(localized: "Amount"), icon: "number") {
+            if isEditing {
+                TextField("0.00", text: $amountText)
+                    .keyboardType(.decimalPad)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize()
+                    .padding(8)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(8)
+                    .focused($focusedField, equals: .expenseDetailAmount)
+                    .accessibilityLabel("Expense amount")
+                    .accessibilityHint("Enter the cost amount using decimal format")
+                    .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
+                    .onChange(of: amountText) { _, newValue in
+                        let formatter = NumberFormatter()
+                        formatter.locale = Locale.current
+                        formatter.numberStyle = .decimal
+                        
+                        if let number = formatter.number(from: newValue) {
+                            draft.amount = max(0, number.doubleValue)
+                        } else {
+                            draft.amount = 0
                         }
-                        .onChange(of: focusedField) { _, focused in
-                            if focusedField != .expenseDetailAmount {
-                                let formatter = NumberFormatter()
-                                formatter.locale = Locale.current
-                                formatter.numberStyle = .decimal
-                                formatter.minimumFractionDigits = 2
-                                formatter.maximumFractionDigits = 2
-                                
-                                if draft.amount > 0 {
-                                    amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
-                                } else {
-                                    amountText = ""
-                                }
-                            }
-                        }
-                        .onAppear {
+                    }
+                    .onChange(of: focusedField) { _, focused in
+                        if focusedField != .expenseDetailAmount {
                             let formatter = NumberFormatter()
                             formatter.locale = Locale.current
                             formatter.numberStyle = .decimal
                             formatter.minimumFractionDigits = 2
                             formatter.maximumFractionDigits = 2
                             
-                            amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
-                        }
-                } else {
-                    if let amount = expense?.amount, amount == 0 {
-                        Text("0.00")
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("Amount: No amount set")
-                    } else if let amount = expense?.amount {
-                        Text(amount, format: .currency(code: userSettings.currencyCode))
-                            .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
-                    }
-                }
-            }
-            
-            // Due / Frequency Section
-            if isEditing {
-                
-                // Active / Date
-                rowGroup {
-                    innerRow(title: String(localized: "Active"), icon: "lightbulb") {
-                        Toggle("", isOn: Binding(
-                            get: { draft.date != Date.distantPast },
-                            set: { newValue in
-                                draft.date = newValue ? Date.now : Date.distantPast
-                            }))
-                    }
-                    
-                    if draft.type != .inactive {
-                        customDivider
-                        
-                        innerRow(title: String(localized: "Next Due"), icon: "calendar") {
-                            DatePicker("", selection: $draft.date, displayedComponents: [.date])
-                                .labelsHidden()
-                                .accessibilityLabel("Expense date")
-                                .accessibilityHint("Select the date for this expense")
-                                .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
-                        }
-                    }
-                }
-                
-                // Repeat / Frequency
-                if draft.type != .inactive {
-                    rowGroup {
-                        innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
-                            Toggle("", isOn: Binding(
-                                get: { draft.frequencyValue != 0 },
-                                set: { newValue in
-                                    draft.frequencyValue = newValue ? 1 : 0
-                                }))
-                        }
-                        
-                        if draft.type == .recurring {
-                            customDivider
-                            
-                            innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                                Button {
-                                    isShowingPicker = true
-                                } label: {
-                                    Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
-                                        .padding(8)
-                                        .background(Color(.secondarySystemBackground))
-                                        .cornerRadius(8)
-                                        .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
-                                }
-                                .sheet(isPresented: $isShowingPicker) {
-                                    VStack(spacing: 0) {
-                                        HStack {
-                                            Spacer()
-                                            Button("Done") {
-                                                isShowingPicker = false
-                                            }
-                                            .fontWeight(.bold)
-                                        }
-                                        .padding()
-                                        
-                                        HStack(spacing: 0) {
-                                            Picker("Value", selection: $draft.frequencyValue) {
-                                                ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                                                    Text("\(value)").tag(Int16(value))
-                                                }
-                                            }
-                                            .pickerStyle(.wheel)
-                                            
-                                            Picker("Unit", selection: $draft.frequencyUnit) {
-                                                ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                                    Text(unit.displayName(for: draft.frequencyValue))
-                                                        .tag(unit)
-                                                }
-                                            }
-                                            .pickerStyle(.wheel)
-                                        }
-                                    }
-                                    .presentationDetents([.height(300)])
-                                    .presentationDragIndicator(.hidden)
-                                }
+                            if draft.amount > 0 {
+                                amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
+                            } else {
+                                amountText = ""
                             }
                         }
                     }
-                }
-            }
-            
-            if !isEditing {
-                if draft.type != .inactive {
-                    // Due
-                    rowGroup {
-                        innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
-                            if let date = expense?.date {
-                                Text(date, style: .date)
-                                    .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
-                            }
-                        }
+                    .onAppear {
+                        let formatter = NumberFormatter()
+                        formatter.locale = Locale.current
+                        formatter.numberStyle = .decimal
+                        formatter.minimumFractionDigits = 2
+                        formatter.maximumFractionDigits = 2
                         
-                        // Repeat Frequency
-                        if draft.type == .recurring {
-                            customDivider
-                            
-                            innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
-                                if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                                    Text(freqUnit.displayText(for: freqValue))
-                                        .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
-                                }
-                            }
-                        }
+                        amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
                     }
-                }
-            }
-        
-            
-            // Category section
-            row(title: String(localized: "Category"), icon: "archivebox") {
-                if isEditing {
-                    Picker("Category", selection: $draft.category) {
-                        ForEach(categories, id: \.self) { category in
-                            HStack(spacing: 8) {
-                                Image(systemName: category.iconName)
-                                    .foregroundStyle(category.color)
-                                    .frame(width: 16)
-                                    .accessibilityLabel("\(category.iconName) icon")
-                                Text(category.name)
-                            }
-                            .tag(Optional(category))
-                        }
-                        
-                        Divider()
-                        
-                        Label("New category", systemImage: "plus")
-                            .tag(Optional<Category>.none)
-                    }
-                    .pickerStyle(.menu)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .onChange(of: draft.category) { _, newValue in
-                        if newValue == nil {
-                            showNewCategorySheet = true
-                        }
-                    }
-                    .sheet(isPresented: $showNewCategorySheet) {
-                        let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
-                        ui.createCategory(from: draft)
-                    }
-                    .accessibilityLabel("Expense category")
-                    .accessibilityHint("Select a category for this expense")
-                    .accessibilityValue(draft.category?.name ?? "No category selected")
-                } else {
-                    if let name = expense?.categoryName, let icon = expense?.categoryIconName {
-                        Label(name, systemImage: icon)
-                            .accessibilityLabel("Category: \(name)")
-                    }
-                }
-            }
-            
-            // Notes section
-            VStack(alignment: .leading) {
-                Text("Notes")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                if isEditing {
-                    ZStack(alignment: .topLeading) {
-                        TextEditor(text: $draft.notes)
-                            .padding(12)
-                            .frame(minHeight: 100)
-                            .background(Color(.tertiarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .scrollContentBackground(.hidden)
-                            .focused($focusedField, equals: .expenseDetailNotes)
-                            .accessibilityLabel("Expense notes")
-                            .accessibilityHint("Add optional notes or details about this expense")
-                            .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
-                    }
-                } else {
-                    VStack {
-                        if let notes = expense?.notes, !notes.isEmpty {
-                            Text(notes)
-                                .accessibilityLabel("Notes: \(notes)")
-                        } else {
-                            Text("No notes provided.")
-                                .foregroundStyle(.secondary)
-                                .accessibilityLabel("Notes: No notes provided")
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(12)
-                    .background(Color(.tertiarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+            } else {
+                if let amount = expense?.amount, amount == 0 {
+                    Text("0.00")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Amount: No amount set")
+                } else if let amount = expense?.amount {
+                    Text(amount, format: .currency(code: userSettings.currencyCode))
+                        .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
                 }
             }
         }
-        .padding()
+    }
+    
+    @ViewBuilder
+    private var dateSection: some View {
+        if isEditing {
+            // Active / Date
+            rowGroup {
+                innerRow(title: String(localized: "Active"), icon: "lightbulb") {
+                    Toggle("", isOn: Binding(
+                        get: { draft.date != Date.distantPast },
+                        set: { newValue in
+                            draft.date = newValue ? Date.now : Date.distantPast
+                        }))
+                }
+                
+                if draft.type != .inactive {
+                    customDivider
+                    
+                    innerRow(title: String(localized: "Next Due"), icon: "calendar") {
+                        DatePicker("", selection: $draft.date, displayedComponents: [.date])
+                            .labelsHidden()
+                            .accessibilityLabel("Expense date")
+                            .accessibilityHint("Select the date for this expense")
+                            .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
+                    }
+                }
+            }
+            
+            // Repeat / Frequency
+            if draft.type != .inactive {
+                rowGroup {
+                    innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                        Toggle("", isOn: Binding(
+                            get: { draft.frequencyValue != 0 },
+                            set: { newValue in
+                                draft.frequencyValue = newValue ? 1 : 0
+                            }))
+                    }
+                    
+                    if draft.type == .recurring {
+                        customDivider
+                        
+                        innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                            Button {
+                                isShowingPicker = true
+                            } label: {
+                                Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
+                                    .padding(8)
+                                    .background(Color(.secondarySystemBackground))
+                                    .cornerRadius(8)
+                                    .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+                            }
+                            .sheet(isPresented: $isShowingPicker) {
+                                VStack(spacing: 0) {
+                                    HStack {
+                                        Spacer()
+                                        Button("Done") {
+                                            isShowingPicker = false
+                                        }
+                                        .fontWeight(.bold)
+                                    }
+                                    .padding()
+                                    
+                                    HStack(spacing: 0) {
+                                        Picker("Value", selection: $draft.frequencyValue) {
+                                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                                                Text("\(value)").tag(Int16(value))
+                                            }
+                                        }
+                                        .pickerStyle(.wheel)
+                                        
+                                        Picker("Unit", selection: $draft.frequencyUnit) {
+                                            ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                                                Text(unit.displayName(for: draft.frequencyValue))
+                                                    .tag(unit)
+                                            }
+                                        }
+                                        .pickerStyle(.wheel)
+                                    }
+                                }
+                                .presentationDetents([.height(300)])
+                                .presentationDragIndicator(.hidden)
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            if draft.type != .inactive {
+                rowGroup {
+                    // Due
+                    innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
+                        if let date = expense?.date {
+                            Text(date, style: .date)
+                                .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
+                        }
+                    }
+                    
+                    // Repeat Frequency
+                    if draft.type == .recurring {
+                        customDivider
+                        
+                        innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                            if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
+                                Text(freqUnit.displayText(for: freqValue))
+                                    .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var categorySection: some View {
+        row(title: String(localized: "Category"), icon: "archivebox") {
+            if isEditing {
+                Menu {
+                    ForEach(categories, id: \.self) { category in
+                        Button {
+                            draft.category = category
+                        } label: {
+                            Label(category.name, systemImage: category.iconName)
+                        }
+                    }
+
+                    Divider()
+
+                    Button {
+                        let draft = CategoryDraft.createNew(
+                            sortOrder: (categories.last?.sortOrder ?? 0) + 1
+                        )
+                        ui.createCategory(from: draft)
+                    } label: {
+                        Label("New Category", systemImage: "plus")
+                    }
+                } label: {
+                    if let category = draft.category {
+                        Label(category.name, systemImage: category.iconName)
+                    }
+
+                }
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityLabel("Expense category")
+                .accessibilityHint("Select a category for this expense")
+                .accessibilityValue(draft.category?.name ?? "No category selected")
+            } else {
+                if let name = expense?.categoryName, let icon = expense?.categoryIconName {
+                    Label(name, systemImage: icon)
+                        .accessibilityLabel("Category: \(name)")
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var notesSection: some View {
+        VStack(alignment: .leading) {
+            Text("Notes")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            if isEditing {
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $draft.notes)
+                        .padding(12)
+                        .frame(minHeight: 100)
+                        .background(Color(.tertiarySystemBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .scrollContentBackground(.hidden)
+                        .focused($focusedField, equals: .expenseDetailNotes)
+                        .accessibilityLabel("Expense notes")
+                        .accessibilityHint("Add optional notes or details about this expense")
+                        .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
+                }
+            } else {
+                VStack {
+                    if let notes = expense?.notes, !notes.isEmpty {
+                        Text(notes)
+                            .accessibilityLabel("Notes: \(notes)")
+                    } else {
+                        Text("No notes provided.")
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Notes: No notes provided")
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+            }
+        }
     }
     
     @ViewBuilder

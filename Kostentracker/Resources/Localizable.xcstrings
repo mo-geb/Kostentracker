@@ -54,16 +54,6 @@
         }
       }
     },
-    "%@ icon" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ Icon"
-          }
-        }
-      }
-    },
     "%d" : {
       "shouldTranslate" : false
     },
@@ -3374,16 +3364,6 @@
         }
       }
     },
-    "Hide cost zero" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verstecke null-Kosten"
-          }
-        }
-      }
-    },
     "Hide inactive" : {
       "localizations" : {
         "de" : {
@@ -4736,16 +4716,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nur nächste 30 Tage"
-          }
-        }
-      }
-    },
-    "Only Non-Zero" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nur nicht-null"
           }
         }
       }
