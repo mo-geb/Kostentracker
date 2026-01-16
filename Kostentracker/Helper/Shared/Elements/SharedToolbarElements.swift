@@ -95,8 +95,7 @@ enum SharedToolbarElements {
         
         var body: some View {
             Picker(selection: $ui.selectedFilter) {
-                ForEach(FilterOption.allCases.filter{ $0 != .active }) { option in
-                    
+                ForEach(FilterOption.allCases) { option in
                     Button {} label: {
                         Label(option.localizedName, systemImage: "")
                         Text(option.localizedDescription)

@@ -17,7 +17,7 @@ final class UIState: ObservableObject {
     @Published var feedbackTrigger: Bool = false
 
     // UI Configuration
-    @AppStorage("selectedFilter") var selectedFilter: FilterOption = .nonZero
+    @AppStorage("selectedFilter") var selectedFilter: FilterOption = .all
     @AppStorage("selectedSort") var selectedSort: SortOption = .amountDescending
     @AppStorage("selectedGroupBy") var selectedGroupBy: GroupByOption = .categories
     @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
