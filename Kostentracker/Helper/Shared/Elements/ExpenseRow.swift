@@ -17,7 +17,7 @@ struct ExpenseRow: View {
             Spacer()
             amountSection
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, uiState.selectedViewMode == .compact ? 2 : 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(showOverdue ? "\(expense.accessibilityLabel), Overdue" : expense.accessibilityLabel)
         .accessibilityHint("Double tap to view details")
