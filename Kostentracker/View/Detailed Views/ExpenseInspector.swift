@@ -22,7 +22,6 @@ struct ExpenseInspector: View {
     @State private var selectedPhoto: PhotosPickerItem?
     
     @State private var isShowingPicker = false
-    @State private var showNewCategorySheet = false
     
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
