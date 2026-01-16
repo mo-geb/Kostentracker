@@ -22,6 +22,7 @@ struct ExpenseInspector: View {
     @State private var selectedPhoto: PhotosPickerItem?
     
     @State private var isShowingPicker = false
+    @State private var showNewCategorySheet = false
     
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
@@ -387,9 +388,23 @@ struct ExpenseInspector: View {
                             }
                             .tag(Optional(category))
                         }
+                        
+                        Divider()
+                        
+                        Label("New category", systemImage: "plus")
+                            .tag(Optional<Category>.none)
                     }
                     .pickerStyle(.menu)
                     .fixedSize(horizontal: false, vertical: true)
+                    .onChange(of: draft.category) { _, newValue in
+                        if newValue == nil {
+                            showNewCategorySheet = true
+                        }
+                    }
+                    .sheet(isPresented: $showNewCategorySheet) {
+                        let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
+                        ui.createCategory(from: draft)
+                    }
                     .accessibilityLabel("Expense category")
                     .accessibilityHint("Select a category for this expense")
                     .accessibilityValue(draft.category?.name ?? "No category selected")

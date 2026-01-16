@@ -143,14 +143,16 @@ struct ExpenseRow: View {
 //                    }
 //                }
                 
-                // Regular
-            VStack(alignment: .trailing, spacing: 2) {
-                amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
-                
-                if expense.type == .oneTime {
-                    Text(expense.amount, format: .currency(code: userSettings.currencyCode))
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+            // Regular
+            if !isInactive {
+                VStack(alignment: .trailing, spacing: 2) {
+                    amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
+                    
+                    if expense.type == .oneTime {
+                        Text(expense.amount, format: .currency(code: userSettings.currencyCode))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
 //            }
@@ -176,7 +178,14 @@ struct ExpenseRow: View {
 //                }
                 
                 // Regular
-            amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
+            if isInactive {
+                Text("Inactive")
+                    .font(.body)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.secondary)
+            } else {
+                amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
+            }
 //            }
         default:
             EmptyView()
