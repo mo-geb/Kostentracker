@@ -104,6 +104,7 @@ struct ExpenseRow: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption2)
                         .foregroundStyle(Color.red)
+                        .padding(.leading, 4)
                         .accessibilityLabel("Overdue")
                 }
             }
