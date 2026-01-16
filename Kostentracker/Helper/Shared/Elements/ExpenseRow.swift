@@ -55,6 +55,7 @@ struct ExpenseRow: View {
                     .frame(width: 25, height: 25)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .accessibilityLabel("Custom image for \(expense.categoryName)")
+                    .padding(.trailing, 4)
             } else {
                 ZStack {
                     Circle()
@@ -64,6 +65,7 @@ struct ExpenseRow: View {
                         .font(.caption)
                         .foregroundStyle(expense.categoryColor)
                 }
+                .padding(.trailing, 4)
                 .accessibilityLabel("\(expense.categoryName) category")
             }
         }
