@@ -41,7 +41,9 @@ extension ExpenseCategory {
         if let defaultCategory = try? context.fetch(descriptor).first {
             return defaultCategory
         }
-        return createDefault()
+        let defaultCategory = createDefault()
+        context.insert(defaultCategory)
+        return defaultCategory
     }
     
     static func createDefault() -> ExpenseCategory {
