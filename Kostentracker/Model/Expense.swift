@@ -179,6 +179,7 @@ extension Expense {
             break
         case .upcoming:
             let nextThirtyDays = Calendar.current.date(byAdding: .day, value: 30, to: Date()) ?? Date()
+            filtered = filtered.filter { $0.type != .inactive }
             filtered = filtered.filter { $0.date <= nextThirtyDays }
         case .active:
             filtered = filtered.filter { $0.type != .inactive }
