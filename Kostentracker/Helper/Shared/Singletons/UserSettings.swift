@@ -6,12 +6,6 @@ final class UserSettings: ObservableObject {
 
     // Currency
     @AppStorage("currencyCode") var currencyCode: String = "EUR"
-    
-    // Notifications
-    @AppStorage("isNotificationsEnabled") var isNotificationsEnabled: Bool = false
-    @AppStorage("useDailySummaryNotifications") var useDailySummaryNotifications: Bool = true
-    @AppStorage("repeatOverdueNotifications") var repeatOverdueNotifications: Bool = true
-
 
     // Accounts
     @AppStorage("enableAccounts") var enableAccounts: Bool = false

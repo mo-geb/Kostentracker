@@ -72,20 +72,6 @@ struct SettingsView: View {
 //                }
 //            }
 //            .buttonStyle(.plain)
-            
-//            NavigationLink {
-//                NotificationView()
-//            } label: {
-//                row(title: String(localized: "Manage Notifications"), icon: "bell", iconColor: .green) {
-//                    HStack {
-//                        Spacer()
-//                        Image(systemName: "chevron.right")
-//                            .font(.caption)
-//                            .foregroundStyle(.secondary)
-//                    }
-//                }
-//            }
-//            .buttonStyle(.plain)
         }
     }
     
