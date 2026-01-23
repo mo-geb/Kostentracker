@@ -173,6 +173,7 @@ struct ListView: View {
                 SharedToolbarElements.FilterPicker()
                 SharedToolbarElements.SortPicker()
                 SharedToolbarElements.GroupByPicker()
+                SharedToolbarElements.AccountsButton()
                 SharedToolbarElements.ViewModePicker()
             }
         }

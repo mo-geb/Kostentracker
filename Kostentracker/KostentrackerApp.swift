@@ -10,7 +10,7 @@ struct KostentrackerApp: App {
     
     init() {
         do {
-            modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self)
+            modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self, ExpenseAccount.self)
             let context = modelContainer.mainContext
             
             let setupCoordinator = SetupCoordinator(context: context)
@@ -31,33 +31,8 @@ struct KostentrackerApp: App {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return MainTabView()
-            .modelContainer(container)
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
-    }
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    MainTabView()
+        .environmentObject(UIState())
+        .environmentObject(UserSettings())
 }

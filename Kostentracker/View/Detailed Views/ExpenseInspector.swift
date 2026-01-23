@@ -9,6 +9,7 @@ struct ExpenseInspector: View {
     
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
+    @Query(sort: \ExpenseAccount.sortOrder) var accounts: [ExpenseAccount]
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
@@ -57,7 +58,6 @@ struct ExpenseInspector: View {
                     .accessibilitySortPriority(1)
                 titleSection
                     .accessibilitySortPriority(2)
-                
                 detailsSection
                     .accessibilitySortPriority(3)
                 
@@ -91,6 +91,15 @@ struct ExpenseInspector: View {
             case .new(let draft):
                 NavigationStack {
                     CategoryInspector(initialState: .new(draft))
+                }
+            default: EmptyView()
+            }
+        }
+        .sheet(item: $ui.activeAccountSheet) { sheet in
+            switch sheet {
+            case .new(let draft):
+                NavigationStack {
+                    AccountInspector(initialState: .new(draft))
                 }
             default: EmptyView()
             }
@@ -283,7 +292,7 @@ struct ExpenseInspector: View {
         if isEditing {
             // Active / Date
             rowGroup {
-                innerRow(title: String(localized: "Active"), icon: "lightbulb") {
+                row(title: String(localized: "Active"), icon: "lightbulb") {
                     Toggle("", isOn: Binding(
                         get: { draft.date != Date.distantPast },
                         set: { newValue in
@@ -294,7 +303,7 @@ struct ExpenseInspector: View {
                 if draft.type != .inactive {
                     customDivider
                     
-                    innerRow(title: String(localized: "Next Due"), icon: "calendar") {
+                    row(title: String(localized: "Next Due"), icon: "calendar") {
                         DatePicker("", selection: $draft.date, displayedComponents: [.date])
                             .labelsHidden()
                             .accessibilityLabel("Expense date")
@@ -307,7 +316,7 @@ struct ExpenseInspector: View {
             // Repeat / Frequency
             if draft.type != .inactive {
                 rowGroup {
-                    innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                    row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
                         Toggle("", isOn: Binding(
                             get: { draft.frequencyValue != 0 },
                             set: { newValue in
@@ -318,7 +327,7 @@ struct ExpenseInspector: View {
                     if draft.type == .recurring {
                         customDivider
                         
-                        innerRow(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+                        row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
                             Button {
                                 isShowingPicker = true
                             } label: {
@@ -367,7 +376,7 @@ struct ExpenseInspector: View {
             if draft.type != .inactive {
                 rowGroup {
                     // Due
-                    innerRow(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
+                    row(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
                         if let date = expense?.date {
                             Text(date, style: .date)
                                 .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
@@ -378,7 +387,7 @@ struct ExpenseInspector: View {
                     if draft.type == .recurring {
                         customDivider
                         
-                        innerRow(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+                        row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
                             if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
                                 Text(freqUnit.displayText(for: freqValue))
                                     .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
@@ -392,41 +401,86 @@ struct ExpenseInspector: View {
     
     @ViewBuilder
     private var categorySection: some View {
-        row(title: String(localized: "Category"), icon: "archivebox") {
-            if isEditing {
-                Menu {
-                    ForEach(categories, id: \.self) { category in
+        rowGroup {
+            // Category
+            row(title: String(localized: "Category"), icon: "archivebox") {
+                if isEditing {
+                    Menu {
+                        ForEach(categories, id: \.self) { category in
+                            Button {
+                                draft.category = category
+                            } label: {
+                                Label(category.name, systemImage: category.iconName)
+                            }
+                        }
+                        
+                        Divider()
+                        
                         Button {
-                            draft.category = category
+                            let draft = CategoryDraft.createNew(
+                                sortOrder: (categories.last?.sortOrder ?? 0) + 1
+                            )
+                            ui.createCategory(from: draft)
                         } label: {
+                            Label("New Category", systemImage: "plus")
+                        }
+                    } label: {
+                        if let category = draft.category {
                             Label(category.name, systemImage: category.iconName)
                         }
+                        
                     }
-
-                    Divider()
-
-                    Button {
-                        let draft = CategoryDraft.createNew(
-                            sortOrder: (categories.last?.sortOrder ?? 0) + 1
-                        )
-                        ui.createCategory(from: draft)
-                    } label: {
-                        Label("New Category", systemImage: "plus")
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityLabel("Expense category")
+                    .accessibilityHint("Select a category for this expense")
+                    .accessibilityValue(draft.category?.name ?? "No category selected")
+                } else {
+                    if let name = expense?.categoryName, let icon = expense?.categoryIconName {
+                        Label(name, systemImage: icon)
+                            .accessibilityLabel("Category: \(name)")
                     }
-                } label: {
-                    if let category = draft.category {
-                        Label(category.name, systemImage: category.iconName)
-                    }
-
                 }
-                .fixedSize(horizontal: false, vertical: true)
-                .accessibilityLabel("Expense category")
-                .accessibilityHint("Select a category for this expense")
-                .accessibilityValue(draft.category?.name ?? "No category selected")
-            } else {
-                if let name = expense?.categoryName, let icon = expense?.categoryIconName {
-                    Label(name, systemImage: icon)
-                        .accessibilityLabel("Category: \(name)")
+            }
+            
+            // Account
+            if userSettings.enableAccounts {
+                row(title: String(localized: "Account"), icon: "person.2") {
+                    if isEditing {
+                        Menu {
+                            ForEach(accounts, id: \.self) { account in
+                                Button {
+                                    draft.account = account
+                                } label: {
+                                    Label(account.name, systemImage: account.iconName)
+                                }
+                            }
+                            
+                            Divider()
+                            
+                            Button {
+                                let draft = AccountDraft.createNew(
+                                    sortOrder: (accounts.last?.sortOrder ?? 0) + 1
+                                )
+                                ui.createAccount(from: draft)
+                            } label: {
+                                Label("New Account", systemImage: "plus")
+                            }
+                        } label: {
+                            if let account = draft.account {
+                                Label(account.name, systemImage: account.iconName)
+                            }
+                            
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel("Expense account")
+                        .accessibilityHint("Select an account for this expense")
+                        .accessibilityValue(draft.account?.name ?? "No account selected")
+                    } else {
+                        if let name = expense?.account?.name, let icon = expense?.account?.iconName {
+                            Label(name, systemImage: icon)
+                                .accessibilityLabel("Account: \(name)")
+                        }
+                    }
                 }
             }
         }
@@ -689,23 +743,6 @@ struct ExpenseInspector: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)
-    }
-    
-    @ViewBuilder
-    private func innerRow<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
-        HStack {
-            if let icon = icon {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .frame(width: 20)
-            }
-            Text(title)
-            Spacer()
-            content()
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     @ViewBuilder

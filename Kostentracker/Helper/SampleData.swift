@@ -43,6 +43,7 @@ struct SampleData {
         frequencyValue: 1,
         date: Date(),
         category: subscription,
+        account: personal,
         notes: "Family plan."
         )
     )
@@ -54,6 +55,7 @@ struct SampleData {
             frequencyValue: 1,
             date: sampleDate2,
             category: subscription,
+            account: personal,
             notes: "Premium plan with 4 screens.",
         )
     )
@@ -65,6 +67,7 @@ struct SampleData {
             frequencyValue: 1,
             date: sampleDate,
             category: insurance,
+            account: shared,
             notes: ""
         )
     )
@@ -76,6 +79,7 @@ struct SampleData {
             frequencyValue: 0,
             date: .now,
             category: insurance,
+            account: business,
             notes: ""
         )
     )
@@ -87,6 +91,7 @@ struct SampleData {
             frequencyValue: 1,
             date: .distantPast,
             category: subscription,
+            account: business,
             notes: ""
         )
     )

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 enum SharedToolbarElements {
     struct SettingsButton: View {
@@ -12,28 +13,6 @@ enum SharedToolbarElements {
             }
             .accessibilityLabel("Settings")
             .accessibilityHint("Opens app settings and preferences")
-            .frame(minWidth: 44, minHeight: 44)
-        }
-    }
-    
-    struct AccountsButton: View {
-        @EnvironmentObject var ui: UIState
-        
-        var body: some View {
-            Menu {
-                Picker(selection: $ui.selectedFilter) {
-                    ForEach(FilterOption.allCases) { option in
-                        Text(option.localizedName).tag(option)
-                    }
-                } label: {
-                    Label("Filter By", systemImage: "line.3.horizontal.decrease.circle")
-                }
-                .pickerStyle(.inline)
-            } label: {
-                Label("Accounts", systemImage: "person.2")
-            }
-            .accessibilityLabel("Accounts filter")
-            .accessibilityHint("Opens menu to filter expenses by account")
             .frame(minWidth: 44, minHeight: 44)
         }
     }
@@ -142,6 +121,43 @@ enum SharedToolbarElements {
             .pickerStyle(.menu)
             .accessibilityLabel("Group expenses")
             .accessibilityHint("Choose how to organize expenses into sections")
+        }
+    }
+    
+    struct AccountsButton: View {
+        @EnvironmentObject var ui: UIState
+        @EnvironmentObject var userSettings: UserSettings
+        @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
+
+        var body: some View {
+            if userSettings.enableAccounts {
+                shown
+            } else {
+                EmptyView()
+            }
+        }
+        
+        var shown: some View {
+            Menu {
+                ForEach(accounts) { account in
+                    Button {
+                        ui.toggleAccountSelection(for: account)
+                    } label: {
+                        HStack {
+                            Label(account.name, systemImage: account.iconName)
+                            if ui.accountSelected(account: account) {
+                                Spacer()
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                Label("Accounts", systemImage: "person.2")
+            }
+            .accessibilityLabel("Accounts filter")
+            .accessibilityHint("Opens menu to filter expenses by account")
+            .frame(minWidth: 44, minHeight: 44)
         }
     }
     

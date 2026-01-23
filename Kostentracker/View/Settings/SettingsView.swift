@@ -24,7 +24,7 @@ struct SettingsView: View {
     }
     
     // MARK: - View Components
-//  [Color.red, Color.orange, Color.yellow, Color.green, Color.mint, Color.teal, Color.cyan, Color.blue, Color.indigo, Color.purple]
+    //  [Color.red, Color.orange, Color.yellow, Color.green, Color.mint, Color.teal, Color.cyan, Color.blue, Color.indigo, Color.purple]
     
     @ViewBuilder
     private var generalSection: some View {
@@ -32,8 +32,6 @@ struct SettingsView: View {
             Text("General")
                 .font(.title2.bold())
                 .foregroundStyle(.secondary)
-            
-            
             
             row(title: String(localized: "Currency"), icon: "eurosign", iconColor: .mint) {
                 Picker("Currency", selection: $userSettings.currencyCode) {
@@ -62,7 +60,7 @@ struct SettingsView: View {
 //            NavigationLink {
 //                AccountsView()
 //            } label: {
-//                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .yellow) {
+//                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .cyan) {
 //                    HStack {
 //                        Spacer()
 //                        Image(systemName: "chevron.right")
@@ -89,7 +87,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "Website"), icon: "globe", iconColor: .cyan) {
+                row(title: String(localized: "Website"), icon: "globe", iconColor: .blue) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -108,7 +106,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .blue) {
+                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .indigo) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -127,7 +125,7 @@ struct SettingsView: View {
                 }
                 UIApplication.shared.open(url)
             } label: {
-                row(title: String(localized: "User Guide"), icon: "book", iconColor: .indigo) {
+                row(title: String(localized: "User Guide"), icon: "book", iconColor: .purple) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -147,7 +145,7 @@ struct SettingsView: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                row(title: String(localized: "Support"), icon: "wrench.and.screwdriver", iconColor: .purple) {
+                row(title: String(localized: "Support"), icon: "wrench.and.screwdriver", iconColor: .red) {
                     HStack {
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -205,8 +203,8 @@ struct SettingsView: View {
    }
 }
 
-#Preview {
-    return NavigationStack {
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
         SettingsView()
             .environmentObject(UIState())
             .environmentObject(UserSettings())

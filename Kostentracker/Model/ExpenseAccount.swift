@@ -1,12 +1,13 @@
 import SwiftData
 import Foundation
 
+@Model
 final class ExpenseAccount: Identifiable {
     var name: String = ""
     var iconName: String = ""
     var isDefault: Bool = false
     var sortOrder: Int = 0
-    //@Relationship(deleteRule: .cascade, inverse: \Expense.account) var expenses: [Expense]?
+    @Relationship(deleteRule: .cascade, inverse: \Expense.account) var expenses: [Expense]?
     
     /// Create Account based on draft
     init(from draft: AccountDraft) {
@@ -28,46 +29,67 @@ final class ExpenseAccount: Identifiable {
 
 extension ExpenseAccount {
     static func getDefault(with context: ModelContext) -> ExpenseAccount {
-//        let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
-//        if let defaultAccount = try? context.fetch(descriptor).first {
-//            return defaultAccount
-//        }
-        return createDefault()
+        let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
+        if let defaultAccount = try? context.fetch(descriptor).first {
+            return defaultAccount
+        }
+        let defaultAccount = createDefault()
+        context.insert(defaultAccount)
+        return defaultAccount
     }
     
     static func createDefault() -> ExpenseAccount {
-        return ExpenseAccount(from: AccountDraft(name: String(localized: "Personal"), iconName: "tag", isDefault: true))
+        return ExpenseAccount(from: AccountDraft(name: String(localized: "Default"), iconName: "tag", isDefault: true))
+    }
+    
+    static func activateAccounts(with context: ModelContext) {
+        do {
+            let defaultAccount: ExpenseAccount = ExpenseAccount.getDefault(with: context)
+            
+            let expenseFetch = FetchDescriptor<Expense>(
+                predicate: #Predicate { $0.account == nil }
+            )
+            let expensesWithoutAccount = try context.fetch(expenseFetch)
+            
+            for expense in expensesWithoutAccount {
+                expense.account = defaultAccount
+            }
+            
+            try context.save()
+        } catch {
+            
+        }
     }
     
     /// Safely deletes an account by reassigning its expenses to the default accounts.
     /// This method ensures no expenses are orphaned when an account is deleted.
     func deleteSafely(from context: ModelContext) {
-//        guard !isDefault else { return }
-//        do {
-//            let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
-//            guard let defaultAccount = try context.fetch(descriptor).first else {
-//                print("Could not find default account. Aborting delete.")
-//                return
-//            }
-//            if let expensesToReassign = expenses {
-//                for expense in expensesToReassign {
-//                    expense.account = defaultAccount
-//                }
-//            }
-//            context.delete(self)
-//            try context.save()
-//        } catch {
-//            print("Failed to delete account: \(error)")
-//        }
+        guard !isDefault else { return }
+        do {
+            let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
+            guard let defaultAccount = try context.fetch(descriptor).first else {
+                print("Could not find default category. Aborting delete.")
+                return
+            }
+            if let expensesToReassign = expenses {
+                for expense in expensesToReassign {
+                    expense.account = defaultAccount
+                }
+            }
+            context.delete(self)
+            try context.save()
+        } catch {
+            print("Failed to delete category: \(error)")
+        }
     }
     
     static func resetDefaultAccounts(in context: ModelContext) {
-//        let descriptor = FetchDescriptor<ExpenseAccount>()
-//        if let allAccounts = try? context.fetch(descriptor) {
-//            for acc in allAccounts {
-//                acc.isDefault = false
-//            }
-//        }
+        let descriptor = FetchDescriptor<ExpenseAccount>()
+        if let allAccounts = try? context.fetch(descriptor) {
+            for acc in allAccounts {
+                acc.isDefault = false
+            }
+        }
     }
 }
 

@@ -10,7 +10,7 @@ struct AccountsView: View {
 
     // SwiftData
     @Environment(\.modelContext) private var context
-    private var accounts = SampleData.accounts
+    @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
     
     // State
     @State private var showingDeleteAlert = false
@@ -45,6 +45,11 @@ struct AccountsView: View {
         List {
             Section {
                 Toggle("Enable Accounts", isOn: $userSettings.enableAccounts)
+                    .onChange(of: userSettings.enableAccounts) { _, newValue in
+                        if newValue {
+                            ExpenseAccount.activateAccounts(with: context)
+                        }
+                    }
             } header: {
                 Text("Account Settings")
             } footer: {
@@ -108,7 +113,6 @@ struct AccountsView: View {
     @ViewBuilder
     private func accountRow(for account: ExpenseAccount) -> some View {
         HStack(alignment: .center, spacing: 18) {
-  
                 Image(systemName: account.iconName)
                     .font(.system(size: 28, weight: .medium))
                     .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -121,9 +125,9 @@ struct AccountsView: View {
                     .layoutPriority(1)
                     .minimumScaleFactor(0.8)
                 HStack(alignment: .center, spacing: 8) {
-//                    Text("\(account.expenses?.count ?? 0) expenses")
-//                        .font(.subheadline)
-//                        .foregroundStyle(.secondary)
+                    Text("\(account.expenses?.count ?? 0) expenses")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                     if account.isDefault {
                         Text("Default")
                             .font(.caption2)
@@ -154,37 +158,10 @@ struct AccountsView: View {
     }
 }
 
-#Preview {
-    do {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self)
-        let context = container.mainContext
-        
-        #if DEBUG
-        print("Entered App in DEBUG... Deleting models")
-        try? context.delete(model: Expense.self)
-        try? context.delete(model: ExpenseCategory.self)
-
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        #endif
-        
-        UserDefaults.standard.removeObject(forKey: "hasCreatedDefaultCategories")
-        
-        SampleData.categories.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        SampleData.expenses.forEach {
-            container.mainContext.insert($0)
-        }
-        
-        return NavigationStack {
-            AccountsView()
-                .modelContainer(container)
-                .environmentObject(UIState())
-                .environmentObject(UserSettings())
-        }
-        
-    } catch {
-        return Text("Failed to create preview container: \(error.localizedDescription)")
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        AccountsView()
+            .environmentObject(UIState())
+            .environmentObject(UserSettings())
     }
 }

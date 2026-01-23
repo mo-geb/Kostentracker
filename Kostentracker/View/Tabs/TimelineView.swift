@@ -134,6 +134,7 @@ struct TimelineView: View {
         
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
+                SharedToolbarElements.AccountsButton()
                 SharedToolbarElements.ViewModePicker()
             }
         }

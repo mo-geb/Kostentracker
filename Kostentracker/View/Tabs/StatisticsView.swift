@@ -217,6 +217,12 @@ struct StatisticsView: View {
         }
         
         ToolbarItem() {
+            SharedToolbarElements.OptionsMenu {
+                SharedToolbarElements.AccountsButton()
+            }
+        }
+        
+        ToolbarItem() {
             SharedToolbarElements.AddExpenseButton()
         }
     }

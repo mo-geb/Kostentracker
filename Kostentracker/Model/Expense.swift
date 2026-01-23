@@ -9,6 +9,7 @@ final class Expense: Identifiable {
     var frequencyUnit: FrequencyUnit = FrequencyUnit.month
     var frequencyValue: Int16 = 1
     var date: Date = Date()
+    var account: ExpenseAccount?
     var category: ExpenseCategory?
     var notes: String = ""
     @Attribute(.externalStorage) var customImageData: Data?
@@ -21,6 +22,7 @@ final class Expense: Identifiable {
         self.frequencyValue = draft.frequencyValue
         self.date = draft.date
         self.category = draft.category
+        self.account = draft.account
         self.notes = draft.notes
         self.customImageData = draft.customImageData
     }
@@ -33,6 +35,7 @@ final class Expense: Identifiable {
         self.frequencyValue = draft.frequencyValue
         self.date = draft.date
         self.category = draft.category
+        self.account = draft.account
         self.notes = draft.notes
         self.customImageData = draft.customImageData
     }
@@ -209,16 +212,18 @@ struct ExpenseDraft {
     var frequencyValue: Int16
     var date: Date
     var category: ExpenseCategory?
+    var account: ExpenseAccount?
     var notes: String
     var customImageData: Data?
     
-    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory?, notes: String, customImageData: Data? = nil) {
+    init(title: String, amount: Double, frequencyUnit: FrequencyUnit, frequencyValue: Int16, date: Date, category: ExpenseCategory?, account: ExpenseAccount?, notes: String, customImageData: Data? = nil) {
         self.title = title
         self.amount = amount
         self.frequencyUnit = frequencyUnit
         self.frequencyValue = frequencyValue
         self.date = date
         self.category = category
+        self.account = account
         self.notes = notes
         self.customImageData = customImageData
     }
@@ -231,6 +236,7 @@ struct ExpenseDraft {
         self.frequencyValue = expense.frequencyValue
         self.date = expense.date
         self.category = expense.category
+        self.account = expense.account
         self.notes = expense.notes
         self.customImageData = expense.customImageData
     }
@@ -244,6 +250,7 @@ struct ExpenseDraft {
             frequencyValue: 1,
             date: Date(),
             category: ExpenseCategory.getDefault(with: context),
+            account: ExpenseAccount.getDefault(with: context),
             notes: "",
             customImageData: nil
         )

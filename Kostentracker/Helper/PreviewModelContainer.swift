@@ -8,8 +8,10 @@ struct PreviewModelContainer: PreviewModifier {
         
         try? container.mainContext.delete(model: Expense.self)
         try? container.mainContext.delete(model: ExpenseCategory.self)
+        try? container.mainContext.delete(model: ExpenseAccount.self)
         
         SampleData.categories.forEach { container.mainContext.insert($0) }
+        SampleData.accounts.forEach { container.mainContext.insert($0) }
         SampleData.expenses.forEach { container.mainContext.insert($0) }
         
         return container

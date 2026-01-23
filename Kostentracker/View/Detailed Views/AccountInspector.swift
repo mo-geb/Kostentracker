@@ -207,7 +207,7 @@ struct AccountInspector: View {
                         ExpenseAccount.resetDefaultAccounts(in: context)
                     }
                     let newAccount = ExpenseAccount(from: draft)
-//                    context.insert(newAccount)
+                    context.insert(newAccount)
                     self.account = newAccount
                 }
                 do {

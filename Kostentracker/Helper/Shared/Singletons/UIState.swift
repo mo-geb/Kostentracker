@@ -1,4 +1,5 @@
 import Foundation
+import SwiftData
 import SwiftUI
 
 final class UIState: ObservableObject {
@@ -23,6 +24,7 @@ final class UIState: ObservableObject {
     @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
     @AppStorage("selectedDisplayPeriod") var selectedDisplayPeriod: FrequencyUnit = .month
     @AppStorage("displayedCategoryChart") var displayedCategoryChart: CategoryChart = .barChart
+    var selectedAccountIDs: Set<PersistentIdentifier> = Set<PersistentIdentifier>()
 
     // MARK: - Sheet Workflows
 
@@ -56,6 +58,20 @@ final class UIState: ObservableObject {
 
     func createAccount(from draft: AccountDraft) {
         activeAccountSheet = .new(draft)
+    }
+    
+    func toggleAccountSelection(for account: ExpenseAccount) {
+        if selectedAccountIDs.contains(account.id) {
+            print("An")
+            selectedAccountIDs.remove(account.id)
+        } else {
+            print("aus")
+            selectedAccountIDs.insert(account.id)
+        }
+    }
+    
+    func accountSelected(account: ExpenseAccount) -> Bool {
+        return selectedAccountIDs.contains(account.id)
     }
 
     // MARK: - Popup / Transient Feedback
