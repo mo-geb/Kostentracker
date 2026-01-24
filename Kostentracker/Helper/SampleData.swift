@@ -80,7 +80,8 @@ struct SampleData {
             date: .now,
             category: insurance,
             account: business,
-            notes: ""
+            notes: "",
+            customImageData: "🍕".data(using: .utf8)
         )
     )
     

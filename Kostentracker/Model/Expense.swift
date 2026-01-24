@@ -90,6 +90,18 @@ extension Expense {
     var categoryName: String { category?.name ?? "Other" }
     var categorySortOrder: Int { category?.sortOrder ?? 1 }
     var type: ExpenseType { date == .distantPast ? .inactive : frequencyValue == 0 ? .oneTime : .recurring}
+    var displayMedia: ExpenseMedia {
+        if let data = customImageData {
+            if let emojiString = String(data: data, encoding: .utf8), emojiString.count <= 2 { // Check if it's a small UTF-8 string (Emoji)
+                return .emoji(emojiString, categoryColor)
+            }
+            
+            if let uiImage = UIImage(data: data) { // Otherwise, try to treat it as an Image
+                return .image(uiImage)
+            }
+        }
+        return .icon(categoryIconName, categoryColor) // Category fallback
+    }
 }
 
 // MARK: - Functions
@@ -268,4 +280,17 @@ struct ExpenseDraft {
 
 extension ExpenseDraft {
     var type: ExpenseType { date == .distantPast ? .inactive : frequencyValue == 0 ? .oneTime : .recurring}
+    var categoryColor: Color { category?.color ?? .gray }
+    var displayMedia: ExpenseMedia {
+        if let data = customImageData {
+            if let emojiString = String(data: data, encoding: .utf8), emojiString.count <= 2 { // Check if it's a small UTF-8 string (Emoji)
+                return .emoji(emojiString, categoryColor)
+            }
+            
+            if let uiImage = UIImage(data: data) { // Otherwise, try to treat it as an Image
+                return .image(uiImage)
+            }
+        }
+        return .icon(category?.iconName ?? "tag", category?.color ?? .gray) // Category fallback
+    }
 }

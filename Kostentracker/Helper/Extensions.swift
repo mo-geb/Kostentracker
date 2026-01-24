@@ -58,3 +58,10 @@ extension Bundle {
         "v\(appVersion) (Build \(buildNumber))"
     }
 }
+
+extension Character {
+    var isEmoji: Bool {
+        guard let scalar = unicodeScalars.first else { return false }
+        return scalar.properties.isEmojiPresentation || scalar.properties.generalCategory == .otherSymbol
+    }
+}

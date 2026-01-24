@@ -444,17 +444,6 @@
         }
       }
     },
-    "Accounts filter" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Konten filter"
-          }
-        }
-      }
-    },
     "Active" : {
       "localizations" : {
         "de" : {
@@ -642,7 +631,14 @@
       }
     },
     "All" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle"
+          }
+        }
+      }
     },
     "All Expenses" : {
       "localizations" : {
@@ -1312,6 +1308,16 @@
         }
       }
     },
+    "Choose Emoji" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emoji auswählen"
+          }
+        }
+      }
+    },
     "Choose how to order the expense list" : {
       "localizations" : {
         "de" : {
@@ -1328,6 +1334,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wähle in welche Bereiche die Ausgaben eingeteilt werden"
+          }
+        }
+      }
+    },
+    "Choose Photo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto auswählen"
           }
         }
       }
@@ -2148,16 +2164,6 @@
         }
       }
     },
-    "Double tap to remove the current image" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Drücke zwei mal, um das aktuelle Foto zu entfernen"
-          }
-        }
-      }
-    },
     "Double tap to select a photo from your library" : {
       "localizations" : {
         "de" : {
@@ -2940,6 +2946,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ausgabe gelöscht"
+          }
+        }
+      }
+    },
+    "Expense emoji: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgaben emoji: %@"
           }
         }
       }
@@ -4410,17 +4426,6 @@
         }
       }
     },
-    "Opens menu to filter expenses by account" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Öffnet Menü um Ausgaben nach Konto zu filtern"
-          }
-        }
-      }
-    },
     "Opens menu with filtering, sorting, and view options" : {
       "localizations" : {
         "de" : {
@@ -4721,64 +4726,12 @@
         }
       }
     },
-    "Remove" : {
+    "Remove Current" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Entfernen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Eliminar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retirer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rimuovi"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Verwijderen"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Odstrániť"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ta bort"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "Видалити"
-          }
-        }
-      }
-    },
-    "Remove expense image" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Entfernt Ausgaben-Icon"
+            "value" : "Entferne Aktuelles"
           }
         }
       }

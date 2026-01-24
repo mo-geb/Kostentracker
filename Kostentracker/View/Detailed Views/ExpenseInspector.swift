@@ -21,8 +21,9 @@ struct ExpenseInspector: View {
     @State private var amountText: String = ""
     @State private var showingDeleteAlert = false
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var emojiInput: String = ""
     
-    @State private var isShowingPicker = false
+    @State private var isShowingPicker: Bool = false
     
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
@@ -79,6 +80,9 @@ struct ExpenseInspector: View {
                 }
             }
         }
+        .background {
+            hiddenEmojiTextField
+        }
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
@@ -117,36 +121,45 @@ struct ExpenseInspector: View {
     private var pictureSection: some View {
         VStack {
             if isEditing {
-                PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                    imageDisplay
-                        .overlay(alignment: .bottomTrailing) {
+                imageDisplay
+                    .overlay(alignment: .bottomTrailing) {
+                        Menu {
+                            // Option 1: Photo Library
+                            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                                Label("Choose Photo", systemImage: "photo.on.rectangle")
+                            }
+                            .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
+                            .accessibilityHint("Double tap to select a photo from your library")
+                            .onChange(of: selectedPhoto) {
+                                Task {
+                                    if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
+                                        draft.customImageData = data
+                                    }
+                                }
+                            }
+                            
+                            // Option 2: Emoji Keyboard
+                            Button {
+                                focusedField = .expenseEmojiKeyboard
+                            } label: {
+                                Label("Choose Emoji", systemImage: "face.smiling")
+                            }
+                            
+                            // Option 3: Remove (Only if media exists)
+                            if draft.customImageData != nil {
+                                Button(role: .destructive) {
+                                    draft.customImageData = nil
+                                } label: {
+                                    Label("Remove Current", systemImage: "trash")
+                                }
+                            }
+                        } label: {
                             Image(systemName: "pencil.circle.fill")
+                                .symbolRenderingMode(.multicolor)
                                 .font(.title)
-                                .offset(x: 10, y: 10)
-                                .accessibilityHidden(true)
                         }
-                }
-                .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
-                .accessibilityHint("Double tap to select a photo from your library")
-                .onChange(of: selectedPhoto) {
-                    Task {
-                        if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
-                            draft.customImageData = data
-                        }
+                        .offset(x: 8, y: 8)
                     }
-                }
-                
-                if draft.customImageData != nil {
-                    Button() {
-                        draft.customImageData = nil
-                    } label: {
-                        Label("Remove", systemImage: "eraser")
-                    }
-                    .frame(minWidth: 44, minHeight: 44)
-                    .padding(.top, 8)
-                    .accessibilityLabel("Remove expense image")
-                    .accessibilityHint("Double tap to remove the current image")
-                }
             } else {
                 imageDisplay
             }
@@ -157,23 +170,33 @@ struct ExpenseInspector: View {
     /// A reusable view that displays the expense's custom image or a placeholder as an app-shaped icon.
     @ViewBuilder
     private var imageDisplay: some View {
+        let media = isEditing ? draft.displayMedia : (expense?.displayMedia ?? .icon("tag", .gray))
+        
         ZStack {
-            if let imageData = (isEditing ? draft.customImageData : expense?.customImageData), let uiImage = UIImage(data: imageData) {
+            switch media {
+            case .image(let uiImage):
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .accessibilityLabel("Custom expense image")
-            } else {
+            case .emoji(let emoji, let color):
                 ZStack {
                     Circle()
-                        .fill((isEditing ? (draft.category?.color ?? .gray) : (expense?.categoryColor ?? .gray)).opacity(0.3))
-                    
-                    Image(systemName: isEditing ? (draft.category?.iconName ?? "tag") : (expense?.categoryIconName ?? "tag"))
-                        .font(.system(size: 40))
-                        .foregroundStyle(isEditing ? (draft.category?.color ?? .gray) : (expense?.categoryColor ?? .gray))
+                        .fill(color.opacity(0.3))
+                    Text(emoji)
+                        .font(.system(size: 70))
                 }
-                .accessibilityLabel("Category icon: \(isEditing ? (draft.category?.iconName ?? "tag") : (expense?.categoryIconName ?? "tag"))")
+                .accessibilityLabel("Expense emoji: \(emoji)")
+            case .icon(let name, let color):
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.3))
+                    Image(systemName: name)
+                        .font(.system(size: 40))
+                        .foregroundStyle(color)
+                }
+                .accessibilityLabel("Category icon: \(name)")
             }
         }
         .frame(width: 100, height: 100)
@@ -309,6 +332,7 @@ struct ExpenseInspector: View {
                             .accessibilityLabel("Expense date")
                             .accessibilityHint("Select the date for this expense")
                             .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
+                            .focused($focusedField, equals: .expenseDueDate)
                     }
                 }
             }
@@ -522,6 +546,26 @@ struct ExpenseInspector: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             }
         }
+    }
+    
+    private var hiddenEmojiTextField: some View {
+        TextField("", text: $emojiInput)
+            .keyboardType(UIKeyboardType(rawValue: 124) ?? .default)
+            .focused($focusedField, equals: .expenseEmojiKeyboard)
+            .opacity(0)
+            .frame(width: 0, height: 0)
+            .onChange(of: emojiInput) { _, newValue in
+                guard !newValue.isEmpty else { return }
+                
+                if let lastChar = newValue.last, lastChar.isEmoji {
+                    draft.customImageData = String(lastChar).data(using: .utf8)
+                    
+                    focusedField = .none
+                    UISelectionFeedbackGenerator().selectionChanged()
+                }
+                
+                emojiInput = ""
+            }
     }
     
     @ViewBuilder
@@ -764,7 +808,7 @@ struct ExpenseInspector: View {
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
-        ExpenseInspector(initialState: .edit(SampleData.netflixSample))
+        ExpenseInspector(initialState: .edit(SampleData.oneTime))
             .environmentObject(UIState())
             .environmentObject(UserSettings())
     }

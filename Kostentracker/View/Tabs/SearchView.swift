@@ -66,21 +66,29 @@ struct SearchView: View {
     /// A view for displaying a single search result row.
     private func resultRow(for expense: Expense) -> some View {
         HStack(spacing: 16) {
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+            switch expense.displayMedia {
+            case .image(let uiImage):
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 50, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-            } else {
+            case .emoji(let emoji, let color):
                 ZStack {
                     Circle()
-                        .fill(expense.categoryColor.opacity(0.3))
+                        .fill(color.opacity(0.3))
                         .frame(width: 50, height: 50)
-                    
-                    Image(systemName: expense.categoryIconName)
+                    Text(emoji)
+                        .font(.title)
+                }
+            case .icon(let name, let color):
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.3))
+                        .frame(width: 50, height: 50)
+                    Image(systemName: name)
                         .font(.title2)
-                        .foregroundStyle(expense.categoryColor)
+                        .foregroundStyle(color)
                 }
             }
             

@@ -29,26 +29,45 @@ struct ExpenseRow: View {
     private var iconSection: some View {
         switch uiState.selectedViewMode {
         case .normal:
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+            switch expense.displayMedia {
+            case .emoji(let emoji, let color):
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.3))
+                        .frame(width: 40, height: 40)
+                    Text(emoji)
+                        .font(.system(size: 25))
+                }
+            case .image(let uiImage):
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Custom image for \(expense.categoryName)")
-            } else {
+            case .icon(let symbolName, let color):
                 ZStack {
                     Circle()
-                        .fill(expense.categoryColor.opacity(0.3))
+                        .fill(color.opacity(0.3))
                         .frame(width: 40, height: 40)
-                    Image(systemName: expense.categoryIconName)
+                    Image(systemName: symbolName)
                         .font(.title2)
-                        .foregroundStyle(expense.categoryColor)
+                        .foregroundStyle(color)
                 }
                 .accessibilityLabel("\(expense.categoryName) category")
             }
         case .compact:
-            if let imageData = expense.customImageData, let uiImage = UIImage(data: imageData) {
+            switch expense.displayMedia {
+            case .emoji(let emoji, let color):
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.3))
+                        .frame(width: 25, height: 25)
+                    Text(emoji)
+                        .font(.caption)
+                }
+                .padding(.trailing, 4)
+            case .image(let uiImage):
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFit()
@@ -56,14 +75,14 @@ struct ExpenseRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .accessibilityLabel("Custom image for \(expense.categoryName)")
                     .padding(.trailing, 4)
-            } else {
+            case .icon(let symbolName, let color):
                 ZStack {
                     Circle()
-                        .fill(expense.categoryColor.opacity(0.3))
+                        .fill(color.opacity(0.3))
                         .frame(width: 25, height: 25)
-                    Image(systemName: expense.categoryIconName)
+                    Image(systemName: symbolName)
                         .font(.caption)
-                        .foregroundStyle(expense.categoryColor)
+                        .foregroundStyle(color)
                 }
                 .padding(.trailing, 4)
                 .accessibilityLabel("\(expense.categoryName) category")
@@ -136,16 +155,6 @@ struct ExpenseRow: View {
                 }
             }
         case .list:
-//            ViewThatFits(in: .horizontal) {
-                // Detailed
-//                Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 0) {
-//                    GridRow {
-//                        amountText(expense.weeklyCost)
-//                        amountText(expense.monthlyCost)
-//                        amountText(expense.yearlyCost)
-//                    }
-//                }
-                
             // Regular
             if !isInactive {
                 VStack(alignment: .trailing, spacing: 2) {
@@ -158,7 +167,6 @@ struct ExpenseRow: View {
                     }
                 }
             }
-//            }
         default:
             EmptyView()
         }
@@ -170,17 +178,6 @@ struct ExpenseRow: View {
         case .timeline:
             amountText(expense.amount)
         case .list:
-//            ViewThatFits(in: .horizontal) {
-//                // Detailed
-//                Grid(alignment: .trailing, horizontalSpacing: 12, verticalSpacing: 0) {
-//                    GridRow {
-//                        amountText(expense.weeklyCost)
-//                        amountText(expense.monthlyCost)
-//                        amountText(expense.yearlyCost)
-//                    }
-//                }
-                
-                // Regular
             if isInactive {
                 Text("Inactive")
                     .font(.body)
@@ -189,7 +186,6 @@ struct ExpenseRow: View {
             } else {
                 amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
             }
-//            }
         default:
             EmptyView()
         }
@@ -219,4 +215,24 @@ struct ExpenseRow: View {
     private var isInactive: Bool {
         expense.type == .inactive
     }
+}
+
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        List {
+            Section {
+                ForEach(SampleData.expenses) { expense in
+                    return ExpenseRow(expense: expense, subtitle: expense.categoryName, tab: .list)
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem {
+                SharedToolbarElements.OptionsMenu() {
+                    SharedToolbarElements.ViewModePicker()
+                }
+            }
+        }
+    }
+    
 }
