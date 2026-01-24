@@ -9,8 +9,14 @@ struct TimelineView: View {
     
     // SwiftData
     @Environment(\.modelContext) private var context
-    @Query(sort: \Expense.date) private var expenses: [Expense]
+    @Query(sort: \Expense.date) private var unfilteredExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
+    
+    private var expenses: [Expense] {
+        let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
+        let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
+        return customFiltered
+    }
     
     // State
     @State private var listRefreshID = UUID()
@@ -134,9 +140,12 @@ struct TimelineView: View {
         
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
-                SharedToolbarElements.AccountsButton()
                 SharedToolbarElements.ViewModePicker()
             }
+        }
+        
+        ToolbarItem() {
+            SharedToolbarElements.AccountsButton()
         }
         
         ToolbarItem() {

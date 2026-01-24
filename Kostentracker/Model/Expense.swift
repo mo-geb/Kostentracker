@@ -190,6 +190,15 @@ extension Expense {
         return filtered
     }
     
+    static func applyAccountsFilters(_ expenses: [Expense], selectedIDs: Set<PersistentIdentifier>) -> [Expense] {
+        return expenses.filter { expense in
+            if let accountID = expense.account?.id {
+                return selectedIDs.contains(accountID)
+            }
+            return false
+        }
+    }
+    
     /// Sorts an array of expenses based on the `selectedSort` state.
     static func sortExpenses(expenses: [Expense], sortOption: SortOption) -> [Expense] {
         switch sortOption {

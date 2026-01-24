@@ -48,6 +48,9 @@ struct AccountsView: View {
                     .onChange(of: userSettings.enableAccounts) { _, newValue in
                         if newValue {
                             ExpenseAccount.activateAccounts(with: context)
+                            ui.toggleAllAccounts(accounts: accounts, forceTo: true)
+                        } else {
+                            ui.toggleAllAccounts(accounts: accounts, forceTo: false)
                         }
                     }
             } header: {
@@ -74,6 +77,7 @@ struct AccountsView: View {
                 accountRow(for: account)
                     .listRowSeparator(.hidden)
             }
+            .onMove(perform: moveAccount)
         }
         .listStyle(.plain)
     }
@@ -102,11 +106,27 @@ struct AccountsView: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            
+        if userSettings.enableAccounts {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                EditButton()
+            }
         }
     }
 
+    // MARK: - Move Support
+    
+    private func moveAccount(from source: IndexSet, to destination: Int) {
+        var revised = accounts
+        revised.move(fromOffsets: source, toOffset: destination)
+        for (index, account) in revised.enumerated() {
+            account.sortOrder = index
+        }
+        do {
+            try context.save()
+        } catch {
+            print("Failed to save reordered accounts: \(error)")
+        }
+    }
     
     // MARK: - View Components
     

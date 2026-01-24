@@ -17,6 +17,40 @@ enum SharedToolbarElements {
         }
     }
     
+    struct AccountsButton: View {
+        @EnvironmentObject var ui: UIState
+        @EnvironmentObject var userSettings: UserSettings
+        @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
+        
+        var body: some View {
+                if userSettings.enableAccounts {
+                    Menu {
+                        Section("Accounts") {
+                            Toggle(isOn: Binding(
+                                get: { ui.getAllAccountsSelected(accounts: accounts) },
+                                set: { _ in ui.toggleAllAccounts(accounts: accounts) }
+                            )) {
+                                Text("All")
+                            }
+                            Divider()
+                            ForEach(accounts) { account in
+                                Toggle(isOn: Binding(
+                                    get: { ui.getAccountSelected(account: account) },
+                                    set: { _ in ui.toggleAccountSelected(for: account) }
+                                )) {
+                                    Label(account.name, systemImage: account.iconName)
+                                }
+                                .toggleStyle(.button)
+                            }
+                        }
+                    } label: {
+                        Label("Accounts", systemImage: ui.getAllAccountsSelected(accounts: accounts) ? "person.2" : "person.2.fill")
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                }
+            }
+    }
+    
     struct OptionsMenu<Content: View>: View {
         private let content: Content
         
@@ -30,6 +64,7 @@ enum SharedToolbarElements {
             } label: {
                 Label("Options", systemImage: "ellipsis")
             }
+            .menuActionDismissBehavior(.disabled)
             .accessibilityLabel("Options menu")
             .accessibilityHint("Opens menu with filtering, sorting, and view options")
             .frame(minWidth: 44, minHeight: 44)
@@ -76,7 +111,7 @@ enum SharedToolbarElements {
             Picker(selection: $ui.selectedFilter) {
                 ForEach(FilterOption.allCases) { option in
                     Button {} label: {
-                        Label(option.localizedName, systemImage: "")
+                        Text(option.localizedName)
                         Text(option.localizedDescription)
                     }
                     .tag(option)
@@ -97,7 +132,7 @@ enum SharedToolbarElements {
             Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                 ForEach(SortOption.allCases) { option in
                     Button {} label: {
-                        Label(option.localizedName, systemImage: "")
+                        Text(option.localizedName)
                         Text(option.localizedDescription)
                     }
                     .tag(option)
@@ -124,43 +159,6 @@ enum SharedToolbarElements {
         }
     }
     
-    struct AccountsButton: View {
-        @EnvironmentObject var ui: UIState
-        @EnvironmentObject var userSettings: UserSettings
-        @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
-
-        var body: some View {
-            if userSettings.enableAccounts {
-                shown
-            } else {
-                EmptyView()
-            }
-        }
-        
-        var shown: some View {
-            Menu {
-                ForEach(accounts) { account in
-                    Button {
-                        ui.toggleAccountSelection(for: account)
-                    } label: {
-                        HStack {
-                            Label(account.name, systemImage: account.iconName)
-                            if ui.accountSelected(account: account) {
-                                Spacer()
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
-            } label: {
-                Label("Accounts", systemImage: "person.2")
-            }
-            .accessibilityLabel("Accounts filter")
-            .accessibilityHint("Opens menu to filter expenses by account")
-            .frame(minWidth: 44, minHeight: 44)
-        }
-    }
-    
     struct ViewModePicker: View {
         @EnvironmentObject var ui: UIState
         
@@ -177,4 +175,18 @@ enum SharedToolbarElements {
             .accessibilityHint("Switch between different display modes")
         }
     }
+}
+
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        Color.clear
+            .navigationTitle("Preview")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    SharedToolbarElements.AccountsButton()
+                }
+            }
+    }
+    .environmentObject(UIState())
+    .environmentObject(UserSettings())
 }

@@ -12,7 +12,13 @@ struct StatisticsView: View {
     @EnvironmentObject var userSettings: UserSettings
     
     // SwiftData
-    @Query private var expenses: [Expense]
+    @Query private var unfilteredExpenses: [Expense]
+    
+    private var expenses: [Expense] {
+        let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
+        let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
+        return customFiltered
+    }
 
     // MARK: - Body
     
@@ -217,9 +223,7 @@ struct StatisticsView: View {
         }
         
         ToolbarItem() {
-            SharedToolbarElements.OptionsMenu {
-                SharedToolbarElements.AccountsButton()
-            }
+            SharedToolbarElements.AccountsButton()
         }
         
         ToolbarItem() {

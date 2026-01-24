@@ -445,6 +445,7 @@
       }
     },
     "Accounts filter" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -639,6 +640,9 @@
           }
         }
       }
+    },
+    "All" : {
+
     },
     "All Expenses" : {
       "localizations" : {
@@ -4407,6 +4411,7 @@
       }
     },
     "Opens menu to filter expenses by account" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

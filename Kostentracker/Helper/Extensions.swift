@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import SwiftData
 
 extension Color {
     func toHex() -> String? {

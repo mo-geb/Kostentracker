@@ -24,8 +24,17 @@ final class UIState: ObservableObject {
     @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
     @AppStorage("selectedDisplayPeriod") var selectedDisplayPeriod: FrequencyUnit = .month
     @AppStorage("displayedCategoryChart") var displayedCategoryChart: CategoryChart = .barChart
-    var selectedAccountIDs: Set<PersistentIdentifier> = Set<PersistentIdentifier>()
+    @Published var selectedAccountIDs: Set<PersistentIdentifier> = [] {
+        didSet {
+            saveAccounts()
+        }
+    }
 
+    init() {
+        loadAccounts()
+    }
+    
+    
     // MARK: - Sheet Workflows
 
     func showSettings() {
@@ -60,18 +69,55 @@ final class UIState: ObservableObject {
         activeAccountSheet = .new(draft)
     }
     
-    func toggleAccountSelection(for account: ExpenseAccount) {
-        if selectedAccountIDs.contains(account.id) {
-            print("An")
-            selectedAccountIDs.remove(account.id)
-        } else {
-            print("aus")
-            selectedAccountIDs.insert(account.id)
+    // MARK: - Account management
+    
+    private let accountsKey = "selectedAccountIDs"
+    
+    private func saveAccounts() {
+        do {
+            let data = try JSONEncoder().encode(selectedAccountIDs)
+            UserDefaults.standard.set(data, forKey: accountsKey)
+        } catch {
+            print("Failed to encode account IDs: \(error)")
+        }
+    }
+
+    private func loadAccounts() {
+        guard let data = UserDefaults.standard.data(forKey: accountsKey) else { return }
+        do {
+            let decoded = try JSONDecoder().decode(Set<PersistentIdentifier>.self, from: data)
+            self.selectedAccountIDs = decoded
+        } catch {
+            print("Failed to decode account IDs: \(error)")
         }
     }
     
-    func accountSelected(account: ExpenseAccount) -> Bool {
+    func getAccountSelected(account: ExpenseAccount) -> Bool {
         return selectedAccountIDs.contains(account.id)
+    }
+    
+    func toggleAccountSelected(for account: ExpenseAccount, forceTo: Bool? = nil) {
+        let targetState = forceTo ?? !selectedAccountIDs.contains(account.id)
+        
+        if targetState {
+            selectedAccountIDs.insert(account.id)
+        } else {
+            selectedAccountIDs.remove(account.id)
+        }
+    }
+    
+    func getAllAccountsSelected(accounts: [ExpenseAccount]) -> Bool {
+        return !accounts.isEmpty && selectedAccountIDs.count == accounts.count
+    }
+    
+    func toggleAllAccounts(accounts: [ExpenseAccount], forceTo: Bool? = nil) {
+        let targetState = forceTo ?? !getAllAccountsSelected(accounts: accounts)
+        
+        if targetState {
+            selectedAccountIDs = Set(accounts.map { $0.id })
+        } else {
+            selectedAccountIDs.removeAll()
+        }
     }
 
     // MARK: - Popup / Transient Feedback

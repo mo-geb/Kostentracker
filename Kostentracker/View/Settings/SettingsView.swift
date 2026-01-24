@@ -57,19 +57,19 @@ struct SettingsView: View {
             .frame(minHeight: 44)
             .buttonStyle(.plain)
             
-//            NavigationLink {
-//                AccountsView()
-//            } label: {
-//                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .cyan) {
-//                    HStack {
-//                        Spacer()
-//                        Image(systemName: "chevron.right")
-//                            .font(.caption)
-//                            .foregroundStyle(.secondary)
-//                    }
-//                }
-//            }
-//            .buttonStyle(.plain)
+            NavigationLink {
+                AccountsView()
+            } label: {
+                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .cyan) {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
         }
     }
     

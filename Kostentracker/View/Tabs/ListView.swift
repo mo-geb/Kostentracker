@@ -10,8 +10,14 @@ struct ListView: View {
     
     // SwiftData
     @Environment(\.modelContext) private var context
-    @Query private var expenses: [Expense]
+    @Query private var unfilteredExpenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
+    
+    private var expenses: [Expense] {
+        let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
+        let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
+        return customFiltered
+    }
     
     // MARK: - Body
     
@@ -173,9 +179,12 @@ struct ListView: View {
                 SharedToolbarElements.FilterPicker()
                 SharedToolbarElements.SortPicker()
                 SharedToolbarElements.GroupByPicker()
-                SharedToolbarElements.AccountsButton()
                 SharedToolbarElements.ViewModePicker()
             }
+        }
+        
+        ToolbarItem() {
+            SharedToolbarElements.AccountsButton()
         }
         
         ToolbarItem() {
@@ -195,7 +204,7 @@ struct ListView: View {
     
     /// This is the core logic. It groups, sorts, and calculates costs based on user selections.
     private var processedGroups: [ProcessedGroup] {
-        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: ui.selectedFilter)
+        let filteredExpenses = expenses
         let grouped: [String: [Expense]]
         
         switch ui.selectedGroupBy {
