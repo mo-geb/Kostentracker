@@ -23,7 +23,8 @@ struct ExpenseInspector: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var emojiInput: String = ""
     
-    @State private var isShowingPicker: Bool = false
+    @State private var showFrequencyPicker: Bool = false
+    @State private var showPhotoPicker = false
     
     // User Settings
     @EnvironmentObject var userSettings: UserSettings
@@ -90,6 +91,7 @@ struct ExpenseInspector: View {
         .onTapGesture {
             focusedField = nil
         }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
         .sheet(item: $ui.activeCategorySheet) { sheet in
             switch sheet {
             case .new(let draft):
@@ -125,7 +127,9 @@ struct ExpenseInspector: View {
                     .overlay(alignment: .bottomTrailing) {
                         Menu {
                             // Option 1: Photo Library
-                            PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                            Button {
+                                showPhotoPicker = true
+                            } label: {
                                 Label("Choose Photo", systemImage: "photo.on.rectangle")
                             }
                             .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
@@ -353,7 +357,7 @@ struct ExpenseInspector: View {
                         
                         row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
                             Button {
-                                isShowingPicker = true
+                                showFrequencyPicker = true
                             } label: {
                                 Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
                                     .padding(8)
@@ -361,12 +365,12 @@ struct ExpenseInspector: View {
                                     .cornerRadius(8)
                                     .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
                             }
-                            .sheet(isPresented: $isShowingPicker) {
+                            .sheet(isPresented: $showFrequencyPicker) {
                                 VStack(spacing: 0) {
                                     HStack {
                                         Spacer()
                                         Button("Done") {
-                                            isShowingPicker = false
+                                            showFrequencyPicker = false
                                         }
                                         .fontWeight(.bold)
                                     }
