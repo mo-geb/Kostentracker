@@ -23,32 +23,37 @@ enum SharedToolbarElements {
         @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
         
         var body: some View {
-                if userSettings.enableAccounts {
-                    Menu {
-                        Section("Accounts") {
-                            Toggle(isOn: Binding(
-                                get: { ui.getAllAccountsSelected(accounts: accounts) },
-                                set: { _ in ui.toggleAllAccounts(accounts: accounts) }
-                            )) {
-                                Text("All")
-                            }
-                            Divider()
-                            ForEach(accounts) { account in
-                                Toggle(isOn: Binding(
-                                    get: { ui.getAccountSelected(account: account) },
-                                    set: { _ in ui.toggleAccountSelected(for: account) }
-                                )) {
-                                    Label(account.name, systemImage: account.iconName)
-                                }
-                                .toggleStyle(.button)
+            if userSettings.enableAccounts {
+                Menu {
+                    Section("Accounts") {
+                        Button {
+                            ui.toggleAllAccounts(accounts: accounts)
+                        } label: {
+                            let isAllSelected = ui.getAllAccountsSelected(accounts: accounts)
+                            Label(
+                                "All Accounts",
+                                systemImage: isAllSelected ? "checkmark.circle.fill" : "circle"
+                            )
+                        }
+                        
+                        Divider()
+                        
+                        ForEach(accounts) { account in
+                            Button {
+                                ui.toggleAccountSelected(for: account)
+                            } label: {
+                                let isSelected = ui.getAccountSelected(account: account)
+                                Label(account.name, systemImage: account.iconName)
+                                    .symbolVariant(isSelected ? .fill : .slash)
                             }
                         }
-                    } label: {
-                        Label("Accounts", systemImage: ui.getAllAccountsSelected(accounts: accounts) ? "person.2" : "person.2.fill")
                     }
-                    .menuActionDismissBehavior(.disabled)
+                } label: {
+                    Label("Accounts", systemImage: ui.getAllAccountsSelected(accounts: accounts) ? "person.2.fill" : "person.2")
                 }
+                .menuActionDismissBehavior(.disabled)
             }
+        }
     }
     
     struct OptionsMenu<Content: View>: View {

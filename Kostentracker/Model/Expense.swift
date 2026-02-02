@@ -202,9 +202,9 @@ extension Expense {
         return filtered
     }
     
-    static func applyAccountsFilters(_ expenses: [Expense], selectedIDs: Set<PersistentIdentifier>) -> [Expense] {
+    static func applyAccountsFilters(_ expenses: [Expense], selectedIDs: Set<UUID>) -> [Expense] {
         return expenses.filter { expense in
-            if let accountID = expense.account?.id {
+            if let accountID = expense.account?.uuid {
                 return selectedIDs.contains(accountID)
             }
             return false

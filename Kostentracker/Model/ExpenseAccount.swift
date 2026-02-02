@@ -3,6 +3,7 @@ import Foundation
 
 @Model
 final class ExpenseAccount: Identifiable {
+    var uuid: UUID = UUID()
     var name: String = ""
     var iconName: String = ""
     var isDefault: Bool = false

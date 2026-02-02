@@ -24,16 +24,11 @@ final class UIState: ObservableObject {
     @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
     @AppStorage("selectedDisplayPeriod") var selectedDisplayPeriod: FrequencyUnit = .month
     @AppStorage("displayedCategoryChart") var displayedCategoryChart: CategoryChart = .barChart
-    @Published var selectedAccountIDs: Set<PersistentIdentifier> = [] {
-        didSet {
-            saveAccounts()
-        }
-    }
+    @Published var selectedAccountIDs: Set<UUID> = [] { didSet { saveAccounts() }}
 
     init() {
         loadAccounts()
     }
-    
     
     // MARK: - Sheet Workflows
 
@@ -83,38 +78,37 @@ final class UIState: ObservableObject {
     }
 
     private func loadAccounts() {
-        guard let data = UserDefaults.standard.data(forKey: accountsKey) else { return }
-        do {
-            let decoded = try JSONDecoder().decode(Set<PersistentIdentifier>.self, from: data)
-            self.selectedAccountIDs = decoded
-        } catch {
-            print("Failed to decode account IDs: \(error)")
+        guard let data = UserDefaults.standard.data(forKey: accountsKey),
+              let decoded = try? JSONDecoder().decode(Set<UUID>.self, from: data) else {
+            return
         }
+        self.selectedAccountIDs = decoded
     }
     
     func getAccountSelected(account: ExpenseAccount) -> Bool {
-        return selectedAccountIDs.contains(account.id)
+        return selectedAccountIDs.contains(account.uuid)
     }
     
     func toggleAccountSelected(for account: ExpenseAccount, forceTo: Bool? = nil) {
-        let targetState = forceTo ?? !selectedAccountIDs.contains(account.id)
+        let targetState = forceTo ?? !selectedAccountIDs.contains(account.uuid)
         
         if targetState {
-            selectedAccountIDs.insert(account.id)
+            selectedAccountIDs.insert(account.uuid)
         } else {
-            selectedAccountIDs.remove(account.id)
+            selectedAccountIDs.remove(account.uuid)
         }
     }
     
     func getAllAccountsSelected(accounts: [ExpenseAccount]) -> Bool {
-        return !accounts.isEmpty && selectedAccountIDs.count == accounts.count
+        guard !accounts.isEmpty else { return false }
+        return accounts.allSatisfy { selectedAccountIDs.contains($0.uuid) }
     }
     
     func toggleAllAccounts(accounts: [ExpenseAccount], forceTo: Bool? = nil) {
         let targetState = forceTo ?? !getAllAccountsSelected(accounts: accounts)
         
         if targetState {
-            selectedAccountIDs = Set(accounts.map { $0.id })
+            selectedAccountIDs.formUnion(accounts.map { $0.uuid })
         } else {
             selectedAccountIDs.removeAll()
         }
