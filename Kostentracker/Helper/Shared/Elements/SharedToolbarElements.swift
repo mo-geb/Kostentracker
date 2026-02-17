@@ -43,8 +43,11 @@ enum SharedToolbarElements {
                                 ui.toggleAccountSelected(for: account)
                             } label: {
                                 let isSelected = ui.getAccountSelected(account: account)
-                                Label(account.name, systemImage: account.iconName)
-                                    .symbolVariant(isSelected ? .fill : .slash)
+                                if isSelected {
+                                    Label(account.name, systemImage: account.iconName)
+                                } else {
+                                    Text(account.name)
+                                }
                             }
                         }
                     }

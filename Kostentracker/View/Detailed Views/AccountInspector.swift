@@ -19,7 +19,7 @@ struct AccountInspector: View {
     
     // A list of sample icons for the user to choose from.
     private let sampleIcons = [
-        "person", "person.2", "person.3", "suitcase", "heart"
+        "tag", "person", "person.2", "person.3", "suitcase", "heart", "banknote", "airplane", "wineglass", "building.2"
     ]
     
     private let iconGridColumns: [GridItem] = [
