@@ -5,8 +5,8 @@ import PhotosUI
 struct ExpenseInspector: View {
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
-    
+    @Environment(UIState.self) private var ui: UIState
+
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
     @Query(sort: \ExpenseAccount.sortOrder) var accounts: [ExpenseAccount]
@@ -27,7 +27,7 @@ struct ExpenseInspector: View {
     @State private var showPhotoPicker = false
     
     // User Settings
-    @EnvironmentObject var userSettings: UserSettings
+    @Environment(UserSettings.self) var userSettings
     
     // Focus management
     @FocusState private var focusedField: FocusedField?
@@ -54,6 +54,7 @@ struct ExpenseInspector: View {
     // MARK: - Body
     
     var body: some View {
+        @Bindable var ui = ui
         ScrollView {
             VStack(spacing: 20) {
                 pictureSection
@@ -813,7 +814,7 @@ struct ExpenseInspector: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         ExpenseInspector(initialState: .edit(SampleData.oneTime))
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

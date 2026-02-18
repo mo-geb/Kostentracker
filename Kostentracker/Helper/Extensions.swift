@@ -65,3 +65,13 @@ extension Character {
         return scalar.properties.isEmojiPresentation || scalar.properties.generalCategory == .otherSymbol
     }
 }
+
+extension UserDefaults {
+    func getEnum<T: RawRepresentable>(forKey key: String, default: T) -> T where T.RawValue == String {
+        guard let rawValue = string(forKey: key),
+              let value = T(rawValue: rawValue) else {
+            return `default`
+        }
+        return value
+    }
+}

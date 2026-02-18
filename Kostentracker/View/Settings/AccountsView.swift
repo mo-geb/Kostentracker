@@ -5,8 +5,8 @@ struct AccountsView: View {
     
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
-    @EnvironmentObject var userSettings: UserSettings
+    @Environment(UIState.self) private var ui
+    @Environment(UserSettings.self) var userSettings
 
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -18,20 +18,18 @@ struct AccountsView: View {
     // MARK: - Body
     
     var body: some View {
+        @Bindable var ui = ui
+        
         NavigationStack {
             mainContent
                 .navigationTitle("Manage Accounts")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent }
                 .sheet(item: $ui.activeAccountSheet) { sheet in
-                    switch sheet {
-                    case .new(let draft):
-                        NavigationStack {
-                            AccountInspector(initialState: .new(draft))
-                        }
-                    case .edit(let account):
-                        NavigationStack {
-                            AccountInspector(initialState: .edit(account))
+                    NavigationStack {
+                        switch sheet {
+                        case .new(let draft): AccountInspector(initialState: .new(draft))
+                        case .edit(let account): AccountInspector(initialState: .edit(account))
                         }
                     }
                 }
@@ -42,6 +40,8 @@ struct AccountsView: View {
     
     @ViewBuilder
     private var mainContent: some View {
+        @Bindable var userSettings = userSettings
+        
         List {
             Section {
                 Toggle("Enable Accounts", isOn: $userSettings.enableAccounts)
@@ -181,7 +181,7 @@ struct AccountsView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         AccountsView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

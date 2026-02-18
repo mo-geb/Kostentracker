@@ -21,3 +21,9 @@ struct MarkAsPaidPopup: View {
         .zIndex(99)
     }
 }
+
+#Preview("MarkAsPaidPopup") {
+    MarkAsPaidPopup()
+        .preferredColorScheme(.light)
+        .background(Color.black.opacity(0.2))
+}

@@ -1,13 +1,18 @@
 import Foundation
 import SwiftUI
 
-final class UserSettings: ObservableObject {
-    static let shared = UserSettings()
-
+@Observable
+final class UserSettings {
     // Currency
-    @AppStorage("currencyCode") var currencyCode: String = "EUR"
+    var currencyCode: String { didSet { UserDefaults.standard.set(currencyCode, forKey: "currencyCode") }}
 
     // Accounts
-    @AppStorage("enableAccounts") var enableAccounts: Bool = false
+    var enableAccounts: Bool { didSet { UserDefaults.standard.set(enableAccounts, forKey: "enableAccounts") }}
     
+    init() {
+        let defaults = UserDefaults.standard
+        
+        self.currencyCode = defaults.string(forKey: "currencyCode") ?? "EUR"
+        self.enableAccounts = defaults.bool(forKey: "enableAccounts") // default false
+    }
 }

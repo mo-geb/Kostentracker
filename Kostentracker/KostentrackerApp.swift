@@ -5,8 +5,8 @@ import SwiftData
 struct KostentrackerApp: App {
     let modelContainer: ModelContainer
     
-    @StateObject private var ui = UIState.shared
-    @StateObject private var userSettings = UserSettings.shared
+    @State private var ui = UIState()
+    @State private var userSettings = UserSettings()
     
     init() {
         do {
@@ -25,14 +25,14 @@ struct KostentrackerApp: App {
         WindowGroup {
             MainTabView()
                 .modelContainer(modelContainer)
-                .environmentObject(ui)
-                .environmentObject(userSettings)
+                .environment(ui)
+                .environment(userSettings)
        }
     }
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
     MainTabView()
-        .environmentObject(UIState())
-        .environmentObject(UserSettings())
+        .environment(UIState())
+        .environment(UserSettings())
 }

@@ -5,7 +5,7 @@ struct CategoriesView: View {
     
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
+    @Environment(UIState.self) private var ui: UIState
 
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -17,20 +17,18 @@ struct CategoriesView: View {
     // MARK: - Body
     
     var body: some View {
+        @Bindable var ui = ui
+        
         NavigationStack {
             mainContent
                 .navigationTitle("Manage Categories")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { toolbarContent }
                 .sheet(item: $ui.activeCategorySheet) { sheet in
-                    switch sheet {
-                    case .new(let draft):
-                        NavigationStack {
-                            CategoryInspector(initialState: .new(draft))
-                        }
-                    case .edit(let category):
-                        NavigationStack {
-                            CategoryInspector(initialState: .edit(category))
+                    NavigationStack {
+                        switch sheet {
+                        case .new(let draft): CategoryInspector(initialState: .new(draft))
+                        case .edit(let category): CategoryInspector(initialState: .edit(category))
                         }
                     }
                 }
@@ -166,7 +164,7 @@ struct CategoriesView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         CategoriesView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

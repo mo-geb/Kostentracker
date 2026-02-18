@@ -4,8 +4,8 @@ import SwiftData
 struct TimelineView: View {
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
-    @EnvironmentObject var userSettings: UserSettings
+    @Environment(UIState.self) private var ui
+    @Environment(UserSettings.self) var userSettings
     
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -199,7 +199,7 @@ struct TimelineView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         TimelineView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

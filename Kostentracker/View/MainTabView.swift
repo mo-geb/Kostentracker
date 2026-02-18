@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @EnvironmentObject var ui: UIState
+    @Environment(UIState.self) var ui
 
     var body: some View {
+        @Bindable var ui = ui
+        
         TabView() {
             Tab("Timeline", systemImage: "calendar") {
                 TimelineView()
@@ -32,18 +34,11 @@ struct MainTabView: View {
         .tabViewStyle(.automatic)
         .background(.thinMaterial)
         .sheet(item: $ui.activeExpenseSheet) { sheet in
-            switch sheet {
-            case .view(let expense):
-                NavigationStack {
-                    ExpenseInspector(initialState: .view(expense))
-                }
-            case .new(let draft):
-                NavigationStack {
-                    ExpenseInspector(initialState: .new(draft))
-                }
-            case .edit(let expense):
-                NavigationStack {
-                    ExpenseInspector(initialState: .edit(expense))
+            NavigationStack {
+                switch sheet {
+                case .view(let e): ExpenseInspector(initialState: .view(e))
+                case .new(let d):  ExpenseInspector(initialState: .new(d))
+                case .edit(let e): ExpenseInspector(initialState: .edit(e))
                 }
             }
         }

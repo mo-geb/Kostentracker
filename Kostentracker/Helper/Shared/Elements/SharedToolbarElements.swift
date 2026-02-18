@@ -3,8 +3,8 @@ import SwiftData
 
 enum SharedToolbarElements {
     struct SettingsButton: View {
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
             Button {
                 ui.showSettings()
@@ -18,8 +18,8 @@ enum SharedToolbarElements {
     }
     
     struct AccountsButton: View {
-        @EnvironmentObject var ui: UIState
-        @EnvironmentObject var userSettings: UserSettings
+        @Environment(UIState.self) private var ui
+        @Environment(UserSettings.self) var userSettings
         @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
         
         var body: some View {
@@ -81,8 +81,8 @@ enum SharedToolbarElements {
     
     struct AddExpenseButton: View {
         @Environment(\.modelContext) private var context
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
             Button {
                 ui.createExpense(from: ExpenseDraft.createNew(with: context))
@@ -113,9 +113,11 @@ enum SharedToolbarElements {
     // MARK: - Option Button Elements
     
     struct FilterPicker: View {
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
+            @Bindable var ui = ui
+            
             Picker(selection: $ui.selectedFilter) {
                 ForEach(FilterOption.allCases) { option in
                     Button {} label: {
@@ -134,9 +136,11 @@ enum SharedToolbarElements {
     }
     
     struct SortPicker: View {
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
+            @Bindable var ui = ui
+
             Picker(selection: $ui.selectedSort, label: Label("Sort By", systemImage: "arrow.up.arrow.down")) {
                 ForEach(SortOption.allCases) { option in
                     Button {} label: {
@@ -153,9 +157,11 @@ enum SharedToolbarElements {
     }
     
     struct GroupByPicker: View {
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
+            @Bindable var ui = ui
+
             Picker(selection: $ui.selectedGroupBy, label: Label("Group By", systemImage: "rectangle.3.group")) {
                 ForEach(GroupByOption.allCases) { option in
                     Text(option.localizedName).tag(option)
@@ -168,9 +174,11 @@ enum SharedToolbarElements {
     }
     
     struct ViewModePicker: View {
-        @EnvironmentObject var ui: UIState
-        
+        @Environment(UIState.self) private var ui
+
         var body: some View {
+            @Bindable var ui = ui
+
             Picker("View Mode", selection: $ui.selectedViewMode) {
                 ForEach(ViewMode.allCases) { mode in
                     Text(mode.localizedName)
@@ -195,6 +203,6 @@ enum SharedToolbarElements {
                 }
             }
     }
-    .environmentObject(UIState())
-    .environmentObject(UserSettings())
+    .environment(UIState())
+    .environment(UserSettings())
 }

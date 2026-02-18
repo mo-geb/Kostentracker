@@ -46,11 +46,10 @@ final class Expense: Identifiable {
 extension Expense {
     /// VoiceOver-friendly description including expense details
     var accessibilityLabel: String {
-        let userSettings = UserSettings.shared
         let formattedAmount = String(format: "%.2f", amount)
         let frequency = frequencyUnit.displayText(for: frequencyValue)
         
-        return "\(title), \(formattedAmount) \(userSettings.currencyCode), \(categoryName), \(frequency)"
+        return "\(title), \(formattedAmount), \(categoryName), \(frequency)"
     }
 }
 

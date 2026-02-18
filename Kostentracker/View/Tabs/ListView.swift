@@ -5,9 +5,9 @@ struct ListView: View {
     
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
-    @EnvironmentObject var userSettings: UserSettings
-    
+    @Environment(UIState.self) private var ui
+    @Environment(UserSettings.self) var userSettings
+
     // SwiftData
     @Environment(\.modelContext) private var context
     @Query private var unfilteredExpenses: [Expense]
@@ -282,7 +282,7 @@ struct ListView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         ListView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

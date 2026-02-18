@@ -5,9 +5,9 @@ struct SearchView: View {
     
     // MARK: - Properties
     // Shared
-    @EnvironmentObject var ui: UIState
-    @EnvironmentObject var userSettings: UserSettings
-    
+    @Environment(UIState.self) private var ui
+    @Environment(UserSettings.self) var userSettings
+
     // State
     @State private var searchText = ""
 
@@ -131,7 +131,7 @@ struct SearchView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         SearchView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var userSettings: UserSettings
+    @Environment(UserSettings.self) var userSettings
 
     var body: some View {
         NavigationStack {
@@ -28,6 +28,8 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var generalSection: some View {
+        @Bindable var userSettings = userSettings
+
         VStack(alignment: .leading, spacing: 8) {
             Text("General")
                 .font(.title2.bold())
@@ -206,7 +208,7 @@ struct SettingsView: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         SettingsView()
-            .environmentObject(UIState())
-            .environmentObject(UserSettings())
+            .environment(UIState())
+            .environment(UserSettings())
     }
 }

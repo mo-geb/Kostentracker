@@ -2,9 +2,9 @@ import SwiftUI
 
 struct ExpenseRow: View {
     // MARK: - Dependencies
-    @EnvironmentObject var uiState: UIState
-    @EnvironmentObject var userSettings: UserSettings
-    
+    @Environment(UIState.self) private var uiState
+    @Environment(UserSettings.self) var userSettings
+
     let expense: Expense
     let subtitle: String
     let tab: ActiveTab

@@ -2,31 +2,39 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-final class UIState: ObservableObject {
-    static let shared = UIState()
-
+@Observable
+final class UIState {
     // MARK: - Published UI States
     
     // Modals / Sheets
-    @Published var activeExpenseSheet: ActiveExpenseSheet?
-    @Published var activeCategorySheet: ActiveCategorySheet?
-    @Published var activeAccountSheet: ActiveAccountSheet?
-    @Published var showingSettings: Bool = false
+    var activeExpenseSheet: ActiveExpenseSheet?
+    var activeCategorySheet: ActiveCategorySheet?
+    var activeAccountSheet: ActiveAccountSheet?
+    var showingSettings: Bool = false
 
     // Toasts
-    @Published var activePopup: ActivePopup?
-    @Published var feedbackTrigger: Bool = false
+    var activePopup: ActivePopup?
+    var feedbackTrigger: Bool = false
 
     // UI Configuration
-    @AppStorage("selectedFilter") var selectedFilter: FilterOption = .all
-    @AppStorage("selectedSort") var selectedSort: SortOption = .amountDescending
-    @AppStorage("selectedGroupBy") var selectedGroupBy: GroupByOption = .categories
-    @AppStorage("selectedViewMode") var selectedViewMode: ViewMode = .normal
-    @AppStorage("selectedDisplayPeriod") var selectedDisplayPeriod: FrequencyUnit = .month
-    @AppStorage("displayedCategoryChart") var displayedCategoryChart: CategoryChart = .barChart
-    @Published var selectedAccountIDs: Set<UUID> = [] { didSet { saveAccounts() }}
+    var selectedFilter: FilterOption { didSet { persist(key: "selectedFilter", value: selectedFilter.rawValue) }}
+    var selectedSort: SortOption { didSet { persist(key: "selectedSort", value: selectedSort.rawValue) }}
+    var selectedGroupBy: GroupByOption { didSet { persist(key: "selectedGroupBy", value: selectedGroupBy.rawValue) }}
+    var selectedViewMode: ViewMode { didSet { persist(key: "selectedViewMode", value: selectedViewMode.rawValue) }}
+    var selectedDisplayPeriod: FrequencyUnit { didSet { persist(key: "selectedDisplayPeriod", value: selectedDisplayPeriod.rawValue) }}
+    var displayedCategoryChart: CategoryChart { didSet { persist(key: "displayedCategoryChart", value: displayedCategoryChart.rawValue) }}
+    var selectedAccountIDs: Set<UUID> = [] { didSet { saveAccounts() }}
 
     init() {
+        let defaults = UserDefaults.standard
+                
+        self.selectedFilter = defaults.getEnum(forKey: "selectedFilter", default: .all)
+        self.selectedSort = defaults.getEnum(forKey: "selectedSort", default: .amountDescending)
+        self.selectedGroupBy = defaults.getEnum(forKey: "selectedGroupBy", default: .categories)
+        self.selectedViewMode = defaults.getEnum(forKey: "selectedViewMode", default: .normal)
+        self.selectedDisplayPeriod = defaults.getEnum(forKey: "selectedDisplayPeriod", default: .month)
+        self.displayedCategoryChart = defaults.getEnum(forKey: "displayedCategoryChart", default: .barChart)
+        
         loadAccounts()
     }
     
@@ -138,6 +146,10 @@ final class UIState: ObservableObject {
                 self.activePopup = nil
             }
         }
+    }
+    
+    func persist(key: String, value: String) {
+        UserDefaults.standard.set(value, forKey: key)
     }
 }
 
