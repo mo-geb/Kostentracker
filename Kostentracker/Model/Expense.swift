@@ -212,13 +212,21 @@ extension Expense {
     
     /// Sorts an array of expenses based on the `selectedSort` state.
     static func sortExpenses(expenses: [Expense], sortOption: SortOption) -> [Expense] {
-        switch sortOption {
-        case .amountDescending:
-            return expenses.sorted { $0.yearlyCost > $1.yearlyCost }
-        case .amountAscending:
-            return expenses.sorted { $0.yearlyCost < $1.yearlyCost }
-        case .title:
-            return expenses.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        return expenses.sorted { (lhs: Expense, rhs: Expense) -> Bool in
+            // 1. Primary Rule: Inactive items always go to the bottom
+            if (lhs.type != .inactive) != (rhs.type != .inactive) {
+                return lhs.type != .inactive
+            }
+            
+            // 2. Secondary Rule: Sort based on the user's selection
+            switch sortOption {
+            case .amountDescending:
+                return lhs.yearlyCost > rhs.yearlyCost
+            case .amountAscending:
+                return lhs.yearlyCost < rhs.yearlyCost
+            case .title:
+                return lhs.title.localizedCaseInsensitiveCompare(rhs.title) == .orderedAscending
+            }
         }
     }
 }

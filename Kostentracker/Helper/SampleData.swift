@@ -22,7 +22,8 @@ struct SampleData {
         netflixSample,
         insuranceSample,
         oneTime,
-        inactive
+        inactive,
+        zero
     ]
     
     // MARK: - Accounts
@@ -91,6 +92,18 @@ struct SampleData {
             frequencyUnit: .day,
             frequencyValue: 1,
             date: .distantPast,
+            category: subscription,
+            account: business,
+            notes: ""
+        )
+    )
+    
+    static let zero = Expense(from: ExpenseDraft(
+            title: "Zero Expense",
+            amount: 0,
+            frequencyUnit: .month,
+            frequencyValue: 1,
+            date: .now,
             category: subscription,
             account: business,
             notes: ""
