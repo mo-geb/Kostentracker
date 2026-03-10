@@ -473,6 +473,8 @@ struct ExpenseInspector: View {
             
             // Account
             if userSettings.enableAccounts {
+                customDivider
+                
                 row(title: String(localized: "Account"), icon: "person.2") {
                     if isEditing {
                         Menu {
