@@ -5,7 +5,7 @@ import PhotosUI
 struct ExpenseInspector: View {
     // MARK: - Properties
     // Shared
-    @Environment(UIState.self) private var ui: UIState
+    @Environment(UIState.self) private var uiState: UIState
 
     // SwiftData
     @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
@@ -54,22 +54,91 @@ struct ExpenseInspector: View {
     // MARK: - Body
     
     var body: some View {
-        @Bindable var ui = ui
+        @Bindable var ui = uiState
         ScrollView {
             VStack(spacing: 20) {
-                pictureSection
-                    .accessibilitySortPriority(1)
-                titleSection
-                    .accessibilitySortPriority(2)
-                detailsSection
-                    .accessibilitySortPriority(3)
-                
                 if isEditing {
-                    if expense != nil {
+                    pictureSectionEditing
+                        .padding(.bottom)
+                        .accessibilitySortPriority(1)
+                    titleSectionEditing
+                        .accessibilitySortPriority(2)
+                    
+                    // Details
+                    VStack(spacing: 12) {
+                        amountRowEditing
+                        
+                        rowGroup {
+                            activeRowEditing
+                            if draft.type != .inactive {
+                                customDivider
+                                dueRowEditing
+                            }
+                        }
+                        
+                        if draft.type != .inactive {
+                            rowGroup {
+                                repeatRowEditing
+                                
+                                if draft.type == .recurring {
+                                    customDivider
+                                    frequencyRowEditing
+                                }
+                            }
+                        }
+                        
+                        rowGroup {
+                            categoryRowEditing
+                            
+                            if userSettings.enableAccounts {
+                                accountRowEditing
+                            }
+                        }
+                        
+                        notesSectionEditing
+                    }
+                    .padding()
+                    .accessibilitySortPriority(3)
+                    
+                    if case .new(_) = initialState { } else {
                         deleteButton
                             .accessibilitySortPriority(4)
                     }
                 } else {
+                    pictureSectionShowing
+                        .padding(.bottom)
+                        .accessibilitySortPriority(1)
+                    titleSectionShowing
+                        .accessibilitySortPriority(2)
+                    
+                    VStack(spacing: 12) {
+                        amountRowShowing
+                        
+                        if draft.type != .inactive {
+                            rowGroup {
+                                dueRowShowing
+                                
+                                if draft.type == .recurring {
+                                    customDivider
+                                    repeatRowShowing
+                                }
+                            }
+                        }
+                        
+                        rowGroup {
+                            categoryRowShowing
+                            
+                            if userSettings.enableAccounts {
+                                customDivider
+                                accountRowShowing
+                            }
+                        }
+                        
+                        notesSectionShowing
+                    }
+                    .padding()
+                    .accessibilitySortPriority(3)
+                    
                     if draft.type == .inactive {
                         inactiveInfo
                             .accessibilitySortPriority(4)
@@ -120,65 +189,57 @@ struct ExpenseInspector: View {
     
     // MARK: - View Components
     
+    // MARK: Picture Section
     @ViewBuilder
-    private var pictureSection: some View {
-        VStack {
-            if isEditing {
-                imageDisplay
-                    .overlay(alignment: .bottomTrailing) {
-                        Menu {
-                            // Option 1: Photo Library
-                            Button {
-                                showPhotoPicker = true
-                            } label: {
-                                Label("Choose Photo", systemImage: "photo.on.rectangle")
-                            }
-                            .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
-                            .accessibilityHint("Double tap to select a photo from your library")
-                            .onChange(of: selectedPhoto) {
-                                Task {
-                                    if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
-                                        draft.customImageData = data
-                                    }
-                                }
-                            }
-                            
-                            // Option 2: Emoji Keyboard
-                            Button {
-                                focusedField = .expenseEmojiKeyboard
-                            } label: {
-                                Label("Choose Emoji", systemImage: "face.smiling")
-                            }
-                            
-                            // Option 3: Remove (Only if media exists)
-                            if draft.customImageData != nil {
-                                Button(role: .destructive) {
-                                    draft.customImageData = nil
-                                } label: {
-                                    Label("Remove Current", systemImage: "trash")
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "pencil.circle.fill")
-                                .symbolRenderingMode(.multicolor)
-                                .font(.title)
-                        }
-                        .offset(x: 8, y: 8)
+    private var pictureSectionEditing: some View {
+        pictureSectionShowing
+            .overlay(alignment: .bottomTrailing) {
+                Menu {
+                    // Option 1: Photo Library
+                    Button {
+                        showPhotoPicker = true
+                    } label: {
+                        Label("Choose Photo", systemImage: "photo.on.rectangle")
                     }
-            } else {
-                imageDisplay
+                    .accessibilityLabel(draft.customImageData != nil ? "Change expense image" : "Add expense image")
+                    .accessibilityHint("Double tap to select a photo from your library")
+                    .onChange(of: selectedPhoto) {
+                        Task {
+                            if let data = try? await selectedPhoto?.loadTransferable(type: Data.self) {
+                                draft.customImageData = data
+                            }
+                        }
+                    }
+                    
+                    // Option 2: Emoji Keyboard
+                    Button {
+                        focusedField = .expenseEmojiKeyboard
+                    } label: {
+                        Label("Choose Emoji", systemImage: "face.smiling")
+                    }
+                    
+                    // Option 3: Remove (Only if media exists)
+                    if draft.customImageData != nil {
+                        Button(role: .destructive) {
+                            draft.customImageData = nil
+                        } label: {
+                            Label("Remove Current", systemImage: "trash")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "pencil.circle.fill")
+                        .symbolRenderingMode(.multicolor)
+                        .font(.title)
+                }
+                .offset(x: 17, y: 17)
             }
-        }
-        .padding(.bottom)
     }
     
     /// A reusable view that displays the expense's custom image or a placeholder as an app-shaped icon.
     @ViewBuilder
-    private var imageDisplay: some View {
-        let media = isEditing ? draft.displayMedia : (expense?.displayMedia ?? .icon("tag", .gray))
-        
+    private var pictureSectionShowing: some View {
         ZStack {
-            switch media {
+            switch draft.displayMedia {
             case .image(let uiImage):
                 Image(uiImage: uiImage)
                     .resizable()
@@ -209,370 +270,320 @@ struct ExpenseInspector: View {
         .padding(-15)
     }
     
+    // MARK: Title Section
+    
     @ViewBuilder
-    private var titleSection: some View {
-        if isEditing {
-            TextField("Title", text: $draft.title)
-                .font(.title)
-                .bold()
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .padding(.horizontal)
-                .padding(-10)
-                .focused($focusedField, equals: .expenseDetailTitle)
-                .accessibilityLabel("Expense title")
-                .accessibilityHint("Enter a title for this expense. Maximum 20 characters.")
-                .accessibilityValue(draft.title.isEmpty ? "Empty" : draft.title)
-                .onChange(of: draft.title) { _, newValue in
-                    if newValue.count > 20 {
-                        draft.title = String(newValue.prefix(20))
+    private var titleSectionEditing: some View {
+        TextField("Title", text: $draft.title)
+            .font(.title)
+            .bold()
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .padding(.horizontal)
+            .padding(-10)
+            .focused($focusedField, equals: .expenseDetailTitle)
+            .accessibilityLabel("Expense title")
+            .accessibilityHint("Enter a title for this expense. Maximum 20 characters.")
+            .accessibilityValue(draft.title.isEmpty ? "Empty" : draft.title)
+            .onChange(of: draft.title) { _, newValue in
+                if newValue.count > 20 {
+                    draft.title = String(newValue.prefix(20))
+                }
+            }
+    }
+    
+    @ViewBuilder
+    private var titleSectionShowing: some View {
+        Text(draft.title)
+            .font(.title)
+            .bold()
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal)
+            .padding(-10)
+            .accessibilityLabel("Expense title: \(expense?.title ?? "No title")")
+    }
+    
+    // MARK: Amount
+    
+    @ViewBuilder
+    private var amountRowEditing: some View {
+        row(title: String(localized: "Amount"), icon: "number") {
+            TextField("0.00", text: $amountText)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .fixedSize()
+                .padding(8)
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
+                .focused($focusedField, equals: .expenseDetailAmount)
+                .accessibilityLabel("Expense amount")
+                .accessibilityHint("Enter the cost amount using decimal format")
+                .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
+                .onChange(of: amountText) { _, newValue in
+                    let formatter = NumberFormatter()
+                    formatter.locale = Locale.current
+                    formatter.numberStyle = .decimal
+                    
+                    if let number = formatter.number(from: newValue) {
+                        draft.amount = max(0, number.doubleValue)
+                    } else {
+                        draft.amount = 0
                     }
                 }
-        } else {
-            Text(expense?.title ?? "")
-                .font(.title)
-                .bold()
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-                .minimumScaleFactor(0.8)
-                .padding(.horizontal)
-                .padding(-10)
-                .accessibilityLabel("Expense title: \(expense?.title ?? "No title")")
-        }
-    }
-    
-    @ViewBuilder
-    private var detailsSection: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            amountSection
-            dateSection
-            categorySection
-            notesSection
-        }
-        .padding()
-    }
-    
-    @ViewBuilder
-    private var amountSection: some View {
-        row(title: String(localized: "Amount"), icon: "number") {
-            if isEditing {
-                TextField("0.00", text: $amountText)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.trailing)
-                    .fixedSize()
-                    .padding(8)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
-                    .focused($focusedField, equals: .expenseDetailAmount)
-                    .accessibilityLabel("Expense amount")
-                    .accessibilityHint("Enter the cost amount using decimal format")
-                    .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
-                    .onChange(of: amountText) { _, newValue in
-                        let formatter = NumberFormatter()
-                        formatter.locale = Locale.current
-                        formatter.numberStyle = .decimal
-                        
-                        if let number = formatter.number(from: newValue) {
-                            draft.amount = max(0, number.doubleValue)
-                        } else {
-                            draft.amount = 0
-                        }
-                    }
-                    .onChange(of: focusedField) { _, focused in
-                        if focusedField != .expenseDetailAmount {
-                            let formatter = NumberFormatter()
-                            formatter.locale = Locale.current
-                            formatter.numberStyle = .decimal
-                            formatter.minimumFractionDigits = 2
-                            formatter.maximumFractionDigits = 2
-                            
-                            if draft.amount > 0 {
-                                amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
-                            } else {
-                                amountText = ""
-                            }
-                        }
-                    }
-                    .onAppear {
+                .onChange(of: focusedField) { _, focused in
+                    if focusedField != .expenseDetailAmount {
                         let formatter = NumberFormatter()
                         formatter.locale = Locale.current
                         formatter.numberStyle = .decimal
                         formatter.minimumFractionDigits = 2
                         formatter.maximumFractionDigits = 2
                         
-                        amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
+                        if draft.amount > 0 {
+                            amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
+                        } else {
+                            amountText = ""
+                        }
                     }
-            } else {
-                if let amount = expense?.amount, amount == 0 {
-                    Text("0.00")
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Amount: No amount set")
-                } else if let amount = expense?.amount {
-                    Text(amount, format: .currency(code: userSettings.currencyCode))
-                        .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
                 }
-            }
+                .onAppear {
+                    let formatter = NumberFormatter()
+                    formatter.locale = Locale.current
+                    formatter.numberStyle = .decimal
+                    formatter.minimumFractionDigits = 2
+                    formatter.maximumFractionDigits = 2
+                    
+                    amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
+                }
         }
     }
     
     @ViewBuilder
-    private var dateSection: some View {
-        if isEditing {
-            // Active / Date
-            rowGroup {
-                row(title: String(localized: "Active"), icon: "lightbulb") {
-                    Toggle("", isOn: Binding(
-                        get: { draft.date != Date.distantPast },
-                        set: { newValue in
-                            draft.date = newValue ? Date.now : Date.distantPast
-                        }))
-                }
-                
-                if draft.type != .inactive {
-                    customDivider
-                    
-                    row(title: String(localized: "Next Due"), icon: "calendar") {
-                        DatePicker("", selection: $draft.date, displayedComponents: [.date])
-                            .labelsHidden()
-                            .accessibilityLabel("Expense date")
-                            .accessibilityHint("Select the date for this expense")
-                            .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
-                            .focused($focusedField, equals: .expenseDueDate)
-                    }
-                }
-            }
-            
-            // Repeat / Frequency
-            if draft.type != .inactive {
-                rowGroup {
-                    row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
-                        Toggle("", isOn: Binding(
-                            get: { draft.frequencyValue != 0 },
-                            set: { newValue in
-                                draft.frequencyValue = newValue ? 1 : 0
-                            }))
-                    }
-                    
-                    if draft.type == .recurring {
-                        customDivider
-                        
-                        row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
-                            Button {
-                                showFrequencyPicker = true
-                            } label: {
-                                Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
-                                    .padding(8)
-                                    .background(Color(.secondarySystemBackground))
-                                    .cornerRadius(8)
-                                    .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
-                            }
-                            .sheet(isPresented: $showFrequencyPicker) {
-                                VStack(spacing: 0) {
-                                    HStack {
-                                        Spacer()
-                                        Button("Done") {
-                                            showFrequencyPicker = false
-                                        }
-                                        .fontWeight(.bold)
-                                    }
-                                    .padding()
-                                    
-                                    HStack(spacing: 0) {
-                                        Picker("Value", selection: $draft.frequencyValue) {
-                                            ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
-                                                Text("\(value)").tag(Int16(value))
-                                            }
-                                        }
-                                        .pickerStyle(.wheel)
-                                        
-                                        Picker("Unit", selection: $draft.frequencyUnit) {
-                                            ForEach(FrequencyUnit.allCases, id: \.self) { unit in
-                                                Text(unit.displayName(for: draft.frequencyValue))
-                                                    .tag(unit)
-                                            }
-                                        }
-                                        .pickerStyle(.wheel)
-                                    }
-                                }
-                                .presentationDetents([.height(300)])
-                                .presentationDragIndicator(.hidden)
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            if draft.type != .inactive {
-                rowGroup {
-                    // Due
-                    row(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
-                        if let date = expense?.date {
-                            Text(date, style: .date)
-                                .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
-                        }
-                    }
-                    
-                    // Repeat Frequency
-                    if draft.type == .recurring {
-                        customDivider
-                        
-                        row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
-                            if let freqValue = expense?.frequencyValue, let freqUnit = expense?.frequencyUnit {
-                                Text(freqUnit.displayText(for: freqValue))
-                                    .accessibilityLabel("Frequency: \(freqUnit.displayText(for: freqValue))")
-                            }
-                        }
-                    }
-                }
+    private var amountRowShowing: some View {
+        row(title: String(localized: "Amount"), icon: "number") {
+            if let amount = expense?.amount, amount == 0 {
+                Text("0.00")
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Amount: No amount set")
+            } else if let amount = expense?.amount {
+                Text(amount, format: .currency(code: userSettings.currencyCode))
+                    .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
             }
         }
     }
     
+    // MARK: Active
+    
     @ViewBuilder
-    private var categorySection: some View {
-        rowGroup {
-            // Category
-            row(title: String(localized: "Category"), icon: "archivebox") {
-                if isEditing {
-                    Menu {
-                        ForEach(categories, id: \.self) { category in
-                            Button {
-                                draft.category = category
-                            } label: {
-                                Label(category.name, systemImage: category.iconName)
-                            }
-                        }
-                        
-                        Divider()
-                        
-                        Button {
-                            let draft = CategoryDraft.createNew(
-                                sortOrder: (categories.last?.sortOrder ?? 0) + 1
-                            )
-                            ui.createCategory(from: draft)
-                        } label: {
-                            Label("New Category", systemImage: "plus")
-                        }
+    private var activeRowEditing: some View {
+        row(title: String(localized: "Active"), icon: "lightbulb") {
+            Toggle("", isOn: Binding(
+                get: { draft.date != Date.distantPast },
+                set: { newValue in
+                    draft.date = newValue ? Date.now : Date.distantPast
+                }))
+        }
+    }
+    
+    @ViewBuilder
+    private var dueRowEditing: some View {
+        row(title: String(localized: "Next Due"), icon: "calendar") {
+            DatePicker("", selection: $draft.date, displayedComponents: [.date])
+                .labelsHidden()
+                .accessibilityLabel("Expense date")
+                .accessibilityHint("Select the date for this expense")
+                .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
+                .focused($focusedField, equals: .expenseDueDate)
+        }
+    }
+    
+    @ViewBuilder
+    private var dueRowShowing: some View {
+        row(title: String(localized: "Next Due"), icon: "calendar.badge.exclamationmark") {
+            if let date = expense?.date {
+                Text(date, style: .date)
+                    .accessibilityLabel("Date: \(date.formatted(date: .abbreviated, time: .omitted))")
+            }
+        }
+    }
+    
+    // MARK: Repeat
+    
+    @ViewBuilder
+    private var repeatRowEditing: some View {
+        row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+            Toggle("", isOn: Binding(
+                get: { draft.frequencyValue != 0 },
+                set: { newValue in
+                    draft.frequencyValue = newValue ? 1 : 0
+                }))
+        }
+    }
+    
+    @ViewBuilder
+    private var frequencyRowEditing: some View {
+        row(title: String(localized: "Frequency"), icon: "clock.arrow.trianglehead.counterclockwise.rotate.90") {
+            Button {
+                showFrequencyPicker = true
+            } label: {
+                Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
+                    .padding(8)
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(8)
+                    .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+            }
+            .sheet(isPresented: $showFrequencyPicker) {
+                frequencyPicker
+            }
+        }
+    }
+    
+    
+    @ViewBuilder
+    private var repeatRowShowing: some View {
+        row(title: String(localized: "Repeat"), icon: "arrow.trianglehead.counterclockwise") {
+            Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
+                .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+        }
+    }
+    
+    // MARK: Category Section
+
+    @ViewBuilder
+    private var categoryRowEditing: some View {
+        row(title: String(localized: "Category"), icon: "archivebox") {
+            Menu {
+                ForEach(categories, id: \.self) { category in
+                    Button {
+                        draft.category = category
                     } label: {
-                        if let category = draft.category {
-                            Label(category.name, systemImage: category.iconName)
-                        }
-                        
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .accessibilityLabel("Expense category")
-                    .accessibilityHint("Select a category for this expense")
-                    .accessibilityValue(draft.category?.name ?? "No category selected")
-                } else {
-                    if let name = expense?.categoryName, let icon = expense?.categoryIconName {
-                        Label(name, systemImage: icon)
-                            .accessibilityLabel("Category: \(name)")
+                        Label(category.name, systemImage: category.iconName)
                     }
                 }
-            }
-            
-            // Account
-            if userSettings.enableAccounts {
-                customDivider
                 
-                row(title: String(localized: "Account"), icon: "person.2") {
-                    if isEditing {
-                        Menu {
-                            ForEach(accounts, id: \.self) { account in
-                                Button {
-                                    draft.account = account
-                                } label: {
-                                    Label(account.name, systemImage: account.iconName)
-                                }
-                            }
-                            
-                            Divider()
-                            
-                            Button {
-                                let draft = AccountDraft.createNew(
-                                    sortOrder: (accounts.last?.sortOrder ?? 0) + 1
-                                )
-                                ui.createAccount(from: draft)
-                            } label: {
-                                Label("New Account", systemImage: "plus")
-                            }
-                        } label: {
-                            if let account = draft.account {
-                                Label(account.name, systemImage: account.iconName)
-                            }
-                            
-                        }
-                        .fixedSize(horizontal: false, vertical: true)
-                        .accessibilityLabel("Expense account")
-                        .accessibilityHint("Select an account for this expense")
-                        .accessibilityValue(draft.account?.name ?? "No account selected")
-                    } else {
-                        if let name = expense?.account?.name, let icon = expense?.account?.iconName {
-                            Label(name, systemImage: icon)
-                                .accessibilityLabel("Account: \(name)")
-                        }
-                    }
+                Divider()
+                
+                Button {
+                    let draft = CategoryDraft.createNew(
+                        sortOrder: (categories.last?.sortOrder ?? 0) + 1
+                    )
+                    uiState.createCategory(from: draft)
+                } label: {
+                    Label("New Category", systemImage: "plus")
                 }
+            } label: {
+                if let category = draft.category {
+                    Label(category.name, systemImage: category.iconName)
+                }
+                
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel("Expense category")
+            .accessibilityHint("Select a category for this expense")
+            .accessibilityValue(draft.category?.name ?? "No category selected")
+        }
+    }
+        
+    @ViewBuilder
+    private var categoryRowShowing: some View {
+        row(title: String(localized: "Category"), icon: "archivebox") {
+            if let name = expense?.categoryName, let icon = expense?.categoryIconName {
+                Label(name, systemImage: icon)
+                    .accessibilityLabel("Category: \(name)")
             }
         }
     }
     
     @ViewBuilder
-    private var notesSection: some View {
+    private var accountRowEditing: some View {
+        row(title: String(localized: "Account"), icon: "person.2") {
+            Menu {
+                ForEach(accounts, id: \.self) { account in
+                    Button {
+                        draft.account = account
+                    } label: {
+                        Label(account.name, systemImage: account.iconName)
+                    }
+                }
+                
+                Divider()
+                
+                Button {
+                    let draft = AccountDraft.createNew(
+                        sortOrder: (accounts.last?.sortOrder ?? 0) + 1
+                    )
+                    uiState.createAccount(from: draft)
+                } label: {
+                    Label("New Account", systemImage: "plus")
+                }
+            } label: {
+                if let account = draft.account {
+                    Label(account.name, systemImage: account.iconName)
+                }
+                
+            }
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityLabel("Expense account")
+            .accessibilityHint("Select an account for this expense")
+            .accessibilityValue(draft.account?.name ?? "No account selected")
+        }
+    }
+    
+    @ViewBuilder
+    private var accountRowShowing: some View {
+        row(title: String(localized: "Account"), icon: "person.2") {
+            if let name = expense?.account?.name, let icon = expense?.account?.iconName {
+                Label(name, systemImage: icon)
+                    .accessibilityLabel("Account: \(name)")
+            }
+        }
+    }
+    
+    // MARK: Notes Section
+
+    @ViewBuilder
+    private var notesSectionEditing: some View {
         VStack(alignment: .leading) {
             Text("Notes")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            if isEditing {
-                ZStack(alignment: .topLeading) {
-                    TextEditor(text: $draft.notes)
-                        .padding(12)
-                        .frame(minHeight: 100)
-                        .background(Color(.tertiarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .scrollContentBackground(.hidden)
-                        .focused($focusedField, equals: .expenseDetailNotes)
-                        .accessibilityLabel("Expense notes")
-                        .accessibilityHint("Add optional notes or details about this expense")
-                        .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
-                }
-            } else {
-                VStack {
-                    if let notes = expense?.notes, !notes.isEmpty {
-                        Text(notes)
-                            .accessibilityLabel("Notes: \(notes)")
-                    } else {
-                        Text("No notes provided.")
-                            .foregroundStyle(.secondary)
-                            .accessibilityLabel("Notes: No notes provided")
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(12)
-                .background(Color(.tertiarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+            ZStack(alignment: .topLeading) {
+                TextEditor(text: $draft.notes)
+                    .padding(12)
+                    .frame(minHeight: 100)
+                    .background(Color(.tertiarySystemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .scrollContentBackground(.hidden)
+                    .focused($focusedField, equals: .expenseDetailNotes)
+                    .accessibilityLabel("Expense notes")
+                    .accessibilityHint("Add optional notes or details about this expense")
+                    .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
             }
         }
     }
     
-    private var hiddenEmojiTextField: some View {
-        TextField("", text: $emojiInput)
-            .keyboardType(UIKeyboardType(rawValue: 124) ?? .default)
-            .focused($focusedField, equals: .expenseEmojiKeyboard)
-            .opacity(0)
-            .frame(width: 0, height: 0)
-            .onChange(of: emojiInput) { _, newValue in
-                guard !newValue.isEmpty else { return }
-                
-                if let lastChar = newValue.last, lastChar.isEmoji {
-                    draft.customImageData = String(lastChar).data(using: .utf8)
-                    
-                    focusedField = .none
-                    UISelectionFeedbackGenerator().selectionChanged()
+    @ViewBuilder
+    private var notesSectionShowing: some View {
+        VStack(alignment: .leading) {
+            Text("Notes")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            VStack {
+                if let notes = expense?.notes, !notes.isEmpty {
+                    Text(notes)
+                        .accessibilityLabel("Notes: \(notes)")
+                } else {
+                    Text("No notes provided.")
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Notes: No notes provided")
                 }
-                
-                emojiInput = ""
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(12)
+            .background(Color(.tertiarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+        }
     }
     
     @ViewBuilder
@@ -596,10 +607,10 @@ struct ExpenseInspector: View {
                 case .oneTime, .inactive:
                     context.delete(e)
                     dismiss()
-                    ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
+                    uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
                 case .recurring:
                     e.advanceDueDate()
-                    ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.inspector)
+                    uiState.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.inspector)
                 }
                 try? context.save()
             }
@@ -635,9 +646,9 @@ struct ExpenseInspector: View {
                     .accessibilityAddTraits(.isHeader)
                 
                 HStack {
-                    costCard(title: "Yearly", amount: expense?.yearlyCost ?? 0)
-                    costCard(title: "Monthly", amount: expense?.monthlyCost ?? 0)
-                    costCard(title: "Weekly", amount: expense?.weeklyCost ?? 0)
+                    CostCard(title: String(localized: "Yearly"), amount: expense?.yearlyCost ?? 0)
+                    CostCard(title: String(localized: "Monthly"), amount: expense?.monthlyCost ?? 0)
+                    CostCard(title: String(localized: "Weekly"), amount: expense?.weeklyCost ?? 0)
                 }
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel("Cost breakdown")
@@ -645,25 +656,6 @@ struct ExpenseInspector: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
         }
-    }
-    
-    /// A reusable view for displaying a single cost metric (e.g., "Yearly").
-    private func costCard(title: String, amount: Double) -> some View {
-        VStack(alignment: .leading) {
-            Text(title)
-                .font(.headline)
-            Text(amount, format: .currency(code: userSettings.currencyCode))
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(.primary)
-                .lineLimit(2)
-                .minimumScaleFactor(0.6)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(10)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title) cost: \(amount, format: .currency(code: userSettings.currencyCode))")
     }
     
     @ViewBuilder
@@ -696,7 +688,7 @@ struct ExpenseInspector: View {
                     context.delete(expense)
                 }
                 dismiss()
-                ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
+                uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
             }
             .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }
@@ -710,71 +702,132 @@ struct ExpenseInspector: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .cancellationAction) {
-            if isEditing {
-                Button {
-                    do {
-                        switch initialState {
-                        case .edit(_), .view(_):
-                            isEditing = false
-                        case .new:
-                            dismiss()
-                        }
-                    }
-                } label: {
-                    Label("Cancel", systemImage: "xmark")
-                }
-                .accessibilityLabel("Cancel editing")
-                .accessibilityHint("Discard changes and return to view mode")
-            } else {
-                Button {
-                    dismiss()
-                } label: {
-                    Label("Close", systemImage: "chevron.down")
-                }
-                .accessibilityLabel("Close expense details")
-                .accessibilityHint("Return to the previous screen")
-            }
-        }
-        
-        ToolbarItem(placement: .confirmationAction) {
-            if isEditing {
-                Button {
-                    do {
-                        switch initialState {
-                        case .edit(let expense), .view(let expense):
-                            expense.update(from: draft)
-                        case .new:
-                            let newExpense = Expense(from: draft)
-                            context.insert(newExpense)
-                            self.expense = newExpense
-                            self.initialState = .view(newExpense)
-                        }
-                        try context.save()
-                        isEditing = false
-                    } catch {
-                        print("Failed to save expense: \(error)")
-                    }
-                } label: {
-                    Label("Save", systemImage: "checkmark")
-                }
-                .disabled(draft.title.isEmpty)
-                .tint(.green)
-                .accessibilityLabel("Save expense")
-                .accessibilityHint(draft.title.isEmpty ? "Title is required to save" : "Save changes to this expense")
-            } else {
-                Button {
-                    isEditing = true
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                }
-                .accessibilityLabel("Edit expense")
-                .accessibilityHint("Switch to edit mode to modify this expense")
-            }
+        if isEditing {
+            ToolbarItem(placement: .cancellationAction) { cancelButton }
+            ToolbarItem(placement: .confirmationAction) { saveButton }
+        } else {
+            ToolbarItem(placement: .cancellationAction) { closeButton }
+            ToolbarItem(placement: .confirmationAction) { editButton }
         }
     }
     
+    private var cancelButton: some View {
+        Button {
+            do {
+                switch initialState {
+                case .edit(_), .view(_):
+                    isEditing = false
+                case .new:
+                    dismiss()
+                }
+            }
+        } label: {
+            Label("Cancel", systemImage: "xmark")
+        }
+        .accessibilityLabel("Cancel editing")
+        .accessibilityHint("Discard changes and return to view mode")
+    }
+    
+    private var closeButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Label("Close", systemImage: "chevron.down")
+        }
+        .accessibilityLabel("Close expense details")
+        .accessibilityHint("Return to the previous screen")
+    }
+    
+    private var saveButton: some View {
+        Button {
+            do {
+                switch initialState {
+                case .edit(let expense), .view(let expense):
+                    expense.update(from: draft)
+                case .new:
+                    let newExpense = Expense(from: draft)
+                    context.insert(newExpense)
+                    self.expense = newExpense
+                    self.initialState = .view(newExpense)
+                }
+                try context.save()
+                isEditing = false
+            } catch {
+                print("Failed to save expense: \(error)")
+            }
+        } label: {
+            Label("Save", systemImage: "checkmark")
+        }
+        .disabled(draft.title.isEmpty)
+        .tint(.green)
+        .accessibilityLabel("Save expense")
+        .accessibilityHint(draft.title.isEmpty ? "Title is required to save" : "Save changes to this expense")
+    }
+    
+    private var editButton: some View {
+        Button {
+            isEditing = true
+        } label: {
+            Label("Edit", systemImage: "pencil")
+        }
+        .accessibilityLabel("Edit expense")
+        .accessibilityHint("Switch to edit mode to modify this expense")
+    }
+    
     // MARK: - Helper Views
+    @ViewBuilder
+    private var hiddenEmojiTextField: some View {
+        TextField("", text: $emojiInput)
+            .keyboardType(UIKeyboardType(rawValue: 124) ?? .default)
+            .focused($focusedField, equals: .expenseEmojiKeyboard)
+            .opacity(0)
+            .frame(width: 0, height: 0)
+            .onChange(of: emojiInput) { _, newValue in
+                guard !newValue.isEmpty else { return }
+                
+                if let lastChar = newValue.last, lastChar.isEmoji {
+                    draft.customImageData = String(lastChar).data(using: .utf8)
+                    
+                    focusedField = .none
+                    UISelectionFeedbackGenerator().selectionChanged()
+                }
+                
+                emojiInput = ""
+            }
+    }
+    
+    @ViewBuilder
+    private var frequencyPicker: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button("Done") {
+                    showFrequencyPicker = false
+                }
+                .fontWeight(.bold)
+            }
+            .padding()
+            
+            HStack(spacing: 0) {
+                Picker("Value", selection: $draft.frequencyValue) {
+                    ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
+                        Text("\(value)").tag(Int16(value))
+                    }
+                }
+                .pickerStyle(.wheel)
+                
+                Picker("Unit", selection: $draft.frequencyUnit) {
+                    ForEach(FrequencyUnit.allCases, id: \.self) { unit in
+                        Text(unit.displayName(for: draft.frequencyValue))
+                            .tag(unit)
+                    }
+                }
+                .pickerStyle(.wheel)
+            }
+        }
+        .presentationDetents([.height(300)])
+        .presentationDragIndicator(.hidden)
+    }
     
     /// A generic row builder to reduce duplication of HStack, Spacer, etc.
     @ViewBuilder
@@ -790,7 +843,9 @@ struct ExpenseInspector: View {
             Spacer()
             content()
         }
-        .padding(16)
+        //.padding(16)
+        .padding(.horizontal, 16)
+        .padding(.vertical, isEditing ? 16 : 22)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)

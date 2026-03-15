@@ -1,31 +1,32 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @Environment(UIState.self) var ui
+    @Environment(UIState.self) var uiState
+    @State private var selectedTab: ActiveTab = .timeline
 
     var body: some View {
-        @Bindable var ui = ui
+        @Bindable var ui = uiState
         
-        TabView() {
-            Tab("Timeline", systemImage: "calendar") {
+        TabView(selection: $selectedTab) {
+            Tab("Timeline", systemImage: "calendar", value: .timeline) {
                 TimelineView()
             }
             .accessibilityLabel("Timeline tab")
             .accessibilityHint("View expenses organized by date")
             
-            Tab("List", systemImage: "list.bullet") {
+            Tab("List", systemImage: "list.bullet", value: .list) {
                 ListView()
             }
             .accessibilityLabel("List tab")
             .accessibilityHint("View expenses in a categorized list")
             
-            Tab("Statistics", systemImage: "chart.bar") {
+            Tab("Statistics", systemImage: "chart.bar", value: .statistics) {
                 StatisticsView()
             }
             .accessibilityLabel("Statistics tab")
             .accessibilityHint("View expense charts and analytics")
             
-            Tab(role: .search) {
+            Tab(value: .search, role: .search) {
                 SearchView()
             }
             .accessibilityLabel("Search tab")
@@ -46,12 +47,13 @@ struct MainTabView: View {
             SettingsView()
         }
         .overlay {
-            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.main) {
+            switch ui.activePopup {
+            case .markedAsPaid(.main):
                 MarkAsPaidPopup()
-            }
-            
-            if ui.activePopup == ActivePopup.deleted(owner: ActivePopup.PopupOwner.main) {
+            case .deleted(.main):
                 DeletedPopup()
+            default:
+                EmptyView()
             }
         }
     }

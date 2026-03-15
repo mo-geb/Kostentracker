@@ -30,9 +30,3 @@ struct KostentrackerApp: App {
        }
     }
 }
-
-#Preview(traits: .modifier(PreviewModelContainer())) {
-    MainTabView()
-        .environment(UIState())
-        .environment(UserSettings())
-}

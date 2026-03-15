@@ -60,9 +60,9 @@ struct StatisticsView: View {
                 .foregroundStyle(.secondary)
             
             HStack {
-                costCard(title: String(localized: "Yearly"), amount: totalCosts.yearly)
-                costCard(title: String(localized: "Monthly"), amount: totalCosts.monthly)
-                costCard(title: String(localized: "Weekly"), amount: totalCosts.weekly)
+                CostCard(title: String(localized: "Yearly"), amount: totalCosts.yearly)
+                CostCard(title: String(localized: "Monthly"), amount: totalCosts.monthly)
+                CostCard(title: String(localized: "Weekly"), amount: totalCosts.weekly)
             }
         }
     }
@@ -232,24 +232,6 @@ struct StatisticsView: View {
     }
     
     // MARK: - Total Helpers
-    /// A reusable view for displaying a single cost metric (e.g., "Yearly").
-    private func costCard(title: String, amount: Double) -> some View {
-        VStack(alignment: .leading) {
-            Text(title)
-                .font(.headline)
-                .minimumScaleFactor(0.3)
-                .lineLimit(1)
-            Text(amount, format: .currency(code: userSettings.currencyCode))
-                .font(.title3.weight(.semibold))
-                .lineLimit(1)
-                .minimumScaleFactor(0.3)
-                .layoutPriority(1)
-        }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(10)
-    }
     
     /// A helper struct to hold the calculated total costs.
     private typealias TotalCosts = (yearly: Double, monthly: Double, weekly: Double)
