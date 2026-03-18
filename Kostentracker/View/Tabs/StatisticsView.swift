@@ -38,6 +38,10 @@ struct StatisticsView: View {
                     categoryCosts = calculateCategoryCosts()
                     monthlyCostsWithCategories = calculateMonthlyExpenses()
                 }
+                .onChange(of: expenses) {
+                    categoryCosts = calculateCategoryCosts()
+                    monthlyCostsWithCategories = calculateMonthlyExpenses()
+                }
         }
     }
     
@@ -281,7 +285,6 @@ struct StatisticsView: View {
                 geo.contentOffset.x + (geo.containerSize.width / 2)
             } action: { _, newValue in
                 let monthWidth: CGFloat = 52
-                let totalMonths = CGFloat(monthsToDisplay.count)
                 let index = Int(newValue / monthWidth)
                 let clampedIndex = max(0, min(monthsToDisplay.count - 1, index))
                 
