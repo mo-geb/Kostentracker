@@ -84,6 +84,7 @@ extension Expense {
         return yearlyCost / 365.0
     }
     
+    var normalizedDate: Date { Calendar.current.startOfDay(for: self.date) }
     var categoryColor: Color { category?.color ?? .gray }
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }
@@ -143,8 +144,7 @@ extension Expense {
         let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
         let monthEnd = calendar.date(byAdding: .month, value: 1, to: monthStart)!
 
-        let normalizedSelfDate = calendar.startOfDay(for: self.date)
-        var currentDate = normalizedSelfDate
+        var currentDate = normalizedDate
         var monthTotal = 0.0
         
         if type == .oneTime {

@@ -30,3 +30,17 @@ struct CostCard: View {
             .accessibilityLabel("\(title) cost: \(amount, format: .currency(code: userSettings.currencyCode))")
         }
 }
+
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    NavigationStack {
+        CostCard(title: "Yearly", amount: 10000)
+        .toolbar {
+            ToolbarItem {
+                SharedToolbarElements.OptionsMenu() {
+                    SharedToolbarElements.ViewModePicker()
+                }
+            }
+        }
+    }
+    
+}
