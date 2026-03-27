@@ -198,11 +198,15 @@ struct StatisticsView: View {
     
     @ViewBuilder
     private var monthlyChart: some View {
+        let average = averageMonthlyDisplayed
+        let data = monthlyCostsWithCategories
+        let displayMonths = monthsToDisplay
+        
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                Chart(monthlyCostsWithCategories) { item in
+                Chart(data) { item in
                     RuleMark(
-                        y: .value("Average", averageMonthlyDisplayed)
+                        y: .value("Average", average)
                     )
                     .foregroundStyle(.gray.opacity(0.4))
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 5]))
@@ -220,7 +224,7 @@ struct StatisticsView: View {
                         if let date = value.as(Date.self) {
                             let month = Calendar.current.component(.month, from: date)
                             
-                            let isFirstInArray = monthsToDisplay.first.map {
+                            let isFirstInArray = displayMonths.first.map {
                                 Calendar.current.isDate(date, equalTo: $0, toGranularity: .month)
                             } ?? false
                             
@@ -253,12 +257,12 @@ struct StatisticsView: View {
                     }
                 }
                 .scrollClipDisabled()
-                .frame(width: CGFloat(monthsToDisplay.count) * 52, height: 200)
+                .frame(width: CGFloat(displayMonths.count) * 52, height: 200)
                 .background(Color(.tertiarySystemBackground))
                 .cornerRadius(10)
                 // Invisible anchor at the current month position
                 .overlay(alignment: .leading) {
-                    let currentIndex = monthsToDisplay.firstIndex(where: {
+                    let currentIndex = displayMonths.firstIndex(where: {
                         Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
                     }) ?? 0
                     Color.clear
@@ -274,14 +278,54 @@ struct StatisticsView: View {
             } action: { _, newValue in
                 let monthWidth: CGFloat = 52
                 let index = Int(newValue / monthWidth)
-                let clampedIndex = max(0, min(monthsToDisplay.count - 1, index))
+                let clampedIndex = max(0, min(displayMonths.count - 1, index))
                 
-                visibleMonthDate = monthsToDisplay[clampedIndex]
+                visibleMonthDate = displayMonths[clampedIndex]
             }
             .onAppear {
                 proxy.scrollTo("currentMonth", anchor: .leading)
             }
         }
+    }
+    
+    @ViewBuilder
+    private var monthlyChartOld: some View {
+        Chart(monthlyCostsWithCategories) { item in
+            RuleMark(
+                y: .value("Average", totalCosts.monthly)
+            )
+            .foregroundStyle(.gray.opacity(0.4))
+            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
+            
+            BarMark(
+                x: .value("Month", item.date, unit: .month),
+                y: .value("Cost", item.amount),
+                width: .ratio(0.618)
+            )
+            .foregroundStyle(item.category.color)
+            .cornerRadius(4)
+
+        }
+        .chartXAxis {
+            AxisMarks(values: .automatic(desiredCount: 12)) {
+                AxisValueLabel(format: .dateTime.month(.narrow), centered: true)
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading) { value in
+                AxisValueLabel {
+                    if let cost = value.as(Double.self) {
+                        Text(cost, format: .number)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .frame(height: 200)
+        .padding()
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(10)
     }
     
     // MARK: - Toolbar
@@ -379,11 +423,12 @@ struct StatisticsView: View {
     }
     
     private var averageMonthlyDisplayed: Double {
-        guard !monthsToDisplay.isEmpty else { return 0 }
-        let monthlyTotals = monthsToDisplay.map { monthDate in
-            expenses
-                .filter { $0.type != .inactive }
-                .reduce(0.0) { $0 + $1.totalForMonth(containing: monthDate) }
+        let displayMonths = monthsToDisplay
+        guard !displayMonths.isEmpty else { return 0 }
+        let activeExpenses = expenses.filter { $0.type != .inactive }
+        
+        let monthlyTotals = displayMonths.map { monthDate in
+            activeExpenses.reduce(0.0) { $0 + $1.totalForMonth(containing: monthDate) }
         }
         return monthlyTotals.reduce(0, +) / Double(monthlyTotals.count)
     }
@@ -397,15 +442,16 @@ struct StatisticsView: View {
     
     private var monthlyCostsWithCategories: [MonthlyCategoryExpense] {
         var resultDict: [Date: [ExpenseCategory: Double]] = [:]
+        let displayMonths = monthsToDisplay
         
-        for date in monthsToDisplay {
+        for date in displayMonths {
             resultDict[date] = [:]
         }
 
         for expense in expenses where expense.type != .inactive {
             guard let category = expense.category else { continue }
             
-            for monthDate in monthsToDisplay {
+            for monthDate in displayMonths {
                 let amount = expense.totalForMonth(containing: monthDate)
                 if amount > 0 {
                     resultDict[monthDate, default: [:]][category, default: 0] += amount
