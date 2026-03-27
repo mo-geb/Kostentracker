@@ -10,23 +10,19 @@ struct StatisticsView: View {
     // Shared
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
-
+    
     // SwiftData
     @Query private var unfilteredExpenses: [Expense]
-
+    
     // Scroll tracking
     @State private var visibleMonthDate: Date = Date()
-    
-    // Chart Data
-    @State private var categoryCosts: [CategoryCost] = []
-    @State private var monthlyCostsWithCategories: [MonthlyCategoryExpense] = []
     
     private var expenses: [Expense] {
         let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
         let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
         return customFiltered
     }
-
+    
     // MARK: - Body
     
     var body: some View {
@@ -34,14 +30,6 @@ struct StatisticsView: View {
             mainContent
                 .navigationTitle("Statistics")
                 .toolbar { toolbarContent }
-                .onAppear {
-                    categoryCosts = calculateCategoryCosts()
-                    monthlyCostsWithCategories = calculateMonthlyExpenses()
-                }
-                .onChange(of: expenses) {
-                    categoryCosts = calculateCategoryCosts()
-                    monthlyCostsWithCategories = calculateMonthlyExpenses()
-                }
         }
     }
     
@@ -171,7 +159,7 @@ struct StatisticsView: View {
         
         let domain = sortedCategoryCosts.map { $0.category.categoryName }
         let range = sortedCategoryCosts.map { $0.category.categoryColor }
-
+        
         VStack(alignment: .leading, spacing: 12) {
             Chart(sortedCategoryCosts) { item in
                 SectorMark(
@@ -185,7 +173,7 @@ struct StatisticsView: View {
             .chartForegroundStyleScale(domain: domain, range: range)
             .chartLegend(.hidden)
             .frame(height: 200)
-
+            
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(sortedCategoryCosts) { item in
                     HStack(spacing: 8) {
@@ -206,7 +194,7 @@ struct StatisticsView: View {
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(10)
     }
-
+    
     
     @ViewBuilder
     private var monthlyChart: some View {
@@ -218,7 +206,7 @@ struct StatisticsView: View {
                     )
                     .foregroundStyle(.gray.opacity(0.4))
                     .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 5]))
-
+                    
                     BarMark(
                         x: .value("Month", item.date, unit: .month),
                         y: .value("Cost", item.amount),
@@ -297,7 +285,7 @@ struct StatisticsView: View {
     }
     
     // MARK: - Toolbar
-        
+    
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -333,9 +321,7 @@ struct StatisticsView: View {
         var totalCost: Double
     }
     
-    /// Groups all expenses by category and calculates the total yearly cost for each.
-    /// The result is sorted to display the largest categories first in the chart.
-    private func calculateCategoryCosts() -> [CategoryCost] {
+    private var categoryCosts: [CategoryCost] {
         let groupedByCategory = Dictionary(grouping: expenses, by: { $0.category })
         return groupedByCategory.compactMap { (category, expenses) in
             guard let firstExpense = expenses.first else { return nil }
@@ -345,13 +331,14 @@ struct StatisticsView: View {
         }
         .sorted { $0.totalCost > $1.totalCost }
     }
+
     
     // MARK: - Months Helpers
-
+    
     private var visibleYear: Int {
         Calendar.current.component(.year, from: visibleMonthDate)
     }
-
+    
     private var monthsToDisplay: [Date] {
         let calendar = Calendar.current
         let now = Date()
@@ -390,7 +377,7 @@ struct StatisticsView: View {
         
         return months
     }
-
+    
     private var averageMonthlyDisplayed: Double {
         guard !monthsToDisplay.isEmpty else { return 0 }
         let monthlyTotals = monthsToDisplay.map { monthDate in
@@ -400,27 +387,35 @@ struct StatisticsView: View {
         }
         return monthlyTotals.reduce(0, +) / Double(monthlyTotals.count)
     }
-
+    
     private struct MonthlyCategoryExpense: Identifiable {
         let id = UUID()
         let date: Date
         let category: ExpenseCategory
         let amount: Double
     }
+    
+    private var monthlyCostsWithCategories: [MonthlyCategoryExpense] {
+        var resultDict: [Date: [ExpenseCategory: Double]] = [:]
+        
+        for date in monthsToDisplay {
+            resultDict[date] = [:]
+        }
 
-    private func calculateMonthlyExpenses() -> [MonthlyCategoryExpense] {
-        var result: [MonthlyCategoryExpense] = []
-        for monthDate in monthsToDisplay {
-            var categoryTotals: [ExpenseCategory: Double] = [:]
-            for expense in expenses where expense.type != .inactive {
-                guard let category = expense.category else { continue }
-                categoryTotals[category, default: 0] += expense.totalForMonth(containing: monthDate)
-            }
-            for (category, amount) in categoryTotals where amount > 0 {
-                result.append(MonthlyCategoryExpense(date: monthDate, category: category, amount: amount))
+        for expense in expenses where expense.type != .inactive {
+            guard let category = expense.category else { continue }
+            
+            for monthDate in monthsToDisplay {
+                let amount = expense.totalForMonth(containing: monthDate)
+                if amount > 0 {
+                    resultDict[monthDate, default: [:]][category, default: 0] += amount
+                }
             }
         }
-        return result
+
+        return resultDict.flatMap { (date, categories) in
+            categories.map { MonthlyCategoryExpense(date: date, category: $0.key, amount: $0.value) }
+        }
     }
 }
 
