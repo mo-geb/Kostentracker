@@ -151,6 +151,7 @@ struct ExpenseRow: View {
                 if expense.hasMultipleOccurrencesInMonth(containing: expense.date) {
                     Text(expense.totalForMonth(containing: expense.date), format: .currency(code: userSettings.currencyCode))
                         .font(.subheadline)
+                        .fontDesign(.rounded)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -163,6 +164,7 @@ struct ExpenseRow: View {
                     if expense.type == .oneTime {
                         Text(expense.amount, format: .currency(code: userSettings.currencyCode))
                             .font(.subheadline)
+                            .fontDesign(.rounded)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -198,6 +200,7 @@ struct ExpenseRow: View {
         Text(amount, format: .currency(code: userSettings.currencyCode))
             .font(uiState.selectedViewMode == .normal ? .headline : .body)
             .fontWeight(.medium)
+            .fontDesign(.rounded)
             .foregroundStyle(isInactive ? .secondary : .primary)
     }
     

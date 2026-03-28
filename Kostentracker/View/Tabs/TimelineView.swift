@@ -12,14 +12,8 @@ struct TimelineView: View {
     @Query(sort: \Expense.date) private var unfilteredExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
     
-    private var expenses: [Expense] {
-        let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
-        let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
-        return customFiltered
-    }
-    
     // State
-    @State private var listRefreshID = UUID()
+    @State private var viewModel = TimelineViewModel()
 
     // MARK: - Body
     
@@ -28,7 +22,16 @@ struct TimelineView: View {
             mainContent
                 .navigationTitle("Timeline")
                 .toolbar { toolbarContent }
+                .onAppear { updateViewModel() }
+                .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
+                .onChange(of: ui.selectedFilter) { _, _ in updateViewModel() }
+                .onChange(of: ui.selectedAccountIDs) { _, _ in updateViewModel() }
+                .onChange(of: userSettings.enableAccounts) { _, _ in updateViewModel() }
         }
+    }
+    
+    private func updateViewModel() {
+        viewModel.update(from: unfilteredExpenses, ui: ui, userSettings: userSettings)
     }
     
     // MARK: - View Components
@@ -37,7 +40,7 @@ struct TimelineView: View {
     /// or the list of expenses grouped by month.
     @ViewBuilder
     private var mainContent: some View {
-        if expenses.isEmpty {
+        if viewModel.monthlyGroups.isEmpty {
             EmptyExpensesView()
         } else {
             expenseList
@@ -46,7 +49,9 @@ struct TimelineView: View {
     
     /// The list that displays expenses, grouped into sections by month.
     private var expenseList: some View {
-        List {
+        let monthlyGroups = viewModel.monthlyGroups
+        
+        return List {
             ForEach(monthlyGroups) { group in
                 Section {
                     ForEach(group.expenses) { expense in
@@ -54,14 +59,19 @@ struct TimelineView: View {
                     }
                 } header: {
                     HStack {
-                        Text(group.month, formatter: monthFormatter)
+                        Text(group.month, format: .dateTime.month(.wide).year())
+                            .font(.headline)
+                            .foregroundStyle(.primary)
                         Spacer()
                         Text(group.totalAmount, format: .currency(code: userSettings.currencyCode))
+                            .font(.headline)
+                            .fontDesign(.rounded)
+                            .foregroundStyle(.primary)
                     }
+                    .textCase(nil)
                 }
             }
         }
-        .id(listRefreshID)
     }
     
     /// A view representing a single row in the expense list.
@@ -81,17 +91,7 @@ struct TimelineView: View {
                 .accessibilityHint("Opens expense for editing")
                 
                 Button {
-                    switch expense.type {
-                    case .oneTime, .inactive:
-                        context.delete(expense)
-                        ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
-                    case .recurring:
-                        expense.advanceDueDate()
-                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
-                    }
-                   
-                    try? context.save()
-                    listRefreshID = UUID()
+                    viewModel.markAsPaidOrDelete(expense, context: context, ui: ui)
                 } label: {
                     switch expense.type {
                     case .oneTime, .inactive:
@@ -105,17 +105,7 @@ struct TimelineView: View {
             }
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
                 Button {
-                    switch expense.type {
-                    case .oneTime, .inactive:
-                        context.delete(expense)
-                        ui.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
-                    case .recurring:
-                        expense.advanceDueDate()
-                        ui.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
-                    }
-                   
-                    try? context.save()
-                    listRefreshID = UUID()
+                    viewModel.markAsPaidOrDelete(expense, context: context, ui: ui)
                 } label: {
                     switch expense.type {
                     case .oneTime, .inactive:
@@ -153,47 +143,6 @@ struct TimelineView: View {
         }
     }
 
-    // MARK: - Data Processing
-        
-    /// A struct to hold the processed data for each month's expenses.
-    private struct MonthlyExpenseGroup: Identifiable {
-        let id: Date
-        var month: Date
-        var expenses: [Expense]
-        var totalAmount: Double
-    }
-    
-    /// Groups expenses by month, calculates the actual amounts due in each month, and sorts the results.
-    private var monthlyGroups: [MonthlyExpenseGroup] {
-        let filteredExpenses = Expense.applyCustomFilters(expenses, filter: .active)
-        let calendar = Calendar.current
-        
-        // 1. Group expenses by the start of their month
-        let groupedByMonth = Dictionary(grouping: filteredExpenses) { expense in
-            calendar.date(from: calendar.dateComponents([.year, .month], from: expense.date))!
-        }
-        
-        // 2. Transform the grouped dictionary into an array of MonthlyExpenseGroup
-        return groupedByMonth.map { (month, expensesInMonth) in
-            // For each month, calculate the total using the new method
-            let total = expensesInMonth.reduce(0.0) { sum, expense in
-                sum + expense.totalForMonth(containing: month)
-            }
-            
-            let sortedExpenses = expensesInMonth.sorted { $0.date < $1.date }
-            return MonthlyExpenseGroup(id: month, month: month, expenses: sortedExpenses, totalAmount: total)
-        }
-        // 3. Sort the groups by month, so the newest appear at the top
-        .sorted { $0.month < $1.month }
-    }
-
-    /// A shared formatter for displaying month and year in section headers.
-    /// Using a computed property is more efficient than creating it inside the body.
-    private var monthFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter
-    }
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {

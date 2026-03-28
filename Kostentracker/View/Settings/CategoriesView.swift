@@ -150,7 +150,7 @@ struct CategoriesView: View {
         .padding(.vertical, 12)
         .padding(.horizontal, 18)
         .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color(.tertiarySystemGroupedBackground))
         )
         .frame(minHeight: 44)

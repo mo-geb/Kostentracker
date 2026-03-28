@@ -553,7 +553,7 @@ struct ExpenseInspector: View {
                     .padding(12)
                     .frame(minHeight: 100)
                     .background(Color(.tertiarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .scrollContentBackground(.hidden)
                     .focused($focusedField, equals: .expenseDetailNotes)
                     .accessibilityLabel("Expense notes")
@@ -582,7 +582,7 @@ struct ExpenseInspector: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
             .background(Color(.tertiarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
     
@@ -848,7 +848,7 @@ struct ExpenseInspector: View {
         .padding(.vertical, isEditing ? 16 : 22)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .cornerRadius(12)
     }
     
     @ViewBuilder
@@ -857,7 +857,7 @@ struct ExpenseInspector: View {
             content()
         }
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .cornerRadius(12)
     }
     
     @ViewBuilder

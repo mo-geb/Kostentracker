@@ -119,7 +119,7 @@ struct AccountInspector: View {
             }
             .padding()
             .background(Color(.tertiarySystemBackground))
-            .cornerRadius(16)
+            .cornerRadius(12)
         }
     }
     
@@ -243,7 +243,7 @@ struct AccountInspector: View {
         }
         .padding(12)
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .cornerRadius(12)
     }
     
 }

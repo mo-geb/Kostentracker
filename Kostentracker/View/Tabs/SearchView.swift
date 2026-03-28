@@ -72,7 +72,7 @@ struct SearchView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             case .emoji(let emoji, let color):
                 ZStack {
                     Circle()
@@ -117,10 +117,11 @@ struct SearchView: View {
             
             Text(expense.amount, format: .currency(code: userSettings.currencyCode))
                 .fontWeight(.medium)
+                .fontDesign(.rounded)
         }
         .padding(16)
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .cornerRadius(12)
         .contentShape(Rectangle())
         .onTapGesture {
             ui.viewExpense(expense)

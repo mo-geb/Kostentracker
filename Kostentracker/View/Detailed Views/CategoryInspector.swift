@@ -132,7 +132,7 @@ struct CategoryInspector: View {
             }
             .padding()
             .background(Color(.tertiarySystemBackground))
-            .cornerRadius(16)
+            .cornerRadius(12)
         }
     }
     
@@ -256,7 +256,7 @@ struct CategoryInspector: View {
         }
         .padding(12)
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .cornerRadius(12)
     }
     
 }

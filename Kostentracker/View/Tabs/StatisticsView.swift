@@ -12,16 +12,13 @@ struct StatisticsView: View {
     @Environment(UserSettings.self) var userSettings
     
     // SwiftData
+    @Environment(\.modelContext) private var context
     @Query private var unfilteredExpenses: [Expense]
     
     // Scroll tracking
     @State private var visibleMonthDate: Date = Date()
-    
-    private var expenses: [Expense] {
-        let accountFiltered = userSettings.enableAccounts ? Expense.applyAccountsFilters(unfilteredExpenses, selectedIDs: ui.selectedAccountIDs) : unfilteredExpenses
-        let customFiltered = Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
-        return customFiltered
-    }
+    @State private var viewModel = StatisticsViewModel()
+
     
     // MARK: - Body
     
@@ -30,7 +27,15 @@ struct StatisticsView: View {
             mainContent
                 .navigationTitle("Statistics")
                 .toolbar { toolbarContent }
+                .onAppear { updateViewModel() }
+                .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
+                .onChange(of: ui.selectedAccountIDs) { _, _ in updateViewModel() }
+                .onChange(of: userSettings.enableAccounts) { _, _ in updateViewModel() }
         }
+    }
+    
+    private func updateViewModel() {
+        viewModel.update(from: unfilteredExpenses, ui: ui, userSettings: userSettings, context: context)
     }
     
     // MARK: - View Components
@@ -39,7 +44,7 @@ struct StatisticsView: View {
     /// or the statistics if expenses are available.
     @ViewBuilder
     private var mainContent: some View {
-        if expenses.isEmpty {
+        if !viewModel.hasExpenses {
             EmptyExpensesView()
         } else {
             ScrollView {
@@ -57,6 +62,8 @@ struct StatisticsView: View {
     /// A section displaying the total yearly, monthly, and weekly costs.
     @ViewBuilder
     private var totalCostsSection: some View {
+        let totalCosts = viewModel.totalCosts
+        
         VStack(alignment: .leading, spacing: 12) {
             Text("Overall Expenses")
                 .font(.title2.bold())
@@ -126,16 +133,19 @@ struct StatisticsView: View {
     /// A section displaying a donut chart of expenses by category.
     @ViewBuilder
     private var categoryBarChart: some View {
-        Chart(categoryCosts.sorted { $0.totalCost > $1.totalCost }) { item in
+        let categoryCosts = viewModel.categoryCosts
+        
+        Chart(categoryCosts) { item in
             BarMark(
                 x: .value("Cost", item.totalCost),
                 y: .value("Category", item.category.categoryName)
             )
             .foregroundStyle(item.category.categoryColor)
-            .cornerRadius(12)
+            .cornerRadius(6)
             .annotation(position: .trailing) {
                 Text(item.totalCost, format: .currency(code: userSettings.currencyCode))
                     .font(.caption.bold())
+                    .fontDesign(.rounded)
                     .foregroundStyle(.secondary)
             }
         }
@@ -150,12 +160,12 @@ struct StatisticsView: View {
         .frame(height: CGFloat(categoryCosts.count * 50 + 20))
         .padding()
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(10)
+        .cornerRadius(12)
     }
     
     @ViewBuilder
     private var categoryPieChart: some View {
-        let sortedCategoryCosts = categoryCosts.sorted { $0.totalCost > $1.totalCost }
+        let sortedCategoryCosts = viewModel.categoryCosts
         
         let domain = sortedCategoryCosts.map { $0.category.categoryName }
         let range = sortedCategoryCosts.map { $0.category.categoryColor }
@@ -185,6 +195,7 @@ struct StatisticsView: View {
                         Spacer()
                         Text(item.totalCost, format: .currency(code: userSettings.currencyCode))
                             .font(.subheadline.bold())
+                            .fontDesign(.rounded)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -192,15 +203,15 @@ struct StatisticsView: View {
         }
         .padding()
         .background(Color(.tertiarySystemBackground))
-        .cornerRadius(10)
+        .cornerRadius(12)
     }
     
     
     @ViewBuilder
     private var monthlyChart: some View {
-        let average = averageMonthlyDisplayed
-        let data = monthlyCostsWithCategories
-        let displayMonths = monthsToDisplay
+        let displayMonths = viewModel.displayMonths
+        let average = viewModel.averageMonthlyDisplayed
+        let data = viewModel.monthlyCategoryExpenses
         
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -217,7 +228,7 @@ struct StatisticsView: View {
                         width: .fixed(28)
                     )
                     .foregroundStyle(item.category.color)
-                    .cornerRadius(8)
+                    .cornerRadius(6)
                 }
                 .chartXAxis {
                     AxisMarks(preset: .aligned, values: .stride(by: .month)) { value in
@@ -250,6 +261,7 @@ struct StatisticsView: View {
                             if let cost = value.as(Double.self) {
                                 Text(cost, format: .number)
                                     .font(.caption2)
+                                    .fontDesign(.rounded)
                                     .foregroundStyle(.secondary)
                                     .padding(.leading)
                             }
@@ -259,7 +271,7 @@ struct StatisticsView: View {
                 .scrollClipDisabled()
                 .frame(width: CGFloat(displayMonths.count) * 52, height: 200)
                 .background(Color(.tertiarySystemBackground))
-                .cornerRadius(10)
+                .cornerRadius(12)
                 // Invisible anchor at the current month position
                 .overlay(alignment: .leading) {
                     let currentIndex = displayMonths.firstIndex(where: {
@@ -272,7 +284,7 @@ struct StatisticsView: View {
                 }
             }
             .background(Color(.tertiarySystemBackground))
-            .cornerRadius(10)
+            .cornerRadius(12)
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 geo.contentOffset.x + (geo.containerSize.width / 2)
             } action: { _, newValue in
@@ -286,46 +298,6 @@ struct StatisticsView: View {
                 proxy.scrollTo("currentMonth", anchor: .leading)
             }
         }
-    }
-    
-    @ViewBuilder
-    private var monthlyChartOld: some View {
-        Chart(monthlyCostsWithCategories) { item in
-            RuleMark(
-                y: .value("Average", totalCosts.monthly)
-            )
-            .foregroundStyle(.gray.opacity(0.4))
-            .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 5]))
-            
-            BarMark(
-                x: .value("Month", item.date, unit: .month),
-                y: .value("Cost", item.amount),
-                width: .ratio(0.618)
-            )
-            .foregroundStyle(item.category.color)
-            .cornerRadius(4)
-
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 12)) {
-                AxisValueLabel(format: .dateTime.month(.narrow), centered: true)
-            }
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading) { value in
-                AxisValueLabel {
-                    if let cost = value.as(Double.self) {
-                        Text(cost, format: .number)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-        }
-        .frame(height: 200)
-        .padding()
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(10)
     }
     
     // MARK: - Toolbar
@@ -342,125 +314,6 @@ struct StatisticsView: View {
         
         ToolbarItem() {
             SharedToolbarElements.AddExpenseButton()
-        }
-    }
-    
-    // MARK: - Total Helpers
-    
-    /// A helper struct to hold the calculated total costs.
-    private typealias TotalCosts = (yearly: Double, monthly: Double, weekly: Double)
-    
-    /// Calculates the total yearly, monthly, and weekly cost of all expenses.
-    private var totalCosts: TotalCosts {
-        let yearlyTotal = expenses.reduce(0) { $0 + $1.yearlyCost }
-        return (yearlyTotal, yearlyTotal / 12, yearlyTotal / 52)
-    }
-    
-    // MARK: - Category Helpers
-    
-    /// A helper struct to make category cost data identifiable for the Chart.
-    private struct CategoryCost: Identifiable {
-        let id: ExpenseCategory
-        var category: Expense
-        var totalCost: Double
-    }
-    
-    private var categoryCosts: [CategoryCost] {
-        let groupedByCategory = Dictionary(grouping: expenses, by: { $0.category })
-        return groupedByCategory.compactMap { (category, expenses) in
-            guard let firstExpense = expenses.first else { return nil }
-            let totalCostForCategory = expenses.reduce(0) { $0 + $1.yearlyCost }
-            guard totalCostForCategory > 0 else { return nil }
-            return CategoryCost(id: category ?? ExpenseCategory.createDefault(), category: firstExpense, totalCost: totalCostForCategory)
-        }
-        .sorted { $0.totalCost > $1.totalCost }
-    }
-
-    
-    // MARK: - Months Helpers
-    
-    private var visibleYear: Int {
-        Calendar.current.component(.year, from: visibleMonthDate)
-    }
-    
-    private var monthsToDisplay: [Date] {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        // 1. Get components for the current month
-        var components = calendar.dateComponents([.year, .month], from: now)
-        components.day = 1
-        components.hour = 12 // Use Noon to avoid timezone shifting to the previous day
-        
-        let currentMonthStart = calendar.date(from: components)!
-        
-        // 2. Calculate Upper Bound (11 months ahead)
-        let upperBound = calendar.date(byAdding: .month, value: 11, to: currentMonthStart)!
-        
-        // 3. Find Earliest Expense Month (also normalized to noon)
-        let earliestDate = expenses
-            .filter { $0.type != .inactive }
-            .map { $0.normalizedDate }
-            .min() ?? now
-        
-        var earliestComponents = calendar.dateComponents([.year, .month], from: earliestDate)
-        earliestComponents.day = 1
-        earliestComponents.hour = 12
-        let earliestExpenseMonth = calendar.date(from: earliestComponents)!
-        
-        let lowerBound = min(earliestExpenseMonth, currentMonthStart)
-        
-        // 4. Generate the array (Ascending order is usually better for Chart logic)
-        var months: [Date] = []
-        var cursor = lowerBound
-        
-        while cursor <= upperBound {
-            months.append(cursor)
-            cursor = calendar.date(byAdding: .month, value: 1, to: cursor)!
-        }
-        
-        return months
-    }
-    
-    private var averageMonthlyDisplayed: Double {
-        let displayMonths = monthsToDisplay
-        guard !displayMonths.isEmpty else { return 0 }
-        let activeExpenses = expenses.filter { $0.type != .inactive }
-        
-        let monthlyTotals = displayMonths.map { monthDate in
-            activeExpenses.reduce(0.0) { $0 + $1.totalForMonth(containing: monthDate) }
-        }
-        return monthlyTotals.reduce(0, +) / Double(monthlyTotals.count)
-    }
-    
-    private struct MonthlyCategoryExpense: Identifiable {
-        let id = UUID()
-        let date: Date
-        let category: ExpenseCategory
-        let amount: Double
-    }
-    
-    private var monthlyCostsWithCategories: [MonthlyCategoryExpense] {
-        var resultDict: [Date: [ExpenseCategory: Double]] = [:]
-        let displayMonths = monthsToDisplay
-        
-        for date in displayMonths {
-            resultDict[date] = [:]
-        }
-
-        for expense in expenses where expense.type != .inactive {
-            guard let category = expense.category else { continue }
-            
-            for monthDate in displayMonths {
-                let amount = expense.totalForMonth(containing: monthDate)
-                if amount > 0 {
-                    resultDict[monthDate, default: [:]][category, default: 0] += amount
-                }
-            }
-        }
-
-        return resultDict.flatMap { (date, categories) in
-            categories.map { MonthlyCategoryExpense(date: date, category: $0.key, amount: $0.value) }
         }
     }
 }
