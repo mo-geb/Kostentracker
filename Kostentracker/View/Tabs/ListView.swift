@@ -122,6 +122,7 @@ struct ListView: View {
                 if let currentIndex = FrequencyUnit.allCases.firstIndex(of: ui.selectedDisplayPeriod) {
                     let nextIndex = (currentIndex + 1) % FrequencyUnit.allCases.count
                     ui.selectedDisplayPeriod = FrequencyUnit.allCases[nextIndex]
+                    HapticManager.selection()
                 }
             }) {
                 HStack(spacing: 8) {
