@@ -4,7 +4,7 @@ import SwiftData
 @Observable
 final class TimelineViewModel {
     
-    struct MonthlyExpenseGroup: Identifiable {
+    struct MonthlyExpenseGroup: Identifiable, Equatable {
         let id: Date
         var month: Date
         var expenses: [Expense]

@@ -90,7 +90,10 @@ struct StatisticsView: View {
                 Button(action: {
                     if let currentIndex = CategoryChart.allCases.firstIndex(of: ui.displayedCategoryChart) {
                         let nextIndex = (currentIndex + 1) % CategoryChart.allCases.count
-                        ui.displayedCategoryChart = CategoryChart.allCases[nextIndex]
+                        withAnimation(.snappy) {
+                            ui.displayedCategoryChart = CategoryChart.allCases[nextIndex]
+                        }
+                        HapticManager.selection()
                     }
                 }) {
                     Text(ui.displayedCategoryChart.localizedName)

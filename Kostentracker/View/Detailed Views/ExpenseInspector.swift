@@ -59,7 +59,6 @@ struct ExpenseInspector: View {
             VStack(spacing: 20) {
                 if isEditing {
                     pictureSectionEditing
-                        .padding(.bottom)
                         .accessibilitySortPriority(1)
                     titleSectionEditing
                         .accessibilitySortPriority(2)
@@ -106,7 +105,6 @@ struct ExpenseInspector: View {
                     }
                 } else {
                     pictureSectionShowing
-                        .padding(.bottom)
                         .accessibilitySortPriority(1)
                     titleSectionShowing
                         .accessibilitySortPriority(2)
@@ -183,6 +181,13 @@ struct ExpenseInspector: View {
         .overlay {
             if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.inspector) {
                 MarkAsPaidPopup()
+            }
+        }
+        .onAppear {
+            if case .new(_) = initialState {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    focusedField = .expenseDetailTitle
+                }
             }
         }
     }
@@ -365,9 +370,11 @@ struct ExpenseInspector: View {
             if let amount = expense?.amount, amount == 0 {
                 Text("0.00")
                     .foregroundStyle(.secondary)
+                    .fontDesign(.rounded)
                     .accessibilityLabel("Amount: No amount set")
             } else if let amount = expense?.amount {
                 Text(amount, format: .currency(code: userSettings.currencyCode))
+                    .fontDesign(.rounded)
                     .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
             }
         }
@@ -475,9 +482,13 @@ struct ExpenseInspector: View {
             } label: {
                 if let category = draft.category {
                     Label(category.name, systemImage: category.iconName)
+                } else {
+                    Text("Select Category")
                 }
-                
             }
+            .padding(8)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(8)
             .fixedSize(horizontal: false, vertical: true)
             .accessibilityLabel("Expense category")
             .accessibilityHint("Select a category for this expense")
@@ -520,9 +531,13 @@ struct ExpenseInspector: View {
             } label: {
                 if let account = draft.account {
                     Label(account.name, systemImage: account.iconName)
+                } else {
+                    Text("Select Account")
                 }
-                
             }
+            .padding(8)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(8)
             .fixedSize(horizontal: false, vertical: true)
             .accessibilityLabel("Expense account")
             .accessibilityHint("Select an account for this expense")
@@ -687,6 +702,7 @@ struct ExpenseInspector: View {
                 if let expense = expense {
                     context.delete(expense)
                 }
+                HapticManager.notification(.success)
                 dismiss()
                 uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
             }
@@ -751,6 +767,7 @@ struct ExpenseInspector: View {
                     self.initialState = .view(newExpense)
                 }
                 try context.save()
+                HapticManager.notification(.success)
                 isEditing = false
             } catch {
                 print("Failed to save expense: \(error)")
@@ -789,7 +806,7 @@ struct ExpenseInspector: View {
                     draft.customImageData = String(lastChar).data(using: .utf8)
                     
                     focusedField = .none
-                    UISelectionFeedbackGenerator().selectionChanged()
+                    HapticManager.selection()
                 }
                 
                 emojiInput = ""
@@ -845,7 +862,7 @@ struct ExpenseInspector: View {
         }
         //.padding(16)
         .padding(.horizontal, 16)
-        .padding(.vertical, isEditing ? 16 : 22)
+        .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.tertiarySystemBackground))
         .cornerRadius(12)

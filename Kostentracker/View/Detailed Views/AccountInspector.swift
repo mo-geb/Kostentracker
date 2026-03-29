@@ -64,6 +64,13 @@ struct AccountInspector: View {
             .onTapGesture {
                 focusedField = nil
             }
+            .onAppear {
+                if case .new(_) = initialState {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        focusedField = .accountDetailTitle
+                    }
+                }
+            }
         }
     }
     
@@ -113,7 +120,10 @@ struct AccountInspector: View {
                             .opacity(draft.iconName == icon ? 1.0 : 0.0)
                     )
                     .onTapGesture {
-                        draft.iconName = icon
+                        if draft.iconName != icon {
+                            draft.iconName = icon
+                            HapticManager.impact(.light)
+                        }
                     }
                 }
             }
@@ -128,6 +138,7 @@ struct AccountInspector: View {
         Button {
             if !draft.isDefault {
                 draft.isDefault = true
+                HapticManager.impact(.medium)
             }
         } label: {
             HStack {
@@ -177,6 +188,7 @@ struct AccountInspector: View {
                 if let account = account {
                     account.deleteSafely(from: context)
                 }
+                HapticManager.notification(.success)
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -212,6 +224,7 @@ struct AccountInspector: View {
                 }
                 do {
                     try context.save()
+                    HapticManager.notification(.success)
                 } catch {
                     print("Failed to save account: \(error)")
                 }

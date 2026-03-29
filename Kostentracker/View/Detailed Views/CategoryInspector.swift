@@ -68,6 +68,13 @@ struct CategoryInspector: View {
             .onTapGesture {
                 focusedField = nil
             }
+            .onAppear {
+                if case .new(_) = initialState {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        focusedField = .categoryDetailTitle
+                    }
+                }
+            }
         }
     }
     
@@ -126,7 +133,10 @@ struct CategoryInspector: View {
                             .opacity(draft.iconName == icon ? 1.0 : 0.0)
                     )
                     .onTapGesture {
-                        draft.iconName = icon
+                        if draft.iconName != icon {
+                            draft.iconName = icon
+                            HapticManager.impact(.light)
+                        }
                     }
                 }
             }
@@ -141,6 +151,7 @@ struct CategoryInspector: View {
         Button {
             if !draft.isDefault {
                 draft.isDefault = true
+                HapticManager.impact(.medium)
             }
         } label: {
             HStack {
@@ -190,6 +201,7 @@ struct CategoryInspector: View {
                 if let category = category {
                     category.deleteSafely(from: context)
                 }
+                HapticManager.notification(.success)
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -225,6 +237,7 @@ struct CategoryInspector: View {
                 }
                 do {
                     try context.save()
+                    HapticManager.notification(.success)
                 } catch {
                     print("Failed to save category: \(error)")
                 }

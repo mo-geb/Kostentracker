@@ -57,6 +57,7 @@ struct SearchView: View {
                         resultRow(for: expense)
                     }
                 }
+                .animation(.default, value: searchResults)
                 .padding()
             }
             .background(Color(.systemGroupedBackground))

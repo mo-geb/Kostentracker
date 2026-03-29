@@ -5056,6 +5056,9 @@
         }
       }
     },
+    "Select Account" : {
+
+    },
     "Select an account for this expense" : {
       "localizations" : {
         "de" : {
@@ -5065,6 +5068,9 @@
           }
         }
       }
+    },
+    "Select Category" : {
+
     },
     "Select the date for this expense" : {
       "localizations" : {

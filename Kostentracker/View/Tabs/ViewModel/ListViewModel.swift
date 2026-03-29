@@ -7,7 +7,7 @@ final class ListViewModel {
     // MARK: - Data Processing
     
     /// A struct to hold the processed data for each group.
-    struct ProcessedGroup: Identifiable {
+    struct ProcessedGroup: Identifiable, Equatable {
         let id: String
         var title: String
         var totalCost: Double
