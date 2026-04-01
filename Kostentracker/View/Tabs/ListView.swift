@@ -10,7 +10,11 @@ struct ListView: View {
     
     // SwiftData
     @Environment(\.modelContext) private var context
-    @Query private var unfilteredExpenses: [Expense]
+    @Query(sort: [
+        SortDescriptor(\Expense.amount, order: .reverse),
+        SortDescriptor(\Expense.date),
+        SortDescriptor(\Expense.frequencyValue)
+    ]) private var unfilteredExpenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
     
     // Logic

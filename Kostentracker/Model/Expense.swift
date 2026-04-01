@@ -121,20 +121,18 @@ extension Expense {
     }
     
     func advanceDueDate() {
-        withAnimation {
-            let calendar = Calendar.current
-            var dateComponent: Calendar.Component
-            
-            switch self.frequencyUnit {
-            case .day: dateComponent = .day
-            case .week: dateComponent = .weekOfYear
-            case .month: dateComponent = .month
-            case .year: dateComponent = .year
-            }
-            
-            if let newDate = calendar.date(byAdding: dateComponent, value: Int(self.frequencyValue), to: self.date) {
-                self.date = newDate
-            }
+        let calendar = Calendar.current
+        var dateComponent: Calendar.Component
+        
+        switch self.frequencyUnit {
+        case .day: dateComponent = .day
+        case .week: dateComponent = .weekOfYear
+        case .month: dateComponent = .month
+        case .year: dateComponent = .year
+        }
+        
+        if let newDate = calendar.date(byAdding: dateComponent, value: Int(self.frequencyValue), to: self.date) {
+            self.date = newDate
         }
     }
     
