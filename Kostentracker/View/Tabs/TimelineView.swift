@@ -24,6 +24,7 @@ struct TimelineView: View {
                 .toolbar { toolbarContent }
                 .onAppear { updateViewModel() }
                 .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
+                .onChange(of: unfilteredExpenses.map { $0.date }) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedFilter) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedAccountIDs) { _, _ in updateViewModel() }
                 .onChange(of: userSettings.enableAccounts) { _, _ in updateViewModel() }
