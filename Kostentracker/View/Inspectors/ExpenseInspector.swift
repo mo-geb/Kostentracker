@@ -605,12 +605,12 @@ struct ExpenseInspector: View {
         ContentUnavailableView(
             "Expense Inactive",
             systemImage: "info.circle.fill",
-            description: Text("Edit Expense and add a date to make active again"))
+            description: Text("Edit this Expense and add a date to it in order to make it active again"))
         .frame(maxWidth: 260)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .accessibilityLabel("Expense is inactive")
-        .accessibilityHint("Edit Expense and add a date to make active again")
+        .accessibilityHint("Edit this Expense and add a date to it in order to make it active again")
     }
 
     @ViewBuilder
