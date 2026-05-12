@@ -24,7 +24,6 @@ struct TimelineView: View {
                 .toolbar { toolbarContent }
                 .onAppear { updateViewModel() }
                 .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
-                .onChange(of: unfilteredExpenses.map { $0.date }) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedFilter) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedAccountIDs) { _, _ in updateViewModel() }
                 .onChange(of: userSettings.enableAccounts) { _, _ in updateViewModel() }
@@ -37,8 +36,6 @@ struct TimelineView: View {
     
     // MARK: - View Components
     
-    /// The main content of the view, showing a message if there are no expenses,
-    /// or the list of expenses grouped by month.
     @ViewBuilder
     private var mainContent: some View {
         if viewModel.monthlyGroups.isEmpty {
@@ -48,7 +45,6 @@ struct TimelineView: View {
         }
     }
     
-    /// The list that displays expenses, grouped into sections by month.
     private var expenseList: some View {
         let monthlyGroups = viewModel.monthlyGroups
         
@@ -75,7 +71,6 @@ struct TimelineView: View {
         }
     }
     
-    /// A view representing a single row in the expense list.
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle = DateFormatter.localizedString(from: expense.date, dateStyle: .medium, timeStyle: .none)
         

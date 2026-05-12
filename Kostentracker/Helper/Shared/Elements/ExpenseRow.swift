@@ -205,14 +205,7 @@ struct ExpenseRow: View {
     }
     
     private var showOverdue: Bool {
-        if tab != .timeline { return false }
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        if let date = formatter.date(from: subtitle) {
-            return date < Calendar.current.startOfDay(for: Date())
-        }
-        return false
+        tab == .timeline && expense.date < Calendar.current.startOfDay(for: Date())
     }
     
     private var isInactive: Bool {

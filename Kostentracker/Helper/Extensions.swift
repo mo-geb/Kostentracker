@@ -75,3 +75,12 @@ extension UserDefaults {
         return value
     }
 }
+
+extension CaseIterable where Self: Equatable {
+    mutating func cycleToNext() {
+        let all = Self.allCases
+        guard let idx = all.firstIndex(of: self) else { return }
+        let next = all.index(after: idx)
+        self = next == all.endIndex ? all[all.startIndex] : all[next]
+    }
+}

@@ -31,6 +31,22 @@ struct ExpenseInspector: View {
     
     // Focus management
     @FocusState private var focusedField: FocusedField?
+
+    private static let amountParseFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.locale = .current
+        f.numberStyle = .decimal
+        return f
+    }()
+
+    private static let amountDisplayFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.locale = .current
+        f.numberStyle = .decimal
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        return f
+    }()
     
     // Construct
     init(initialState: ActiveExpenseSheet) {
@@ -240,7 +256,6 @@ struct ExpenseInspector: View {
             }
     }
     
-    /// A reusable view that displays the expense's custom image or a placeholder as an app-shaped icon.
     @ViewBuilder
     private var pictureSectionShowing: some View {
         ZStack {
@@ -327,39 +342,23 @@ struct ExpenseInspector: View {
                 .accessibilityHint("Enter the cost amount using decimal format")
                 .accessibilityValue(amountText.isEmpty ? "No amount entered" : "\(amountText) \(userSettings.currencyCode)")
                 .onChange(of: amountText) { _, newValue in
-                    let formatter = NumberFormatter()
-                    formatter.locale = Locale.current
-                    formatter.numberStyle = .decimal
-                    
-                    if let number = formatter.number(from: newValue) {
+                    if let number = Self.amountParseFormatter.number(from: newValue) {
                         draft.amount = max(0, number.doubleValue)
                     } else {
                         draft.amount = 0
                     }
                 }
-                .onChange(of: focusedField) { _, focused in
+                .onChange(of: focusedField) { _, _ in
                     if focusedField != .expenseDetailAmount {
-                        let formatter = NumberFormatter()
-                        formatter.locale = Locale.current
-                        formatter.numberStyle = .decimal
-                        formatter.minimumFractionDigits = 2
-                        formatter.maximumFractionDigits = 2
-                        
-                        if draft.amount > 0 {
-                            amountText = formatter.string(from: NSNumber(value: draft.amount)) ?? ""
-                        } else {
-                            amountText = ""
-                        }
+                        amountText = draft.amount > 0
+                            ? (Self.amountDisplayFormatter.string(from: NSNumber(value: draft.amount)) ?? "")
+                            : ""
                     }
                 }
                 .onAppear {
-                    let formatter = NumberFormatter()
-                    formatter.locale = Locale.current
-                    formatter.numberStyle = .decimal
-                    formatter.minimumFractionDigits = 2
-                    formatter.maximumFractionDigits = 2
-                    
-                    amountText = draft.amount > 0 ? (formatter.string(from: NSNumber(value: draft.amount)) ?? "") : ""
+                    amountText = draft.amount > 0
+                        ? (Self.amountDisplayFormatter.string(from: NSNumber(value: draft.amount)) ?? "")
+                        : ""
                 }
         }
     }
@@ -367,15 +366,17 @@ struct ExpenseInspector: View {
     @ViewBuilder
     private var amountRowShowing: some View {
         row(title: String(localized: "Amount"), icon: "number") {
-            if let amount = expense?.amount, amount == 0 {
-                Text("0.00")
-                    .foregroundStyle(.secondary)
-                    .fontDesign(.rounded)
-                    .accessibilityLabel("Amount: No amount set")
-            } else if let amount = expense?.amount {
-                Text(amount, format: .currency(code: userSettings.currencyCode))
-                    .fontDesign(.rounded)
-                    .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
+            if let amount = expense?.amount {
+                if amount == 0 {
+                    Text("0.00")
+                        .foregroundStyle(.secondary)
+                        .fontDesign(.rounded)
+                        .accessibilityLabel("Amount: No amount set")
+                } else {
+                    Text(amount, format: .currency(code: userSettings.currencyCode))
+                        .fontDesign(.rounded)
+                        .accessibilityLabel("Amount: \(amount, format: .currency(code: userSettings.currencyCode))")
+                }
             }
         }
     }
@@ -563,18 +564,16 @@ struct ExpenseInspector: View {
             Text("Notes")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $draft.notes)
-                    .padding(12)
-                    .frame(minHeight: 100)
-                    .background(Color(.tertiarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .scrollContentBackground(.hidden)
-                    .focused($focusedField, equals: .expenseDetailNotes)
-                    .accessibilityLabel("Expense notes")
-                    .accessibilityHint("Add optional notes or details about this expense")
-                    .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
-            }
+            TextEditor(text: $draft.notes)
+                .padding(12)
+                .frame(minHeight: 100)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .scrollContentBackground(.hidden)
+                .focused($focusedField, equals: .expenseDetailNotes)
+                .accessibilityLabel("Expense notes")
+                .accessibilityHint("Add optional notes or details about this expense")
+                .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
         }
     }
     
@@ -610,10 +609,10 @@ struct ExpenseInspector: View {
         .frame(maxWidth: 260)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
-        .accessibilityLabel("Mark expense as paid")
-        .accessibilityHint("Mark this expense as paid and update its status")
+        .accessibilityLabel("Expense is inactive")
+        .accessibilityHint("Edit Expense and add a date to make active again")
     }
-    
+
     @ViewBuilder
     private var markAsPaidButton: some View {
         Button() {
@@ -729,13 +728,11 @@ struct ExpenseInspector: View {
     
     private var cancelButton: some View {
         Button {
-            do {
-                switch initialState {
-                case .edit(_), .view(_):
-                    isEditing = false
-                case .new:
-                    dismiss()
-                }
+            switch initialState {
+            case .edit(_), .view(_):
+                isEditing = false
+            case .new:
+                dismiss()
             }
         } label: {
             Label("Cancel", systemImage: "xmark")
@@ -846,7 +843,6 @@ struct ExpenseInspector: View {
         .presentationDragIndicator(.hidden)
     }
     
-    /// A generic row builder to reduce duplication of HStack, Spacer, etc.
     @ViewBuilder
     private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
@@ -860,7 +856,6 @@ struct ExpenseInspector: View {
             Spacer()
             content()
         }
-        //.padding(16)
         .padding(.horizontal, 16)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .leading)

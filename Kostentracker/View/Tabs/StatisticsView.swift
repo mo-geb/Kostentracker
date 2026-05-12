@@ -2,8 +2,6 @@ import SwiftUI
 import SwiftData
 import Charts
 
-/// A view that displays financial statistics based on the user's expenses.
-/// It shows total average costs and a breakdown of expenses by category.
 struct StatisticsView: View {
     
     // MARK: - Properties
@@ -15,8 +13,6 @@ struct StatisticsView: View {
     @Environment(\.modelContext) private var context
     @Query private var unfilteredExpenses: [Expense]
     
-    // Scroll tracking
-    @State private var visibleMonthDate: Date = Date()
     @State private var viewModel = StatisticsViewModel()
 
     
@@ -40,8 +36,6 @@ struct StatisticsView: View {
     
     // MARK: - View Components
     
-    /// The main content of the view. It displays an empty state message
-    /// or the statistics if expenses are available.
     @ViewBuilder
     private var mainContent: some View {
         if !viewModel.hasExpenses {
@@ -59,7 +53,6 @@ struct StatisticsView: View {
         }
     }
     
-    /// A section displaying the total yearly, monthly, and weekly costs.
     @ViewBuilder
     private var totalCostsSection: some View {
         let totalCosts = viewModel.totalCosts
@@ -77,7 +70,6 @@ struct StatisticsView: View {
         }
     }
     
-    /// A section displaying a donut chart of expenses by category.
     @ViewBuilder
     private var categoryChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -88,13 +80,8 @@ struct StatisticsView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(action: {
-                    if let currentIndex = CategoryChart.allCases.firstIndex(of: ui.displayedCategoryChart) {
-                        let nextIndex = (currentIndex + 1) % CategoryChart.allCases.count
-                        withAnimation(.snappy) {
-                            ui.displayedCategoryChart = CategoryChart.allCases[nextIndex]
-                        }
-                        HapticManager.selection()
-                    }
+                    withAnimation(.snappy) { ui.displayedCategoryChart.cycleToNext() }
+                    HapticManager.selection()
                 }) {
                     Text(ui.displayedCategoryChart.localizedName)
                         .font(.subheadline)
@@ -119,7 +106,6 @@ struct StatisticsView: View {
         }
     }
     
-    /// A section displaying monthly expenses for the selected year.
     @ViewBuilder
     private var monthlyChartSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -133,7 +119,7 @@ struct StatisticsView: View {
     }
     
     // MARK: - Charts
-    /// A section displaying a donut chart of expenses by category.
+
     @ViewBuilder
     private var categoryBarChart: some View {
         let categoryCosts = viewModel.categoryCosts
@@ -141,9 +127,9 @@ struct StatisticsView: View {
         Chart(categoryCosts) { item in
             BarMark(
                 x: .value("Cost", item.totalCost),
-                y: .value("Category", item.category.categoryName)
+                y: .value("Category", item.category.name)
             )
-            .foregroundStyle(item.category.categoryColor)
+            .foregroundStyle(item.category.color)
             .cornerRadius(6)
             .annotation(position: .trailing) {
                 Text(item.totalCost, format: .currency(code: userSettings.currencyCode))
@@ -170,9 +156,9 @@ struct StatisticsView: View {
     private var categoryPieChart: some View {
         let sortedCategoryCosts = viewModel.categoryCosts
         
-        let domain = sortedCategoryCosts.map { $0.category.categoryName }
-        let range = sortedCategoryCosts.map { $0.category.categoryColor }
-        
+        let domain = sortedCategoryCosts.map { $0.category.name }
+        let range = sortedCategoryCosts.map { $0.category.color }
+
         VStack(alignment: .leading, spacing: 12) {
             Chart(sortedCategoryCosts) { item in
                 SectorMark(
@@ -180,7 +166,7 @@ struct StatisticsView: View {
                     innerRadius: .ratio(0.618),
                     angularInset: 2
                 )
-                .foregroundStyle(by: .value("Category", item.category.categoryName))
+                .foregroundStyle(by: .value("Category", item.category.name))
                 .cornerRadius(3)
             }
             .chartForegroundStyleScale(domain: domain, range: range)
@@ -191,9 +177,9 @@ struct StatisticsView: View {
                 ForEach(sortedCategoryCosts) { item in
                     HStack(spacing: 8) {
                         Circle()
-                            .fill(item.category.categoryColor)
+                            .fill(item.category.color)
                             .frame(width: 10, height: 10)
-                        Text(item.category.categoryName)
+                        Text(item.category.name)
                             .font(.subheadline)
                         Spacer()
                         Text(item.totalCost, format: .currency(code: userSettings.currencyCode))
@@ -288,15 +274,6 @@ struct StatisticsView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .onScrollGeometryChange(for: CGFloat.self) { geo in
-                geo.contentOffset.x + (geo.containerSize.width / 2)
-            } action: { _, newValue in
-                let monthWidth: CGFloat = 52
-                let index = Int(newValue / monthWidth)
-                let clampedIndex = max(0, min(displayMonths.count - 1, index))
-                
-                visibleMonthDate = displayMonths[clampedIndex]
-            }
             .onAppear {
                 proxy.scrollTo("currentMonth", anchor: .leading)
             }

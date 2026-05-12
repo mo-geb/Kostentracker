@@ -9,8 +9,8 @@ final class StatisticsViewModel {
     typealias TotalCosts = (yearly: Double, monthly: Double, weekly: Double)
     
     struct CategoryCost: Identifiable {
-        let id: ExpenseCategory
-        var category: Expense
+        var id: PersistentIdentifier { category.persistentModelID }
+        let category: ExpenseCategory
         var totalCost: Double
     }
     
@@ -60,10 +60,9 @@ final class StatisticsViewModel {
     private func computeCategoryCosts(from expenses: [Expense], context: ModelContext) -> [CategoryCost] {
         let groupedByCategory = Dictionary(grouping: expenses, by: { $0.category })
         return groupedByCategory.compactMap { (category, expenses) in
-            guard let firstExpense = expenses.first else { return nil }
             let totalCostForCategory = expenses.reduce(0) { $0 + $1.yearlyCost }
             guard totalCostForCategory > 0 else { return nil }
-            return CategoryCost(id: category ?? ExpenseCategory.getDefault(with: context), category: firstExpense, totalCost: totalCostForCategory)
+            return CategoryCost(category: category ?? ExpenseCategory.getDefault(with: context), totalCost: totalCostForCategory)
         }
         .sorted { $0.totalCost > $1.totalCost }
     }

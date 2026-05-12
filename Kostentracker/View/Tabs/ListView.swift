@@ -30,6 +30,7 @@ struct ListView: View {
                 .toolbar { toolbarContent }
                 .onAppear { updateViewModel() }
                 .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
+                .onChange(of: unfilteredExpenses.map(\.date)) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedGroupBy) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedSort) { _, _ in updateViewModel() }
                 .onChange(of: ui.selectedFilter) { _, _ in updateViewModel() }
@@ -45,7 +46,6 @@ struct ListView: View {
     
     // MARK: - View Components
     
-    /// Returns the dynamic navigation title based on the selected grouping option.
     private var navigationTitle: String {
         switch ui.selectedGroupBy {
         case .none:
@@ -57,7 +57,6 @@ struct ListView: View {
         }
     }
     
-    /// The main view content, switching between the list and an empty state.
     @ViewBuilder
     private var mainContent: some View {
         if viewModel.processedGroups.isEmpty {
@@ -67,7 +66,6 @@ struct ListView: View {
         }
     }
     
-    /// The list of expenses, sectioned by category.
     private var groupList: some View {
         let processedGroups = viewModel.processedGroups
         
@@ -88,7 +86,6 @@ struct ListView: View {
         .accessibilityLabel("Expenses list with \(processedGroups.count) sections")
     }
     
-    /// The header for each category section, showing the name and total cost.
     private func groupHeader(for groupData: ListViewModel.ProcessedGroup) -> some View {
         HStack {
             switch ui.selectedGroupBy {
@@ -123,11 +120,8 @@ struct ListView: View {
                 .accessibilityLabel("Section: \(groupData.title), \(groupData.expenses.count) expenses")
             Spacer()
             Button(action: {
-                if let currentIndex = FrequencyUnit.allCases.firstIndex(of: ui.selectedDisplayPeriod) {
-                    let nextIndex = (currentIndex + 1) % FrequencyUnit.allCases.count
-                    ui.selectedDisplayPeriod = FrequencyUnit.allCases[nextIndex]
-                    HapticManager.selection()
-                }
+                ui.selectedDisplayPeriod.cycleToNext()
+                HapticManager.selection()
             }) {
                 HStack(spacing: 8) {
                     Text(ui.selectedDisplayPeriod.periodName)
@@ -159,7 +153,6 @@ struct ListView: View {
         .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
     }
     
-    /// A view for a single expense row.
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle: String
         switch ui.selectedGroupBy {
