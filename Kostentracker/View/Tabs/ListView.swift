@@ -1,76 +1,95 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Private types
+
+private struct ProcessedGroup: Identifiable, Equatable {
+    let id: String
+    var title: String
+    var totalCost: Double
+    var expenses: [Expense]
+}
+
+// MARK: - View
+
 struct ListView: View {
-    
+
     // MARK: - Properties
-    // Shared
+
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
-    
-    // SwiftData
     @Environment(\.modelContext) private var context
+
     @Query(sort: [
         SortDescriptor(\Expense.amount, order: .reverse),
         SortDescriptor(\Expense.date),
         SortDescriptor(\Expense.frequencyValue)
     ]) private var unfilteredExpenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
-    
-    // Logic
-    @State private var viewModel = ListViewModel()
-    
-    
+
+    private var processedGroups: [ProcessedGroup] {
+        let filtered = applyFilters(unfilteredExpenses)
+        let grouped: [String: [Expense]]
+
+        switch ui.selectedGroupBy {
+        case .none:
+            grouped = ["all": filtered]
+        case .categories:
+            grouped = Dictionary(grouping: filtered, by: { $0.categoryName })
+        case .frequency:
+            grouped = Dictionary(grouping: filtered) { expense in
+                switch expense.type {
+                case .oneTime:   return String(localized: "One time")
+                case .inactive:  return String(localized: "Inactive")
+                case .recurring: return expense.frequencyUnit.rawValue.capitalized
+                }
+            }
+        }
+
+        let processed = grouped.map { (key, expenses) -> ProcessedGroup in
+            let total = expenses.reduce(0) { $0 + $1.getCostFor(for: ui.selectedDisplayPeriod) }
+            let sorted = Expense.sortExpenses(expenses: expenses, sortOption: ui.selectedSort)
+            let title = ui.selectedGroupBy == .none ? String(localized: "All Expenses") : key
+            return ProcessedGroup(id: key, title: title, totalCost: total, expenses: sorted)
+        }
+
+        return sortGroups(processed)
+    }
+
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             mainContent
                 .navigationTitle(navigationTitle)
                 .toolbar { toolbarContent }
-                .onAppear { updateViewModel() }
-                .onChange(of: unfilteredExpenses) { _, _ in updateViewModel() }
-                .onChange(of: unfilteredExpenses.map(\.date)) { _, _ in updateViewModel() }
-                .onChange(of: ui.selectedGroupBy) { _, _ in updateViewModel() }
-                .onChange(of: ui.selectedSort) { _, _ in updateViewModel() }
-                .onChange(of: ui.selectedFilter) { _, _ in updateViewModel() }
-                .onChange(of: ui.selectedAccountIDs) { _, _ in updateViewModel() }
-                .onChange(of: ui.selectedDisplayPeriod) { _, _ in updateViewModel() }
-                .onChange(of: userSettings.enableAccounts) { _, _ in updateViewModel() }
         }
     }
-    
-    private func updateViewModel() {
-        viewModel.update(from: unfilteredExpenses, ui: ui, userSettings: userSettings)
-    }
-    
+
     // MARK: - View Components
-    
+
     private var navigationTitle: String {
         switch ui.selectedGroupBy {
-        case .none:
-            return String(localized: "All Expenses")
-        case .categories:
-            return String(localized: "Categories")
-        case .frequency:
-            return String(localized: "Frequency")
+        case .none:       return String(localized: "All Expenses")
+        case .categories: return String(localized: "Categories")
+        case .frequency:  return String(localized: "Frequency")
         }
     }
-    
+
     @ViewBuilder
     private var mainContent: some View {
-        if viewModel.processedGroups.isEmpty {
+        if processedGroups.isEmpty {
             EmptyExpensesView()
         } else {
             groupList
         }
     }
-    
+
     private var groupList: some View {
-        let processedGroups = viewModel.processedGroups
-        
+        let groups = processedGroups
+
         return List {
-            ForEach(processedGroups) { groupData in
+            ForEach(groups) { groupData in
                 Section {
                     ForEach(groupData.expenses) { expense in
                         expenseRow(for: expense)
@@ -83,10 +102,10 @@ struct ListView: View {
             }
         }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Expenses list with \(processedGroups.count) sections")
+        .accessibilityLabel("Expenses list with \(groups.count) sections")
     }
-    
-    private func groupHeader(for groupData: ListViewModel.ProcessedGroup) -> some View {
+
+    private func groupHeader(for groupData: ProcessedGroup) -> some View {
         HStack {
             switch ui.selectedGroupBy {
             case .categories:
@@ -111,7 +130,7 @@ struct ListView: View {
                     .imageScale(.small)
                     .accessibilityLabel("List icon")
             }
-            
+
             Text(groupData.title)
                 .font(.headline)
                 .foregroundStyle(.primary)
@@ -129,10 +148,7 @@ struct ListView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .lineLimit(1)
-                        .background(
-                            Capsule()
-                                .fill(Color.secondary.opacity(0.15))
-                        )
+                        .background(Capsule().fill(Color.secondary.opacity(0.15)))
                     Text(groupData.totalCost, format: .currency(code: userSettings.currencyCode))
                         .fontDesign(.rounded)
                         .lineLimit(1)
@@ -152,7 +168,7 @@ struct ListView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
     }
-    
+
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle: String
         switch ui.selectedGroupBy {
@@ -160,12 +176,11 @@ struct ListView: View {
             subtitle = expense.categoryName
         case .categories, .none:
             switch expense.type {
-            case .inactive: subtitle = String(localized: "Inactive")
+            case .inactive:            subtitle = String(localized: "Inactive")
             case .oneTime, .recurring: subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
-                
             }
         }
-        
+
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
             .contentShape(Rectangle())
             .onTapGesture { ui.viewExpense(expense) }
@@ -179,15 +194,14 @@ struct ListView: View {
                 .accessibilityHint("Opens expense for editing")
             }
     }
-    
+
     // MARK: - Toolbar
-    
+
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
             SharedToolbarElements.SettingsButton()
         }
-        
         ToolbarItem() {
             SharedToolbarElements.OptionsMenu {
                 SharedToolbarElements.FilterPicker()
@@ -196,17 +210,52 @@ struct ListView: View {
                 SharedToolbarElements.ViewModePicker()
             }
         }
-        
         ToolbarItem() {
             SharedToolbarElements.AccountsButton()
         }
-        
         ToolbarItem() {
             SharedToolbarElements.AddExpenseButton()
         }
     }
 }
 
+// MARK: - Data transformation
+
+private extension ListView {
+
+    func applyFilters(_ expenses: [Expense]) -> [Expense] {
+        let accountFiltered = userSettings.enableAccounts
+            ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
+            : expenses
+        return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
+    }
+
+    func sortGroups(_ groups: [ProcessedGroup]) -> [ProcessedGroup] {
+        switch ui.selectedGroupBy {
+        case .none:
+            return groups
+        case .categories:
+            return groups.sorted {
+                guard let a = $0.expenses.first, let b = $1.expenses.first else { return false }
+                return a.categorySortOrder < b.categorySortOrder
+            }
+        case .frequency:
+            return groups.sorted { a, b in
+                func rank(_ title: String) -> (Int, Int) {
+                    let key = title.lowercased()
+                    if key == "inactive" { return (2, 0) }
+                    if key == "one-time" { return (1, 0) }
+                    if let unit = FrequencyUnit(rawValue: key) { return (0, unit.sortOrder) }
+                    return (0, Int.max)
+                }
+                let ra = rank(a.title), rb = rank(b.title)
+                return ra.0 < rb.0 || (ra.0 == rb.0 && ra.1 < rb.1)
+            }
+        }
+    }
+}
+
+// MARK: - Preview
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
