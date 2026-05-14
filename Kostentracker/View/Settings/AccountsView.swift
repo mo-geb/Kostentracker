@@ -210,10 +210,7 @@ struct AccountsView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 18)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(.tertiarySystemGroupedBackground))
-        )
+        .glassyCard()
         .contentShape(Rectangle())
         .onTapGesture {
             ui.editAccount(account)

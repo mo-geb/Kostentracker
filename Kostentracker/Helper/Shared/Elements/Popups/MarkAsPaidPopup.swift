@@ -14,8 +14,7 @@ struct MarkAsPaidPopup: View {
                 .multilineTextAlignment(.center)
         }
         .padding(30)
-        .background(Color(.tertiarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .glassyCard(cornerRadius: 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.scale.combined(with: .opacity))
         .zIndex(99)

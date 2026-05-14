@@ -83,8 +83,8 @@ struct ExpenseInspector: View {
                     
                     // Details
                     VStack(spacing: 12) {
-                        amountRowEditing
-                        
+                        rowGroup { amountRowEditing }
+
                         rowGroup {
                             activeRowEditing
                             if draft.type != .inactive {
@@ -92,18 +92,18 @@ struct ExpenseInspector: View {
                                 dueRowEditing
                             }
                         }
-                        
+
                         if draft.type != .inactive {
                             rowGroup {
                                 repeatRowEditing
-                                
+
                                 if draft.type == .recurring {
                                     customDivider
                                     frequencyRowEditing
                                 }
                             }
                         }
-                        
+
                         rowGroup {
                             categoryRowEditing
 
@@ -111,9 +111,10 @@ struct ExpenseInspector: View {
                                 accountRowEditing
                             }
                         }
-                        
+
                         notesSectionEditing
                     }
+                    .glassyContainer()
                     .padding()
                     .accessibilitySortPriority(3)
                     
@@ -128,19 +129,19 @@ struct ExpenseInspector: View {
                         .accessibilitySortPriority(2)
                     
                     VStack(spacing: 12) {
-                        amountRowShowing
-                        
+                        rowGroup { amountRowShowing }
+
                         if draft.type != .inactive {
                             rowGroup {
                                 dueRowShowing
-                                
+
                                 if draft.type == .recurring {
                                     customDivider
                                     repeatRowShowing
                                 }
                             }
                         }
-                        
+
                         rowGroup {
                             categoryRowShowing
 
@@ -149,9 +150,10 @@ struct ExpenseInspector: View {
                                 accountRowShowing
                             }
                         }
-                        
+
                         notesSectionShowing
                     }
+                    .glassyContainer()
                     .padding()
                     .accessibilitySortPriority(3)
                     
@@ -338,8 +340,7 @@ struct ExpenseInspector: View {
                 .multilineTextAlignment(.trailing)
                 .fixedSize()
                 .padding(8)
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(8)
+                .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                 .focused($focusedField, equals: .expenseDetailAmount)
                 .accessibilityLabel("Expense amount")
                 .accessibilityHint("Enter the cost amount using decimal format")
@@ -440,8 +441,7 @@ struct ExpenseInspector: View {
             } label: {
                 Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
                     .padding(8)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
+                    .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
             }
             .sheet(isPresented: $showFrequencyPicker) {
@@ -490,13 +490,17 @@ struct ExpenseInspector: View {
             } label: {
                 if let category = draft.category {
                     Label(category.name, systemImage: category.iconName)
+                        .foregroundStyle(category.color)
                 } else {
                     Text("Select Category")
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(8)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(8)
+            .background(
+                (draft.category?.color ?? .gray).opacity(0.18),
+                in: RoundedRectangle(cornerRadius: 8)
+            )
             .fixedSize(horizontal: false, vertical: true)
             .accessibilityLabel("Expense category")
             .accessibilityHint("Select a category for this expense")
@@ -509,6 +513,13 @@ struct ExpenseInspector: View {
         row(title: String(localized: "Category"), icon: "archivebox") {
             if let name = expense?.categoryName, let icon = expense?.categoryIconName {
                 Label(name, systemImage: icon)
+                    .foregroundStyle(expense?.categoryColor ?? .primary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(
+                        (expense?.categoryColor ?? .gray).opacity(0.18),
+                        in: RoundedRectangle(cornerRadius: 8)
+                    )
                     .accessibilityLabel("Category: \(name)")
             }
         }
@@ -541,11 +552,11 @@ struct ExpenseInspector: View {
                     Label(account.name, systemImage: account.iconName)
                 } else {
                     Text("Select Account")
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(8)
-            .background(Color(.secondarySystemBackground))
-            .cornerRadius(8)
+            .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
             .fixedSize(horizontal: false, vertical: true)
             .accessibilityLabel("Expense account")
             .accessibilityHint("Select an account for this expense")
@@ -558,6 +569,9 @@ struct ExpenseInspector: View {
         row(title: String(localized: "Account"), icon: "person.2") {
             if let name = expense?.account?.name, let icon = expense?.account?.iconName {
                 Label(name, systemImage: icon)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Account: \(name)")
             }
         }
@@ -567,46 +581,55 @@ struct ExpenseInspector: View {
 
     @ViewBuilder
     private var notesSectionEditing: some View {
-        VStack(alignment: .leading) {
-            Text("Notes")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "note.text")
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+                Text("Notes")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+            }
             TextEditor(text: $draft.notes)
-                .padding(12)
                 .frame(minHeight: 100)
-                .background(Color(.tertiarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
                 .scrollContentBackground(.hidden)
                 .focused($focusedField, equals: .expenseDetailNotes)
                 .accessibilityLabel("Expense notes")
                 .accessibilityHint("Add optional notes or details about this expense")
                 .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
         }
+        .padding(16)
+        .glassyCard()
     }
-    
+
     @ViewBuilder
     private var notesSectionShowing: some View {
-        VStack(alignment: .leading) {
-            Text("Notes")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
-            VStack {
-                if let notes = expense?.notes, !notes.isEmpty {
-                    Text(notes)
-                        .accessibilityLabel("Notes: \(notes)")
-                } else {
-                    Text("No notes provided.")
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel("Notes: No notes provided")
-                }
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: "note.text")
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+                Text("Notes")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(12)
-            .background(Color(.tertiarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            if let notes = expense?.notes, !notes.isEmpty {
+                Text(notes)
+                    .accessibilityLabel("Notes: \(notes)")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Text("No notes provided.")
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Notes: No notes provided")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
+        .padding(16)
+        .glassyCard()
     }
-    
+
     @ViewBuilder
     private var inactiveInfo: some View {
         ContentUnavailableView(
@@ -641,17 +664,8 @@ struct ExpenseInspector: View {
                 Text("Mark as paid")
                     .fontWeight(.semibold)
             }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 32)
-            .foregroundColor(.green)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.green.opacity(0.15))
-            )
+            .tintedActionButton(.green)
         }
-        .frame(maxWidth: 260)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal)
         .accessibilityLabel("Mark expense as paid")
         .accessibilityHint("Mark this expense as paid and update its status")
     }
@@ -689,18 +703,9 @@ struct ExpenseInspector: View {
                 Text("Delete")
                     .fontWeight(.semibold)
             }
-            .foregroundColor(.red)
-            .padding(.vertical, 14)
-            .padding(.horizontal, 32)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.red.opacity(0.15))
-            )
+            .tintedActionButton(.red)
         }
-        .frame(maxWidth: 260)
-        .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .padding(.horizontal)
         .accessibilityLabel("Delete expense")
         .accessibilityHint("Permanently delete this expense. This action cannot be undone.")
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
@@ -866,17 +871,14 @@ struct ExpenseInspector: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
     }
-    
+
     @ViewBuilder
     private func rowGroup<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         VStack(spacing: 0) {
             content()
         }
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
+        .glassyCard()
     }
     
     @ViewBuilder

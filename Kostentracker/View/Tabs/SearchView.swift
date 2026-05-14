@@ -121,8 +121,7 @@ struct SearchView: View {
                 .fontDesign(.rounded)
         }
         .padding(16)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
+        .glassyCard()
         .contentShape(Rectangle())
         .onTapGesture {
             ui.viewExpense(expense)

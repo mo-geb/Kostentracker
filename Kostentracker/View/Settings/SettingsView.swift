@@ -16,6 +16,7 @@ struct SettingsView: View {
                     moreSection
                     versionInfo
                 }
+                .glassyContainer()
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
@@ -243,28 +244,18 @@ struct SettingsView: View {
     /// A generic row builder to reduce duplication, matching the style of other views.
     @ViewBuilder
     private func row<Content: View>(title: String, icon: String, iconColor: Color, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(iconColor.opacity(0.3))
-                        .frame(width: 28, height: 28)
-
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(iconColor)
-                }
-                Text(title)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .layoutPriority(1)
-                Spacer()
-                content()
-            }
+        HStack {
+            IconTile(icon: icon, color: iconColor)
+            Text(title)
+                .font(.headline)
+                .lineLimit(1)
+                .layoutPriority(1)
+            Spacer()
+            content()
         }
         .padding(12)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .glassyCard(cornerRadius: 16)
+        .contentShape(Rectangle())
     }
     
     private func currencyDisplayName(for code: String) -> String {

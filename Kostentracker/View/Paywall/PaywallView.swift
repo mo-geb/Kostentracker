@@ -90,19 +90,13 @@ struct PaywallView: View {
                 subtitle: String(localized: "Help keep ClutterFree independent and ad-free.")
             )
         }
+        .glassyContainer()
     }
 
     @ViewBuilder
     private func featureRow(icon: String, iconColor: Color, title: String, subtitle: String) -> some View {
         HStack(alignment: .center, spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(iconColor.opacity(0.3))
-                    .frame(width: 36, height: 36)
-                Image(systemName: icon)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(iconColor)
-            }
+            IconTile(icon: icon, color: iconColor, size: 36)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -116,8 +110,7 @@ struct PaywallView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
+        .glassyCard(cornerRadius: 16)
     }
 
     // MARK: - Purchase section
@@ -142,9 +135,8 @@ struct PaywallView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, minHeight: 50)
-                .background(Color.accentColor)
                 .foregroundStyle(.white)
-                .cornerRadius(14)
+                .tintedGlassBackground(.accentColor, cornerRadius: 14, prominent: true)
             }
             .disabled(isPurchasing || isRestoring)
             .accessibilityLabel(Text("Unlock Unlimited for \(priceText)"))

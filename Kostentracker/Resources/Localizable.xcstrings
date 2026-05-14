@@ -942,9 +942,6 @@
         }
       }
     },
-    "Accounts let you organize expenses across multiple people. Available with Unlimited." : {
-
-    },
     "Active" : {
       "localizations" : {
         "de" : {
@@ -10552,6 +10549,9 @@
           }
         }
       }
+    },
+    "Organize your expanses across multiple bank accounts. Available with Unlimited." : {
+
     },
     "Organize your spending exactly the way you want." : {
 

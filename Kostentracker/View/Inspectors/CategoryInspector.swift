@@ -88,8 +88,7 @@ struct CategoryInspector: View {
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
                     .padding(8)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
+                    .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                     .onChange(of: draft.name) { _, newValue in
                         if newValue.count > 20 {
                             draft.name = String(newValue.prefix(20))
@@ -141,8 +140,7 @@ struct CategoryInspector: View {
                 }
             }
             .padding()
-            .background(Color(.tertiarySystemBackground))
-            .cornerRadius(12)
+            .glassyCard()
         }
     }
     
@@ -159,21 +157,12 @@ struct CategoryInspector: View {
                 Text(draft.isDefault ? (category?.isDefault == true ? "Default" : "Will be Default") : "Make Default")
                     .fontWeight(.semibold)
             }
-            .foregroundColor(draft.isDefault ? .gray : .blue)
-            .padding(.vertical, 14)
-            .padding(.horizontal, 32)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill((draft.isDefault ? Color.gray : Color.blue).opacity(0.15))
-            )
+            .tintedActionButton(draft.isDefault ? .gray : .blue)
         }
-        .frame(maxWidth: 260)
-        .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .padding(.horizontal)
         .disabled(draft.isDefault)
     }
-    
+
     @ViewBuilder
     private var deleteButton: some View {
         Button(role: .destructive) {
@@ -184,18 +173,9 @@ struct CategoryInspector: View {
                 Text("Delete")
                     .fontWeight(.semibold)
             }
-            .foregroundColor(.red)
-            .padding(.vertical, 14)
-            .padding(.horizontal, 32)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.red.opacity(0.15))
-            )
+            .tintedActionButton(.red)
         }
-        .frame(maxWidth: 260)
-        .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
-        .padding(.horizontal)
         .alert("Delete Category?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if let category = category {
@@ -268,10 +248,9 @@ struct CategoryInspector: View {
             content()
         }
         .padding(12)
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
+        .glassyCard()
     }
-    
+
 }
 
 #Preview {

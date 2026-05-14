@@ -113,6 +113,7 @@ struct StatisticsView: View {
                 CostCard(title: String(localized: "Monthly"), amount: totalCosts.monthly)
                 CostCard(title: String(localized: "Weekly"), amount: totalCosts.weekly)
             }
+            .glassyContainer()
         }
     }
 
@@ -187,8 +188,7 @@ struct StatisticsView: View {
         }
         .frame(height: CGFloat(categoryCosts.count * 50 + 20))
         .padding()
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
+        .glassyCard()
     }
 
     @ViewBuilder
@@ -229,8 +229,7 @@ struct StatisticsView: View {
             }
         }
         .padding()
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(12)
+        .glassyCard()
     }
 
     @ViewBuilder
@@ -292,8 +291,6 @@ struct StatisticsView: View {
                 }
                 .scrollClipDisabled()
                 .frame(width: CGFloat(displayMonths.count) * 52, height: 200)
-                .background(Color(.tertiarySystemBackground))
-                .cornerRadius(12)
                 .overlay(alignment: .leading) {
                     let currentIndex = displayMonths.firstIndex(where: {
                         Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
@@ -304,8 +301,7 @@ struct StatisticsView: View {
                         .id("currentMonth")
                 }
             }
-            .background(Color(.tertiarySystemBackground))
-            .cornerRadius(12)
+            .glassyCard()
             .onAppear {
                 proxy.scrollTo("currentMonth", anchor: .leading)
             }
