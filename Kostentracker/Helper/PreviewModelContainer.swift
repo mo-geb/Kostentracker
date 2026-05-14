@@ -22,5 +22,6 @@ struct PreviewModelContainer: PreviewModifier {
             .modelContainer(context)
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

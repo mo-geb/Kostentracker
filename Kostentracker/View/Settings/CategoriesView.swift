@@ -2,10 +2,11 @@ import SwiftUI
 import SwiftData
 
 struct CategoriesView: View {
-    
+
     // MARK: - Properties
     // Shared
     @Environment(UIState.self) private var ui: UIState
+    @Environment(StoreManager.self) private var store
 
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -13,6 +14,7 @@ struct CategoriesView: View {
     
     // State
     @State private var showingDeleteAlert = false
+    @State private var showPaywall = false
     
     // MARK: - Body
     
@@ -32,6 +34,7 @@ struct CategoriesView: View {
                         }
                     }
                 }
+                .paywallSheet(isPresented: $showPaywall)
         }
     }
     
@@ -64,8 +67,12 @@ struct CategoriesView: View {
     @ViewBuilder
     private var addButton: some View {
         Button {
-            let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
-            ui.createCategory(from: draft)
+            if store.canAddCategory(currentCount: categories.count) {
+                let draft = CategoryDraft.createNew(sortOrder: (categories.last?.sortOrder ?? 0) + 1)
+                ui.createCategory(from: draft)
+            } else {
+                showPaywall = true
+            }
         } label: {
             Label("Add Category", systemImage: "plus")
                 .font(.headline)
@@ -166,5 +173,6 @@ struct CategoriesView: View {
         CategoriesView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

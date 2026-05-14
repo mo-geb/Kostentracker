@@ -942,6 +942,9 @@
         }
       }
     },
+    "Accounts let you organize expenses across multiple people. Available with Unlimited." : {
+
+    },
     "Active" : {
       "localizations" : {
         "de" : {
@@ -7598,6 +7601,9 @@
         }
       }
     },
+    "Get the full experience" : {
+
+    },
     "Group By" : {
       "localizations" : {
         "de" : {
@@ -7737,6 +7743,9 @@
           }
         }
       }
+    },
+    "Help keep ClutterFree independent and ad-free." : {
+
     },
     "Hide inactive" : {
       "localizations" : {
@@ -10048,6 +10057,9 @@
         }
       }
     },
+    "One-time purchase. No subscription." : {
+
+    },
     "Only active" : {
       "localizations" : {
         "de" : {
@@ -10398,6 +10410,9 @@
         }
       }
     },
+    "Opens the upgrade screen" : {
+
+    },
     "Options" : {
       "localizations" : {
         "de" : {
@@ -10537,6 +10552,9 @@
           }
         }
       }
+    },
+    "Organize your spending exactly the way you want." : {
+
     },
     "Other" : {
       "localizations" : {
@@ -10958,6 +10976,12 @@
         }
       }
     },
+    "Purchases" : {
+
+    },
+    "Remove all limits with a single one-time purchase. No subscription, ever." : {
+
+    },
     "Remove Current" : {
       "localizations" : {
         "de" : {
@@ -11097,6 +11121,9 @@
           }
         }
       }
+    },
+    "Restore Purchases" : {
+
     },
     "Return to the previous screen" : {
       "localizations" : {
@@ -12720,6 +12747,9 @@
         }
       }
     },
+    "Support an indie developer" : {
+
+    },
     "Switch between different display modes" : {
       "localizations" : {
         "de" : {
@@ -13070,6 +13100,9 @@
         }
       }
     },
+    "Thanks!" : {
+
+    },
     "Timeline" : {
       "localizations" : {
         "de" : {
@@ -13350,6 +13383,12 @@
         }
       }
     },
+    "Track as many costs as you need." : {
+
+    },
+    "Track expenses across multiple people or accounts." : {
+
+    },
     "Unit" : {
       "localizations" : {
         "de" : {
@@ -13420,6 +13459,30 @@
         }
       }
     },
+    "Unlimited" : {
+
+    },
+    "Unlimited categories" : {
+
+    },
+    "Unlimited expenses" : {
+
+    },
+    "Unlock Accounts" : {
+
+    },
+    "Unlock Accounts feature" : {
+
+    },
+    "Unlock for %@" : {
+
+    },
+    "Unlock Unlimited" : {
+
+    },
+    "Unlock Unlimited for %@" : {
+
+    },
     "Upcoming" : {
       "localizations" : {
         "de" : {
@@ -13489,6 +13552,12 @@
           }
         }
       }
+    },
+    "Upgrade to Unlimited" : {
+
+    },
+    "Upgrade to Unlimited to use this feature." : {
+
     },
     "User Guide" : {
       "localizations" : {

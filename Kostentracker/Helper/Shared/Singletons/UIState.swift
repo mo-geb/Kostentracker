@@ -11,6 +11,7 @@ final class UIState {
     var activeCategorySheet: ActiveCategorySheet?
     var activeAccountSheet: ActiveAccountSheet?
     var showingSettings: Bool = false
+    var showingPaywall: Bool = false
 
     // Toasts
     var activePopup: ActivePopup?
@@ -42,6 +43,10 @@ final class UIState {
 
     func showSettings() {
         showingSettings = true
+    }
+
+    func presentPaywall() {
+        showingPaywall = true
     }
 
     func editExpense(_ expense: Expense) {

@@ -7,6 +7,7 @@ struct AccountsView: View {
     // Shared
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
 
     // SwiftData
     @Environment(\.modelContext) private var context
@@ -14,6 +15,7 @@ struct AccountsView: View {
     
     // State
     @State private var showingDeleteAlert = false
+    @State private var showPaywall = false
     
     // MARK: - Body
     
@@ -33,6 +35,7 @@ struct AccountsView: View {
                         }
                     }
                 }
+                .paywallSheet(isPresented: $showPaywall)
         }
     }
     
@@ -41,31 +44,71 @@ struct AccountsView: View {
     @ViewBuilder
     private var mainContent: some View {
         @Bindable var userSettings = userSettings
-        
+
         List {
-            Section {
-                Toggle("Enable Accounts", isOn: $userSettings.enableAccounts)
-                    .onChange(of: userSettings.enableAccounts) { _, newValue in
-                        if newValue {
-                            ExpenseAccount.activateAccounts(with: context)
-                            ui.toggleAllAccounts(accounts: accounts, forceTo: true)
-                        } else {
-                            ui.toggleAllAccounts(accounts: accounts, forceTo: false)
-                        }
-                    }
-            } header: {
-                Text("Account Settings")
-            } footer: {
-                Text("Enable accounts to further organize your expenses")
-            }
-            
-            if userSettings.enableAccounts {
+            if store.isUnlimited {
                 Section {
-                    listSection
-                    addButton
+                    Toggle("Enable Accounts", isOn: $userSettings.enableAccounts)
+                        .onChange(of: userSettings.enableAccounts) { _, newValue in
+                            if newValue {
+                                ExpenseAccount.activateAccounts(with: context)
+                                ui.toggleAllAccounts(accounts: accounts, forceTo: true)
+                            } else {
+                                ui.toggleAllAccounts(accounts: accounts, forceTo: false)
+                            }
+                        }
+                } header: {
+                    Text("Account Settings")
+                } footer: {
+                    Text("Enable accounts to further organize your expenses")
+                }
+
+                if userSettings.enableAccounts {
+                    Section {
+                        listSection
+                        addButton
+                    }
+                }
+            } else {
+                Section {
+                    upgradeBanner
+                } footer: {
+                    Text("Organize your expanses across multiple bank accounts. Available with Unlimited.")
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private var upgradeBanner: some View {
+        Button {
+            showPaywall = true
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "lock.fill")
+                    .font(.title3)
+                    .foregroundStyle(.white)
+                    .frame(width: 36, height: 36)
+                    .background(Color.accentColor)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Unlock Accounts")
+                        .font(.headline)
+                    Text("Upgrade to Unlimited to use this feature.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Unlock Accounts feature")
+        .accessibilityHint("Opens the upgrade screen")
     }
     
     // MARK: - List Section
@@ -106,7 +149,7 @@ struct AccountsView: View {
     
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
-        if userSettings.enableAccounts {
+        if store.isUnlimited && userSettings.enableAccounts {
             ToolbarItem(placement: .navigationBarTrailing) {
                 EditButton()
             }
@@ -183,5 +226,6 @@ struct AccountsView: View {
         AccountsView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

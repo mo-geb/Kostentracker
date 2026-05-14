@@ -1,16 +1,10 @@
 import SwiftUI
 
 struct PaywallView: View {
-    /// Localized price string from StoreKit (e.g. "€3.99"). Falls back to a hardcoded value.
     var priceText: String = "€3.99"
-
-    /// Invoked when the user taps the primary purchase button.
     var onPurchase: () async -> Void = {}
-
-    /// Invoked when the user taps "Restore Purchases".
     var onRestore: () async -> Void = {}
 
-    @Environment(\.dismiss) private var dismiss
     @State private var isPurchasing = false
     @State private var isRestoring = false
 
@@ -21,7 +15,7 @@ struct PaywallView: View {
                     header
                     featureList
                     purchaseSection
-                    footerLinks
+                    restoreButton
                 }
                 .padding()
             }
@@ -162,56 +156,28 @@ struct PaywallView: View {
         .padding(.top, 8)
     }
 
-    // MARK: - Footer
+    // MARK: - Restore
 
     @ViewBuilder
-    private var footerLinks: some View {
-        VStack(spacing: 16) {
-            Button {
-                Task {
-                    isRestoring = true
-                    await onRestore()
-                    isRestoring = false
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    if isRestoring {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                    }
-                    Text("Restore Purchases")
-                        .font(.subheadline)
-                }
+    private var restoreButton: some View {
+        Button {
+            Task {
+                isRestoring = true
+                await onRestore()
+                isRestoring = false
             }
-            .disabled(isPurchasing || isRestoring)
-
-            HStack(spacing: 16) {
-                Button {
-                    openURL("https://mo-geb.com/projects/cost-tracker/terms")
-                } label: {
-                    Text("Terms of Service")
-                        .font(.caption)
+        } label: {
+            HStack(spacing: 6) {
+                if isRestoring {
+                    ProgressView()
+                        .scaleEffect(0.8)
                 }
-
-                Text("·")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-
-                Button {
-                    openURL("https://mo-geb.com/projects/cost-tracker/")
-                } label: {
-                    Text("Privacy Policy")
-                        .font(.caption)
-                }
+                Text("Restore Purchases")
+                    .font(.subheadline)
             }
-            .foregroundStyle(.secondary)
         }
+        .disabled(isPurchasing || isRestoring)
         .padding(.top, 4)
-    }
-
-    private func openURL(_ string: String) {
-        guard let url = URL(string: string) else { return }
-        UIApplication.shared.open(url)
     }
 }
 

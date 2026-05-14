@@ -2,11 +2,16 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
+    @Environment(UIState.self) private var ui
+    @State private var isRestoring = false
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
+                    purchasesSection
                     generalSection
                     moreSection
                     versionInfo
@@ -20,12 +25,77 @@ struct SettingsView: View {
                     SharedToolbarElements.DismissButton()
                 }
             }
+            .paywallSheet(isPresented: $showPaywall)
         }
     }
     
     // MARK: - View Components
     //  [Color.red, Color.orange, Color.yellow, Color.green, Color.mint, Color.teal, Color.cyan, Color.blue, Color.indigo, Color.purple]
-    
+
+    @ViewBuilder
+    private var purchasesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Purchases")
+                .font(.title2.bold())
+                .foregroundStyle(.secondary)
+
+            if store.isUnlimited {
+                row(title: String(localized: "Unlimited"),
+                    icon: "checkmark.seal.fill",
+                    iconColor: .green) {
+                    Text(store.isGrandfathered ? String(localized: "Thanks!") : String(localized: "Active"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    row(title: String(localized: "Upgrade to Unlimited"),
+                        icon: "sparkles",
+                        iconColor: .orange) {
+                        HStack {
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .frame(minHeight: 44)
+                .buttonStyle(.plain)
+            }
+
+            if !store.isUnlimited {
+                Button {
+                    Task {
+                        isRestoring = true
+                        try? await store.restore()
+                        isRestoring = false
+                    }
+                } label: {
+                    row(title: String(localized: "Restore Purchases"),
+                        icon: "arrow.clockwise",
+                        iconColor: .blue) {
+                        HStack {
+                            Spacer()
+                            if isRestoring {
+                                ProgressView()
+                            } else {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+                .frame(minHeight: 44)
+                .buttonStyle(.plain)
+                .disabled(isRestoring)
+            }
+        }
+    }
+
     @ViewBuilder
     private var generalSection: some View {
         @Bindable var userSettings = userSettings
@@ -210,5 +280,6 @@ struct SettingsView: View {
         SettingsView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

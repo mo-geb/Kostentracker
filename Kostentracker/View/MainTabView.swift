@@ -46,6 +46,7 @@ struct MainTabView: View {
         .sheet(isPresented: $ui.showingSettings) {
             SettingsView()
         }
+        .paywallSheet(isPresented: $ui.showingPaywall)
         .overlay {
             switch ui.activePopup {
             case .markedAsPaid(.main):
@@ -64,5 +65,6 @@ struct MainTabView: View {
         MainTabView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

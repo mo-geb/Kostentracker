@@ -7,7 +7,8 @@ struct KostentrackerApp: App {
     
     @State private var ui = UIState()
     @State private var userSettings = UserSettings()
-    
+    @State private var store = StoreManager()
+
     init() {
         do {
             modelContainer = try ModelContainer(for: Expense.self, ExpenseCategory.self, ExpenseAccount.self)
@@ -27,6 +28,8 @@ struct KostentrackerApp: App {
                 .modelContainer(modelContainer)
                 .environment(ui)
                 .environment(userSettings)
+                .environment(store)
+                .task { store.start() }
        }
     }
 }

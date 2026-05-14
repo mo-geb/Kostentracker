@@ -25,9 +25,11 @@ struct ExpenseInspector: View {
     
     @State private var showFrequencyPicker: Bool = false
     @State private var showPhotoPicker = false
+    @State private var showPaywall = false
     
     // User Settings
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
     
     // Focus management
     @FocusState private var focusedField: FocusedField?
@@ -104,8 +106,8 @@ struct ExpenseInspector: View {
                         
                         rowGroup {
                             categoryRowEditing
-                            
-                            if userSettings.enableAccounts {
+
+                            if store.accountsAvailable(in: userSettings) {
                                 accountRowEditing
                             }
                         }
@@ -141,8 +143,8 @@ struct ExpenseInspector: View {
                         
                         rowGroup {
                             categoryRowShowing
-                            
-                            if userSettings.enableAccounts {
+
+                            if store.accountsAvailable(in: userSettings) {
                                 customDivider
                                 accountRowShowing
                             }
@@ -176,6 +178,7 @@ struct ExpenseInspector: View {
             focusedField = nil
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
+        .paywallSheet(isPresented: $showPaywall)
         .sheet(item: $ui.activeCategorySheet) { sheet in
             switch sheet {
             case .new(let draft):
@@ -473,10 +476,14 @@ struct ExpenseInspector: View {
                 Divider()
                 
                 Button {
-                    let draft = CategoryDraft.createNew(
-                        sortOrder: (categories.last?.sortOrder ?? 0) + 1
-                    )
-                    uiState.createCategory(from: draft)
+                    if store.canAddCategory(currentCount: categories.count) {
+                        let draft = CategoryDraft.createNew(
+                            sortOrder: (categories.last?.sortOrder ?? 0) + 1
+                        )
+                        uiState.createCategory(from: draft)
+                    } else {
+                        showPaywall = true
+                    }
                 } label: {
                     Label("New Category", systemImage: "plus")
                 }
@@ -885,5 +892,6 @@ struct ExpenseInspector: View {
         ExpenseInspector(initialState: .edit(SampleData.oneTime))
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

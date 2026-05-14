@@ -20,10 +20,11 @@ enum SharedToolbarElements {
     struct AccountsButton: View {
         @Environment(UIState.self) private var ui
         @Environment(UserSettings.self) var userSettings
+        @Environment(StoreManager.self) private var store
         @Query(sort: \ExpenseAccount.sortOrder) private var accounts: [ExpenseAccount]
-        
+
         var body: some View {
-            if userSettings.enableAccounts {
+            if store.accountsAvailable(in: userSettings) {
                 Menu {
                     Section("Accounts") {
                         Button {
@@ -82,10 +83,16 @@ enum SharedToolbarElements {
     struct AddExpenseButton: View {
         @Environment(\.modelContext) private var context
         @Environment(UIState.self) private var uiState
+        @Environment(StoreManager.self) private var store
+        @Query private var expenses: [Expense]
 
         var body: some View {
             Button {
-                uiState.createExpense(from: ExpenseDraft.createNew(with: context))
+                if store.canAddExpense(currentCount: expenses.count) {
+                    uiState.createExpense(from: ExpenseDraft.createNew(with: context))
+                } else {
+                    uiState.presentPaywall()
+                }
             } label: {
                 Label("Add Expense", systemImage: "plus")
             }

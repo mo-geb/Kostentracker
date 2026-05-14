@@ -45,6 +45,7 @@ struct StatisticsView: View {
 
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
     @Environment(\.modelContext) private var context
 
     @Query private var unfilteredExpenses: [Expense]
@@ -332,7 +333,7 @@ struct StatisticsView: View {
 private extension StatisticsView {
 
     func applyFilters(_ expenses: [Expense]) -> [Expense] {
-        let accountFiltered = userSettings.enableAccounts
+        let accountFiltered = store.accountsAvailable(in: userSettings)
             ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
             : expenses
         return Expense.applyCustomFilters(accountFiltered, filter: .active)

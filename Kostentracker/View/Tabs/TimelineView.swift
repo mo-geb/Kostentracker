@@ -18,6 +18,7 @@ struct TimelineView: View {
 
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
     @Environment(\.modelContext) private var context
 
     @Query(sort: \Expense.date) private var unfilteredExpenses: [Expense]
@@ -154,7 +155,7 @@ struct TimelineView: View {
 private extension TimelineView {
 
     func applyFilters(_ expenses: [Expense]) -> [Expense] {
-        let accountFiltered = userSettings.enableAccounts
+        let accountFiltered = store.accountsAvailable(in: userSettings)
             ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
             : expenses
         return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
@@ -180,5 +181,6 @@ private extension TimelineView {
         TimelineView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }

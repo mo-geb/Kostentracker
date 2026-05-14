@@ -18,6 +18,7 @@ struct ListView: View {
 
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
     @Environment(\.modelContext) private var context
 
     @Query(sort: [
@@ -224,7 +225,7 @@ struct ListView: View {
 private extension ListView {
 
     func applyFilters(_ expenses: [Expense]) -> [Expense] {
-        let accountFiltered = userSettings.enableAccounts
+        let accountFiltered = store.accountsAvailable(in: userSettings)
             ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
             : expenses
         return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
@@ -262,5 +263,6 @@ private extension ListView {
         ListView()
             .environment(UIState())
             .environment(UserSettings())
+            .environment(StoreManager())
     }
 }
