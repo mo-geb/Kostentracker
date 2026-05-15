@@ -240,7 +240,7 @@ struct AccountInspector: View {
 
 }
 
-#Preview {
+#Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         AccountInspector(initialState: .edit(SampleData.shared))
     }

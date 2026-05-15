@@ -25,7 +25,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.80245,0.90308,0.76340,1.00000"
+                "automatic-gradient" : "display-p3:0.80245,0.90308,0.76340,1.00000"
               }
             },
             {
@@ -76,7 +76,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.31724,0.65930,0.30790,1.00000"
+                "automatic-gradient" : "display-p3:0.31724,0.65930,0.30790,1.00000"
               }
             },
             {
@@ -120,7 +120,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.20571,0.42030,0.19741,1.00000"
+                "automatic-gradient" : "display-p3:0.20571,0.42030,0.19741,1.00000"
               }
             },
             {
@@ -156,7 +156,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.16619,0.34751,0.16445,1.00000"
+                "automatic-gradient" : "display-p3:0.16619,0.34751,0.16445,1.00000"
               }
             },
             {
@@ -180,7 +180,7 @@
           "fill-specializations" : [
             {
               "value" : {
-                "solid" : "display-p3:0.16033,0.33526,0.15865,1.00000"
+                "automatic-gradient" : "display-p3:0.16033,0.33526,0.15865,1.00000"
               }
             },
             {

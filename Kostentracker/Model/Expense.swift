@@ -149,6 +149,9 @@ extension Expense {
             return currentDate < monthEnd && currentDate >= monthStart ? self.amount : 0
         }
 
+        // Guard against frequencyValue <= 0, which would make the loop never advance.
+        guard frequencyValue > 0 else { return 0 }
+
         while currentDate < monthEnd {
             if currentDate >= monthStart {
                 monthTotal += self.amount

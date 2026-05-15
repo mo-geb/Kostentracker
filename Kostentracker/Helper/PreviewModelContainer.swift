@@ -4,12 +4,12 @@ import SwiftData
 struct PreviewModelContainer: PreviewModifier {
     
     static func makeSharedContext() async throws -> ModelContainer {
-        let container = try ModelContainer(for: Expense.self, ExpenseCategory.self, ExpenseAccount.self)
-        
-        try? container.mainContext.delete(model: Expense.self)
-        try? container.mainContext.delete(model: ExpenseCategory.self)
-        try? container.mainContext.delete(model: ExpenseAccount.self)
-        
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(
+            for: Expense.self, ExpenseCategory.self, ExpenseAccount.self,
+            configurations: config
+        )
+
         SampleData.categories.forEach { container.mainContext.insert($0) }
         SampleData.accounts.forEach { container.mainContext.insert($0) }
         SampleData.expenses.forEach { container.mainContext.insert($0) }

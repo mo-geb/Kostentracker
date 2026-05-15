@@ -8,7 +8,9 @@ final class ExpenseAccount: Identifiable {
     var iconName: String = ""
     var isDefault: Bool = false
     var sortOrder: Int = 0
-    @Relationship(deleteRule: .cascade, inverse: \Expense.account) var expenses: [Expense]?
+    // Nullify (not cascade): a direct delete leaves expenses intact with a nil
+    // account; deleteSafely() reassigns to the default account before delete.
+    @Relationship(deleteRule: .nullify, inverse: \Expense.account) var expenses: [Expense]?
     
     /// Create Account based on draft
     init(from draft: AccountDraft) {

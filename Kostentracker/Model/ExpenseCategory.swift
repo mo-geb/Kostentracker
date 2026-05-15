@@ -9,7 +9,10 @@ final class ExpenseCategory: Identifiable {
     var hexColor: String = ""
     var isDefault: Bool = false
     var sortOrder: Int = 0
-    @Relationship(deleteRule: .cascade, inverse: \Expense.category) var expenses: [Expense]?
+    // Nullify (not cascade): if a category is deleted directly, expenses survive
+    // and fall back to the "Other" label via Expense.categoryName. Safe deletion
+    // via deleteSafely() reassigns to the default category before delete.
+    @Relationship(deleteRule: .nullify, inverse: \Expense.category) var expenses: [Expense]?
     
     /// A computed property to easily get the SwiftUI Color.
     var color: Color {
