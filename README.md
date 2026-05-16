@@ -5,7 +5,7 @@
 
 ## 📱 App Overview
 
-**ClutterFree Expenses** is a streamlined, SwiftUI-based iOS application designed to track user spending, manage recurring costs, and visually highlight cash flow. The application prioritizes aesthetic design, strong visual hierarchy, and unparalleled performance achieved through state-caching and modern MVVM architecture. 
+**ClutterFree Expenses** is a streamlined, SwiftUI-based iOS application designed to track user spending, manage recurring costs, and visually highlight cash flow. The application prioritizes aesthetic design, strong visual hierarchy, and unparalleled performance achieved through live reactive data binding and lightweight local computed transformations. 
 
 It is built completely with native Apple frameworks, utilizing **SwiftUI** for the user interface and **SwiftData** for local offline persistence.
 
@@ -13,12 +13,12 @@ It is built completely with native Apple frameworks, utilizing **SwiftUI** for t
 
 ## 🏗️ Architecture
 
-The app is built using a modern **MVVM (Model-View-ViewModel)** architectural pattern. This ensures that the UI elements remain declarative and lightweight, while heavy data processing (filtering, grouping, and calculating costs) is deferred to dedicated ViewModels.
+The app is built using a modern **Reactive, State-Driven SwiftUI + SwiftData** architectural pattern. Rather than relying on separate ViewModel layers, the application leverages SwiftData's live query engine to stream data directly into the view, where it is transformed on-the-fly via localized computed properties and extension helpers.
 
 ### Key Architectural Guidelines
-1. **Separation of Concerns**: Views are responsible only for displaying data. ViewModels (like `StatisticsViewModel` and `ListViewModel`) pull data from SwiftData and process it for the view to consume.
-2. **State Caching**: The ViewModels cache their processed data (e.g. pre-calculated arrays, grouped dictionaries) and only update when their `update(from: ui: userSettings:)` method is explicitly called. This removes redundant parsing during UI redraws.
-3. **Draft Architecture for Mutation**: Creating or editing models (`Expense`, `ExpenseCategory`, `ExpenseAccount`) doesn't mutate SwiftData objects directly until the user confirms. Instead, the UI works on a lightweight temporary `Draft` struct (e.g., `ExpenseDraft`).
+1. **Live Database Streams**: Views declare live query descriptors using `@Query`. SwiftData automatically tracks changes to the persistent store and animates changes in real time.
+2. **Local Computed State**: Heavy transformations (such as chronological grouping, currency formatting, and statistics calculations) are localized to dedicated computed properties (e.g., `processedGroups` or `stats`) directly within each view, keeping layout structure simple.
+3. **Draft Architecture for Mutation**: Creating or editing models (`Expense`, `ExpenseCategory`, `ExpenseAccount`) doesn't mutate SwiftData objects directly until the user confirms. Instead, the UI works on a lightweight temporary `Draft` struct (e.g., `CategoryDraft` or `ExpenseDraft`).
 4. **Environment Driving the UI**: The global `UIState` and `UserSettings` objects are pushed down the view hierarchy using `.environment(...)`. They store user preferences (like selected accounts or the current display period) ensuring all tabs are synchronized instantly when a filter changes.
 
 ---
@@ -47,14 +47,14 @@ Optional segmentation context for expenses indicating where money is drawn from 
 
 The application relies on a `MainTabView` which manages the primary navigation between the main functional sections.
 
-### Tabs & ViewModels
+### Tabs & Live Views
 
-| View Component | Backing ViewModel | Description |
+| View Component | Data Slicing & Processing | Description |
 |---|---|---|
-| **ListView** | `ListViewModel` | Shows all saved entries. Supports multi-faceted grouping (`none`, `categories`, `frequency`) and sorting. The `ListViewModel` processes an unstructured array into `ProcessedGroup`s before rendering. |
-| **StatisticsView** | `StatisticsViewModel` | Displays metrics about the user's spending habits. Computes `TotalCosts`, category proportions, and visualizes a monthly bar/pie chart breakdown. The VM pre-maps the necessary 12-month array of displayable costs to keep scroll performance smooth. |
-| **TimelineView** | `TimelineViewModel` | Gives an absolute chronological rundown of approaching charges grouped by Month. For recurring items, users can "Mark as Paid", executing `advanceDueDate()` which automatically shifts the expense into its next cycle. |
-| **SearchView** | *N/A* | Allows users to query the SwiftData model context by title explicitly to find distinct past/future entries. |
+| **ListView** | Local `processedGroups` property | Shows all saved entries. Supports dynamic grouping (`none`, `categories`, `frequency`) and sorting. Processes the SwiftData query array into `ProcessedGroup` structs on-the-fly. |
+| **StatisticsView** | Local `stats` property | Displays metrics about the user's spending habits. Computes aggregated costs, category proportions, and maps out a 12-month array of monthly costs for charts. |
+| **TimelineView** | Local `monthlyGroups` property | Gives a chronological rundown of approaching charges grouped by month. For recurring items, handles advancing the due date when marked as paid. |
+| **SearchView** | Local title-based filtering | Allows users to query the SwiftData model context by title explicitly to find distinct past/future entries. |
 
 ### Detailed Views (Inspectors)
 The `Detailed Views` folder contains the editing forms: `ExpenseInspector`, `CategoryInspector`, and `AccountInspector`. These modules are designed to:
@@ -75,7 +75,7 @@ On application startup inside `KostentrackerApp.swift`, `SetupCoordinator` is in
 
 ## 🎯 Future-Proofing & Best Practices
 - **Accessibility**: A voice-over `accessibilityLabel` has been mapped out on `Expense` rendering a cleanly formulated sentence summarizing the expense title, amount, and frequency. This shouldn't be overlooked in subsequent additions.
-- **Performance Optimizations**: Heavy dictionary aggregations required for graphs and groups have been fully stripped from SwiftUI `var body: some View` and pushed into `@Observable` state objects, strictly guarding against UI lag.
+- **Performance Optimizations**: Heavy dictionary aggregations and grouping logic should be isolated in extension methods or computed properties. When a computed property is accessed multiple times inside a SwiftUI view's `body` rendering pass, evaluate it once and store it in a local constant (`let currentStats = stats`) to avoid redundant repeat calculations.
 
 > [!TIP] 
-> Whenever you add new views, ensure that complex data slicing logic defaults back into an isolated ViewModel or Model-side helper function to keep the codebase "Clutter-Free".
+> Whenever you add new views, keep complex layout and data slicing logic cleanly separated into localized data structures and helper methods to keep the codebase "Clutter-Free".
