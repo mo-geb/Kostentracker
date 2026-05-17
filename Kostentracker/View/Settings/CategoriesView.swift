@@ -56,6 +56,7 @@ struct CategoriesView: View {
             ForEach(categories) { category in
                 categoryRow(for: category)
                     .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
             .onMove(perform: moveCategory)
         }

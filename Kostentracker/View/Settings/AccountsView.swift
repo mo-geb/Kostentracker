@@ -67,6 +67,7 @@ struct AccountsView: View {
                     Section {
                         listSection
                         addButton
+                            .listRowBackground(Color(.systemGroupedBackground))
                     }
                 }
             } else {
@@ -119,6 +120,7 @@ struct AccountsView: View {
             ForEach(accounts) { account in
                 accountRow(for: account)
                     .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
             .onMove(perform: moveAccount)
         }
