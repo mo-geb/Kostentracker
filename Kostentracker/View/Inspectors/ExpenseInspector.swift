@@ -636,7 +636,6 @@ struct ExpenseInspector: View {
             "Expense Inactive",
             systemImage: "info.circle.fill",
             description: Text("Edit this Expense and add a date to it in order to make it active again"))
-        .frame(maxWidth: 260)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .accessibilityLabel("Expense is inactive")

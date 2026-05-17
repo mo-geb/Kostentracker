@@ -86,6 +86,32 @@ extension ExpenseAccount {
         }
     }
     
+    static func consolidateDefaultAccounts(in context: ModelContext) {
+        let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
+        do {
+            let defaultAccounts = try context.fetch(descriptor)
+            guard defaultAccounts.count > 1 else { return }
+
+            let sortedDefaults = defaultAccounts.sorted {
+                ($0.expenses?.count ?? 0) > ($1.expenses?.count ?? 0)
+            }
+            let survivor = sortedDefaults[0]
+            for duplicate in sortedDefaults.dropFirst() {
+                if let expensesToMove = duplicate.expenses {
+                    for expense in Array(expensesToMove) {
+                        expense.account = survivor
+                    }
+                }
+                context.delete(duplicate)
+            }
+            resetDefaultAccounts(in: context)
+            survivor.isDefault = true
+            try context.save()
+        } catch {
+            print("Failed to consolidate default accounts: \(error)")
+        }
+    }
+
     static func resetDefaultAccounts(in context: ModelContext) {
         let descriptor = FetchDescriptor<ExpenseAccount>()
         if let allAccounts = try? context.fetch(descriptor) {

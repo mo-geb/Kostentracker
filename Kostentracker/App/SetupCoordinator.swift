@@ -14,5 +14,6 @@ final class SetupCoordinator {
     func run() {
         ExpenseCategory.consolidateDefaultCategories(in: context)
         ExpenseCategory.deleteEmptyDefaultCategories(in: context)
+        ExpenseAccount.consolidateDefaultAccounts(in: context)
     }
 }

@@ -43,7 +43,6 @@ extension View {
             .padding(.horizontal, 32)
             .foregroundStyle(color)
             .tintedGlassBackground(color, cornerRadius: DesignSystem.CornerRadius.large)
-            .frame(maxWidth: 260)
             .frame(maxWidth: .infinity)
             .padding(.horizontal)
     }

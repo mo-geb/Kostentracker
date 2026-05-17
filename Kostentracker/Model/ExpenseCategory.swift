@@ -85,29 +85,25 @@ extension ExpenseCategory {
     }
     
     static func deleteEmptyDefaultCategories(in context: ModelContext) {
-        let defaultCategory = createDefault()
-        let targetName = defaultCategory.name
-        let targetIcon = defaultCategory.iconName
-        let targetColor = defaultCategory.hexColor
-
-        let defaultPredicate = FetchDescriptor<ExpenseCategory>(
-            predicate: #Predicate<ExpenseCategory> { category in
-                category.name == targetName &&
-                category.iconName == targetIcon &&
-                category.hexColor == targetColor
-            }
-        )
-        
+        let template = createDefault()
         do {
-            let defaultCategories = try context.fetch(defaultPredicate)
-            let emptyDefaultCategories = defaultCategories.filter { ($0.expenses?.count ?? 0) == 0 }
-            guard emptyDefaultCategories.count > 0 else { return }
+            let descriptor = FetchDescriptor<ExpenseCategory>()
+            let allCategories = try context.fetch(descriptor)
+
+            let emptyLegacyDefaults = allCategories.filter { category in
+                !category.isDefault &&
+                category.iconName == template.iconName &&
+                category.name == template.name &&
+                (category.expenses?.count ?? 0) == 0
+            }
             
-            for empty in emptyDefaultCategories {
-                empty.deleteSafely(from: context)
+            guard !emptyLegacyDefaults.isEmpty else { return }
+            
+            for empty in emptyLegacyDefaults {
+                context.delete(empty)
             }
             try context.save()
-            print("Consolidation complete. One default category remains.")
+            print("Purged \(emptyLegacyDefaults.count) legacy empty default categories.")
             
         } catch {
             print("Failed to consolidate default categories: \(error)")
