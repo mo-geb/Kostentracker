@@ -68,6 +68,13 @@ final class StoreManager {
         do {
             let result = try await AppTransaction.shared
             let appTx = try result.payloadValue
+
+            guard appTx.environment == .production else {
+                isGrandfathered = false
+                UserDefaults.standard.set(false, forKey: Self.grandfatheredKey)
+                return
+            }
+
             let originalVersion = appTx.originalAppVersion
             let grandfathered = Self.compare(originalVersion, isOlderThan: Self.firstFreemiumMarketingVersion)
             isGrandfathered = grandfathered
