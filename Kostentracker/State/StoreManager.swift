@@ -5,7 +5,7 @@ import StoreKit
 @MainActor
 final class StoreManager {
     static let productID = "com.mo.Kostentracker.unlimited"
-    static let firstFreemiumMarketingVersion = "2.0.0"
+    static let firstFreemiumBuildNumber = 60
     static let freeExpenseLimit = 10
     static let freeCategoryLimit = 2
 
@@ -75,8 +75,8 @@ final class StoreManager {
                 return
             }
 
-            let originalVersion = appTx.originalAppVersion
-            let grandfathered = Self.compare(originalVersion, isOlderThan: Self.firstFreemiumMarketingVersion)
+            let originalBuild = Int(appTx.originalAppVersion) ?? Int.max
+            let grandfathered = originalBuild < Self.firstFreemiumBuildNumber
             isGrandfathered = grandfathered
             UserDefaults.standard.set(grandfathered, forKey: Self.grandfatheredKey)
         } catch {
@@ -138,18 +138,6 @@ final class StoreManager {
         }
     }
 
-    /// Component-wise semantic version compare. "2" and "2.0.0" are equal.
-    static func compare(_ lhs: String, isOlderThan rhs: String) -> Bool {
-        let l = lhs.split(separator: ".").map { Int($0) ?? 0 }
-        let r = rhs.split(separator: ".").map { Int($0) ?? 0 }
-        let count = max(l.count, r.count)
-        for i in 0..<count {
-            let a = i < l.count ? l[i] : 0
-            let b = i < r.count ? r[i] : 0
-            if a != b { return a < b }
-        }
-        return false
-    }
 }
 
 // MARK: - Limit helpers

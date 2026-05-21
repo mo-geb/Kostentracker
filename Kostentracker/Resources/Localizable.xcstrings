@@ -13985,67 +13985,67 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeitachse"
+            "value": "Timeline"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cronología"
+            "value": "Timeline"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chronologie"
+            "value": "Timeline"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cronologia"
+            "value": "Timeline"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タイムライン"
+            "value": "Timeline"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "타임라인"
+            "value": "Timeline"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tijdlijn"
+            "value": "Timeline"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oś czasu"
+            "value": "Timeline"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Časová os"
+            "value": "Timeline"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tidslinje"
+            "value": "Timeline"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Хронологія"
+            "value": "Timeline"
           }
         }
       }
