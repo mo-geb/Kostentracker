@@ -33,7 +33,6 @@ struct MainTabView: View {
             .accessibilityHint("Search through your expenses")
         }
         .tabViewStyle(.automatic)
-        .background(.thinMaterial)
         // Only new expenses are presented modally; existing ones are pushed.
         .sheet(item: $ui.activeExpenseSheet) { sheet in
             NavigationStack {

@@ -9,7 +9,7 @@ struct ExpenseMediaView: View {
         case .image(let uiImage):
             Image(uiImage: uiImage)
                 .resizable()
-                .scaledToFill()
+                .scaledToFit()
                 .frame(width: size, height: size)
                 .clipShape(RoundedRectangle(cornerRadius: size * 0.2))
         case .emoji(let emoji, let color):
@@ -18,7 +18,7 @@ struct ExpenseMediaView: View {
                     .fill(color.opacity(0.3))
                     .frame(width: size, height: size)
                 Text(emoji)
-                    .font(.system(size: size * 0.6))
+                    .font(.system(size: size * 0.5))
             }
         case .icon(let symbolName, let color):
             ZStack {

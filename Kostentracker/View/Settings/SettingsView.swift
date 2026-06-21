@@ -175,10 +175,10 @@ struct SettingsView: View {
     // MARK: - URLs
 
     private enum Links {
-        static let website = URL(string: "https://mo-geb.com/projects/cost-tracker/")!
-        static let terms   = URL(string: "https://mo-geb.com/projects/cost-tracker/terms")!
-        static let privacy = URL(string: "https://mo-geb.com/projects/cost-tracker/privacy")!
-        static let guide   = URL(string: "https://mo-geb.com/projects/cost-tracker/guide")!
+        static let website = URL(string: "https://mo-geb.com/apps/expenses/")!
+        static let terms   = URL(string: "https://mo-geb.com/apps/expenses/terms")!
+        static let privacy = URL(string: "https://mo-geb.com/apps/expenses/privacy")!
+        static let guide   = URL(string: "https://mo-geb.com/apps/expenses/guide")!
         static let support: URL = {
             let email = "support@mo-geb.com"
             let subject = "App Feedback - Cost Tracker".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!

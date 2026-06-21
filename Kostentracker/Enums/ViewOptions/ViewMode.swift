@@ -7,10 +7,15 @@ enum ViewMode: String, CaseIterable, Identifiable {
     
     var localizedName: String {
         switch self {
-        case .normal:
-            return String(localized: "Normal")
-        case .compact:
-            return String(localized: "Compact")
+        case .normal:  return String(localized: "Normal")
+        case .compact: return String(localized: "Compact")
+        }
+    }
+
+    var iconName: String {
+        switch self {
+        case .normal:  return "list.bullet"
+        case .compact: return "rectangle.compress.vertical"
         }
     }
 }

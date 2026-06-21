@@ -44,7 +44,7 @@ enum SharedToolbarElements {
                         }
                     }
                 } label: {
-                    Label("Accounts", systemImage: ui.getAllAccountsSelected(accounts: accounts) ? "person.2.fill" : "person.2")
+                    Label("Accounts", systemImage: "person.2")
                 }
                 .menuActionDismissBehavior(.disabled)
             }
@@ -179,9 +179,7 @@ enum SharedToolbarElements {
 
             Picker("View Mode", selection: $ui.selectedViewMode) {
                 ForEach(ViewMode.allCases) { mode in
-                    Text(mode.localizedName)
-                        .frame(minWidth: 60)
-                        .tag(mode)
+                    Label(mode.localizedName, systemImage: mode.iconName).tag(mode)
                 }
             }
             .pickerStyle(.palette)

@@ -56,13 +56,11 @@ struct TimelineView: View {
 
     // MARK: - View Components
 
-    @ViewBuilder
     private var mainContent: some View {
-        if monthlyGroups.isEmpty {
-            EmptyExpensesView()
-        } else {
-            expenseList
-        }
+        expenseList
+            .overlay {
+                if monthlyGroups.isEmpty { EmptyExpensesView() }
+            }
     }
 
     private var expenseList: some View {

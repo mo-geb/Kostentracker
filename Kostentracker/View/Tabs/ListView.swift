@@ -39,14 +39,6 @@ struct ListView: View {
             grouped = ["all": filtered]
         case .categories:
             grouped = Dictionary(grouping: filtered, by: { $0.categoryName })
-        case .frequency:
-            grouped = Dictionary(grouping: filtered) { expense in
-                switch expense.type {
-                case .oneTime:   return String(localized: "One time")
-                case .inactive:  return String(localized: "Inactive")
-                case .recurring: return expense.frequencyUnit.rawValue.capitalized
-                }
-            }
         }
 
         let processed = grouped.map { (key, expenses) -> ProcessedGroup in
@@ -76,17 +68,14 @@ struct ListView: View {
         switch ui.selectedGroupBy {
         case .none:       return String(localized: "All Expenses")
         case .categories: return String(localized: "Categories")
-        case .frequency:  return String(localized: "Frequency")
         }
     }
 
-    @ViewBuilder
     private var mainContent: some View {
-        if processedGroups.isEmpty {
-            EmptyExpensesView()
-        } else {
-            groupList
-        }
+        groupList
+            .overlay {
+                if processedGroups.isEmpty { EmptyExpensesView() }
+            }
     }
 
     private var groupList: some View {
@@ -101,12 +90,8 @@ struct ListView: View {
                 } header: {
                     groupHeader(for: groupData)
                 }
-                .accessibilityElement(children: .contain)
-                .accessibilityLabel("Section: \(groupData.title)")
             }
         }
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel("Expenses list with \(groups.count) sections")
     }
 
     private func groupHeader(for groupData: ProcessedGroup) -> some View {
@@ -123,11 +108,6 @@ struct ListView: View {
                         .imageScale(.small)
                         .accessibilityLabel("Default category icon")
                 }
-            case .frequency:
-                Image(systemName: "clock")
-                    .foregroundStyle(.blue)
-                    .imageScale(.small)
-                    .accessibilityLabel("Frequency icon")
             case .none:
                 Image(systemName: "list.bullet")
                     .foregroundStyle(.gray)
@@ -169,20 +149,13 @@ struct ListView: View {
         }
         .lineLimit(1)
         .textCase(nil)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Section header: \(groupData.title) with \(groupData.expenses.count) expenses, total \(groupData.totalCost, format: .currency(code: userSettings.currencyCode)) per \(ui.selectedDisplayPeriod.periodName)")
     }
 
     private func expenseRow(for expense: Expense) -> some View {
         let subtitle: String
-        switch ui.selectedGroupBy {
-        case .frequency:
-            subtitle = expense.categoryName
-        case .categories, .none:
-            switch expense.type {
-            case .inactive:            subtitle = String(localized: "Inactive")
-            case .oneTime, .recurring: subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
-            }
+        switch expense.type {
+        case .inactive:            subtitle = String(localized: "Inactive")
+        case .oneTime, .recurring: subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
         }
 
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
@@ -227,8 +200,6 @@ struct ListView: View {
 
 private extension ListView {
 
-
-
     func sortGroups(_ groups: [ProcessedGroup]) -> [ProcessedGroup] {
         switch ui.selectedGroupBy {
         case .none:
@@ -237,18 +208,6 @@ private extension ListView {
             return groups.sorted {
                 guard let a = $0.expenses.first, let b = $1.expenses.first else { return false }
                 return a.categorySortOrder < b.categorySortOrder
-            }
-        case .frequency:
-            return groups.sorted { a, b in
-                func rank(_ title: String) -> (Int, Int) {
-                    let key = title.lowercased()
-                    if key == "inactive" { return (2, 0) }
-                    if key == "one-time" { return (1, 0) }
-                    if let unit = FrequencyUnit(rawValue: key) { return (0, unit.sortOrder) }
-                    return (0, Int.max)
-                }
-                let ra = rank(a.title), rb = rank(b.title)
-                return ra.0 < rb.0 || (ra.0 == rb.0 && ra.1 < rb.1)
             }
         }
     }
