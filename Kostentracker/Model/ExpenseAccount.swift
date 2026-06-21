@@ -71,7 +71,7 @@ extension ExpenseAccount {
         do {
             let descriptor = FetchDescriptor<ExpenseAccount>(predicate: #Predicate { $0.isDefault })
             guard let defaultAccount = try context.fetch(descriptor).first else {
-                print("Could not find default category. Aborting delete.")
+                print("Could not find default account. Aborting delete.")
                 return
             }
             if let expensesToReassign = expenses {
@@ -82,7 +82,7 @@ extension ExpenseAccount {
             context.delete(self)
             try context.save()
         } catch {
-            print("Failed to delete category: \(error)")
+            print("Failed to delete account: \(error)")
         }
     }
     

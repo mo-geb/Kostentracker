@@ -31,7 +31,7 @@ struct ListView: View {
     @State private var detailRoute: ExpenseDetailRoute?
 
     private var processedGroups: [ProcessedGroup] {
-        let filtered = applyFilters(unfilteredExpenses)
+        let filtered = Expense.applyFilters(unfilteredExpenses, ui: ui, userSettings: userSettings, store: store)
         let grouped: [String: [Expense]]
 
         switch ui.selectedGroupBy {
@@ -227,12 +227,7 @@ struct ListView: View {
 
 private extension ListView {
 
-    func applyFilters(_ expenses: [Expense]) -> [Expense] {
-        let accountFiltered = store.accountsAvailable(in: userSettings)
-            ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
-            : expenses
-        return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
-    }
+
 
     func sortGroups(_ groups: [ProcessedGroup]) -> [ProcessedGroup] {
         switch ui.selectedGroupBy {

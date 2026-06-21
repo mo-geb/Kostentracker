@@ -68,31 +68,7 @@ struct SearchView: View {
     /// A view for displaying a single search result row.
     private func resultRow(for expense: Expense) -> some View {
         HStack(spacing: 16) {
-            switch expense.displayMedia {
-            case .image(let uiImage):
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-            case .emoji(let emoji, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 50, height: 50)
-                    Text(emoji)
-                        .font(.title)
-                }
-            case .icon(let name, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 50, height: 50)
-                    Image(systemName: name)
-                        .font(.title2)
-                        .foregroundStyle(color)
-                }
-            }
+            ExpenseMediaView(media: expense.displayMedia, size: 50)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)

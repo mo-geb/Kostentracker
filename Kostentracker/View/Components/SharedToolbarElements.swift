@@ -26,30 +26,21 @@ enum SharedToolbarElements {
         var body: some View {
             if store.accountsAvailable(in: userSettings) {
                 Menu {
-                    Section("Accounts") {
-                        Button {
-                            ui.toggleAllAccounts(accounts: accounts)
-                        } label: {
-                            let isAllSelected = ui.getAllAccountsSelected(accounts: accounts)
-                            Label(
-                                "All Accounts",
-                                systemImage: isAllSelected ? "checkmark.circle.fill" : "circle"
-                            )
-                        }
-                        
-                        Divider()
-                        
-                        ForEach(accounts) { account in
-                            Button {
-                                ui.toggleAccountSelected(for: account)
-                            } label: {
-                                let isSelected = ui.getAccountSelected(account: account)
-                                if isSelected {
-                                    Label(account.name, systemImage: account.iconName)
-                                } else {
-                                    Text(account.name)
-                                }
-                            }
+                    Toggle(isOn: Binding(
+                        get: { ui.getAllAccountsSelected(accounts: accounts) },
+                        set: { _ in ui.toggleAllAccounts(accounts: accounts) }
+                    )) {
+                        Label("All Accounts", systemImage: "person.2.fill")
+                    }
+                    
+                    Divider()
+                    
+                    ForEach(accounts) { account in
+                        Toggle(isOn: Binding(
+                            get: { ui.getAccountSelected(account: account) },
+                            set: { _ in ui.toggleAccountSelected(for: account) }
+                        )) {
+                            Label(account.name, systemImage: account.iconName)
                         }
                     }
                 } label: {

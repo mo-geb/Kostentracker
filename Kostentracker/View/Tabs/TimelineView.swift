@@ -27,7 +27,7 @@ struct TimelineView: View {
     @State private var detailRoute: ExpenseDetailRoute?
 
     private var monthlyGroups: [MonthlyExpenseGroup] {
-        let filtered = applyFilters(unfilteredExpenses)
+        let filtered = Expense.applyFilters(unfilteredExpenses, ui: ui, userSettings: userSettings, store: store)
         let onlyActive = Expense.applyCustomFilters(filtered, filter: .active)
         let calendar = Calendar.current
 
@@ -157,12 +157,7 @@ struct TimelineView: View {
 
 private extension TimelineView {
 
-    func applyFilters(_ expenses: [Expense]) -> [Expense] {
-        let accountFiltered = store.accountsAvailable(in: userSettings)
-            ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
-            : expenses
-        return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
-    }
+
 
     func markAsPaidOrDelete(_ expense: Expense) {
         switch expense.type {

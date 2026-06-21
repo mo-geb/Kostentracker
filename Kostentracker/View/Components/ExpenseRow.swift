@@ -27,67 +27,9 @@ struct ExpenseRow: View {
 
     @ViewBuilder
     private var iconSection: some View {
-        switch uiState.selectedViewMode {
-        case .normal:
-            switch expense.displayMedia {
-            case .emoji(let emoji, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    Text(emoji)
-                        .font(.system(size: 25))
-                }
-            case .image(let uiImage):
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                    .accessibilityLabel("Custom image for \(expense.categoryName)")
-            case .icon(let symbolName, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 40, height: 40)
-                    Image(systemName: symbolName)
-                        .font(.title2)
-                        .foregroundStyle(color)
-                }
-                .accessibilityLabel("\(expense.categoryName) category")
-            }
-        case .compact:
-            switch expense.displayMedia {
-            case .emoji(let emoji, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 25, height: 25)
-                    Text(emoji)
-                        .font(.caption)
-                }
-                .padding(.trailing, 4)
-            case .image(let uiImage):
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 25)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .accessibilityLabel("Custom image for \(expense.categoryName)")
-                    .padding(.trailing, 4)
-            case .icon(let symbolName, let color):
-                ZStack {
-                    Circle()
-                        .fill(color.opacity(0.3))
-                        .frame(width: 25, height: 25)
-                    Image(systemName: symbolName)
-                        .font(.caption)
-                        .foregroundStyle(color)
-                }
-                .padding(.trailing, 4)
-                .accessibilityLabel("\(expense.categoryName) category")
-            }
-        }
+        let size: CGFloat = uiState.selectedViewMode == .normal ? 40 : 25
+        ExpenseMediaView(media: expense.displayMedia, size: size)
+            .padding(.trailing, uiState.selectedViewMode == .compact ? 4 : 0)
     }
     
     @ViewBuilder

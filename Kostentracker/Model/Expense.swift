@@ -184,9 +184,22 @@ extension Expense {
     }
 }
 
-// MARK: - Static mathods to apply on collections
+// MARK: - Static methods to apply on collections
 
 extension Expense {
+    @MainActor
+    static func applyFilters(
+        _ expenses: [Expense],
+        ui: UIState,
+        userSettings: UserSettings,
+        store: StoreManager
+    ) -> [Expense] {
+        let accountFiltered = store.accountsAvailable(in: userSettings)
+            ? Expense.applyAccountsFilters(expenses, selectedIDs: ui.selectedAccountIDs)
+            : expenses
+        return Expense.applyCustomFilters(accountFiltered, filter: ui.selectedFilter)
+    }
+
     static func applyCustomFilters(_ expenses: [Expense], filter: FilterOption) -> [Expense] {
         var filtered = expenses
         switch filter {
