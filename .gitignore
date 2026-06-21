@@ -1,3 +1,6 @@
+# Claude Code
+.claude/
+
 # macOS
 .DS_Store
 .AppleDouble
@@ -18,8 +21,13 @@
 # Xcode
 ## User settings
 xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+DerivedData/
 
 ## Obj-C/Swift specific
+*.o
 *.hmap
 
 ## App packaging
@@ -34,6 +42,9 @@ playground.xcworkspace
 # Swift Package Manager
 .build/
 .swiftpm/
+
+# uv (Python package manager)
+Scripts/.venv/
 
 # CocoaPods
 # Pods/
