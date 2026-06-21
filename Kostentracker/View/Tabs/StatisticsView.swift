@@ -113,7 +113,6 @@ struct StatisticsView: View {
                 CostCard(title: String(localized: "Monthly"), amount: totalCosts.monthly)
                 CostCard(title: String(localized: "Weekly"), amount: totalCosts.weekly)
             }
-            .glassyContainer()
         }
     }
 
@@ -188,7 +187,7 @@ struct StatisticsView: View {
         }
         .frame(height: CGFloat(categoryCosts.count * 50 + 20))
         .padding()
-        .glassyCard()
+        .cardSurface()
     }
 
     @ViewBuilder
@@ -229,7 +228,7 @@ struct StatisticsView: View {
             }
         }
         .padding()
-        .glassyCard()
+        .cardSurface()
     }
 
     @ViewBuilder
@@ -301,7 +300,7 @@ struct StatisticsView: View {
                         .id("currentMonth")
                 }
             }
-            .glassyCard()
+            .cardSurface()
             .onAppear {
                 proxy.scrollTo("currentMonth", anchor: .leading)
             }

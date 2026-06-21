@@ -161,7 +161,7 @@ struct ExpenseRow: View {
                 VStack(alignment: .trailing, spacing: 2) {
                     amountText(expense.getCostFor(for: uiState.selectedDisplayPeriod))
 
-                    if expense.getCostFor(for: uiState.selectedDisplayPeriod) != expense.amount {
+                    if abs(expense.getCostFor(for: uiState.selectedDisplayPeriod) - expense.amount) >= 0.01 {
                         Text(expense.amount, format: .currency(code: userSettings.currencyCode))
                             .font(.subheadline)
                             .fontDesign(.rounded)

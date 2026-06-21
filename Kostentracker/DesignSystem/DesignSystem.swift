@@ -10,25 +10,23 @@ enum DesignSystem {
 
 // MARK: - Icon tile
 
-/// Colored rounded-rect background with a centered SF Symbol. Used as a row-leading
-/// affordance in Settings, the paywall, and inspectors.
+/// Classic iOS Settings row-leading affordance: a white SF Symbol on a solid
+/// gradient tile. Used in Settings, the paywall, and inspectors so they all match.
 struct IconTile: View {
     let icon: String
     let color: Color
     var size: CGFloat = 28
 
-    private var cornerRadius: CGFloat {
-        size < 50 ? DesignSystem.CornerRadius.small : DesignSystem.CornerRadius.large
-    }
-
+    private var cornerRadius: CGFloat { size * 0.23 }
     private var iconSize: CGFloat { size * 0.5 }
 
     var body: some View {
         Image(systemName: icon)
-            .font(.system(size: iconSize, weight: .medium))
-            .foregroundStyle(color)
+            .font(.system(size: iconSize, weight: .semibold))
+            .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .tintedGlassBackground(color, cornerRadius: cornerRadius)
+            .background(color.gradient)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
     }
 }
 
@@ -47,53 +45,35 @@ extension View {
             .padding(.horizontal)
     }
 
-    /// Tinted glass on iOS 26, solid translucent fill on iOS 18–25.
-    /// Set `prominent: true` for primary CTAs (full-strength tint, opaque fill on iOS 18).
-    @ViewBuilder
+    /// Solid translucent tint behind an accent element (icon tiles, action buttons).
+    /// Set `prominent: true` for primary CTAs (full-strength tint).
+    /// Post-overhaul this drops Liquid Glass so accents stay consistent with the
+    /// now-flat cards; identical on iOS 18 and 26.
     func tintedGlassBackground(_ color: Color, cornerRadius: CGFloat, prominent: Bool = false) -> some View {
-        if #available(iOS 26.0, *) {
-            let tint = prominent ? color : color.opacity(0.35)
-            self.glassEffect(
-                .regular.tint(tint),
-                in: RoundedRectangle(cornerRadius: cornerRadius)
-            )
-        } else {
-            let fill = prominent ? color : color.opacity(0.15)
-            self.background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(fill)
-            )
-        }
+        let fill = prominent ? color : color.opacity(0.15)
+        return self.background(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(fill)
+        )
     }
 }
 
-// MARK: - Glassy card
+// MARK: - Card surface
 
 extension View {
-    /// Card background that uses iOS 26 Liquid Glass when available and a solid
-    /// tertiarySystemBackground fill on iOS 18-25. This is the single isolated
-    /// availability branch in the codebase — call it instead of repeating background
-    /// + clip shape inline.
-    @ViewBuilder
-    func glassyCard(cornerRadius: CGFloat = DesignSystem.CornerRadius.medium) -> some View {
-        if #available(iOS 26.0, *) {
-            self.glassEffect(in: RoundedRectangle(cornerRadius: cornerRadius))
-        } else {
-            self
-                .background(Color(.tertiarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        }
-    }
-
-    /// Combines multiple glassy cards into a unified morphing shape on iOS 26.
-    @ViewBuilder
-    func glassyContainer() -> some View {
-        if #available(iOS 26.0, *) {
-            GlassEffectContainer {
-                self
-            }
-        } else {
-            self
-        }
+    /// Neutral card surface: an elevated grouped background with a soft hairline,
+    /// for content sitting on a `systemGroupedBackground`. Post-overhaul this uses
+    /// the native inset-grouped look instead of Liquid Glass; identical on iOS 18
+    /// and 26.
+    func cardSurface(cornerRadius: CGFloat = DesignSystem.CornerRadius.medium) -> some View {
+        self
+            .background(
+                Color(.secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(Color(.separator).opacity(0.5), lineWidth: 1)
+            )
     }
 }

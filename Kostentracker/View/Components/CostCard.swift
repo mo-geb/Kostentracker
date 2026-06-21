@@ -22,7 +22,7 @@ struct CostCard: View {
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .glassyCard()
+            .cardSurface()
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(title) cost: \(amount, format: .currency(code: userSettings.currencyCode))")
         }

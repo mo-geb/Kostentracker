@@ -50,9 +50,15 @@ struct ExpenseInspector: View {
         return f
     }()
     
+    /// True when presented modally (the "new expense" sheet). Pushed view/edit
+    /// presentations leave this false so the system back button handles dismissal
+    /// instead of a redundant Close button.
+    private let isPresentedAsSheet: Bool
+
     // Construct
-    init(initialState: ActiveExpenseSheet) {
+    init(initialState: ActiveExpenseSheet, isPresentedAsSheet: Bool = false) {
         self.initialState = initialState
+        self.isPresentedAsSheet = isPresentedAsSheet
         switch initialState {
         case .view(let e):
             self.expense = e
@@ -114,7 +120,6 @@ struct ExpenseInspector: View {
 
                         notesSectionEditing
                     }
-                    .glassyContainer()
                     .padding()
                     .accessibilitySortPriority(3)
                     
@@ -153,7 +158,6 @@ struct ExpenseInspector: View {
 
                         notesSectionShowing
                     }
-                    .glassyContainer()
                     .padding()
                     .accessibilitySortPriority(3)
                     
@@ -393,7 +397,9 @@ struct ExpenseInspector: View {
             Toggle("", isOn: Binding(
                 get: { draft.date != Date.distantPast },
                 set: { newValue in
-                    draft.date = newValue ? Date.now : Date.distantPast
+                    withAnimation(.snappy) {
+                        draft.date = newValue ? Date.now : Date.distantPast
+                    }
                 }))
         }
     }
@@ -428,7 +434,9 @@ struct ExpenseInspector: View {
             Toggle("", isOn: Binding(
                 get: { draft.frequencyValue != 0 },
                 set: { newValue in
-                    draft.frequencyValue = newValue ? 1 : 0
+                    withAnimation(.snappy) {
+                        draft.frequencyValue = newValue ? 1 : 0
+                    }
                 }))
         }
     }
@@ -600,34 +608,29 @@ struct ExpenseInspector: View {
                 .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
         }
         .padding(16)
-        .glassyCard()
+        .cardSurface()
     }
 
     @ViewBuilder
     private var notesSectionShowing: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "note.text")
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .frame(width: 20)
-                Text("Notes")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-            }
-            if let notes = expense?.notes, !notes.isEmpty {
+        if let notes = expense?.notes, !notes.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: "note.text")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                        .frame(width: 20)
+                    Text("Notes")
+                        .font(.headline)
+                        .accessibilityAddTraits(.isHeader)
+                }
                 Text(notes)
                     .accessibilityLabel("Notes: \(notes)")
                     .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                Text("No notes provided.")
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel("Notes: No notes provided")
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .padding(16)
+            .cardSurface()
         }
-        .padding(16)
-        .glassyCard()
     }
 
     @ViewBuilder
@@ -732,7 +735,9 @@ struct ExpenseInspector: View {
             ToolbarItem(placement: .cancellationAction) { cancelButton }
             ToolbarItem(placement: .confirmationAction) { saveButton }
         } else {
-            ToolbarItem(placement: .cancellationAction) { closeButton }
+            if isPresentedAsSheet {
+                ToolbarItem(placement: .cancellationAction) { closeButton }
+            }
             ToolbarItem(placement: .confirmationAction) { editButton }
         }
     }
@@ -741,7 +746,7 @@ struct ExpenseInspector: View {
         Button {
             switch initialState {
             case .edit(_), .view(_):
-                isEditing = false
+                withAnimation(.snappy) { isEditing = false }
             case .new:
                 dismiss()
             }
@@ -776,7 +781,7 @@ struct ExpenseInspector: View {
                 }
                 try context.save()
                 HapticManager.notification(.success)
-                isEditing = false
+                withAnimation(.snappy) { isEditing = false }
             } catch {
                 print("Failed to save expense: \(error)")
             }
@@ -791,7 +796,7 @@ struct ExpenseInspector: View {
     
     private var editButton: some View {
         Button {
-            isEditing = true
+            withAnimation(.snappy) { isEditing = true }
         } label: {
             Label("Edit", systemImage: "pencil")
         }
@@ -854,6 +859,12 @@ struct ExpenseInspector: View {
         .presentationDragIndicator(.hidden)
     }
     
+    /// Uniform row height so view and edit rows share one rhythm regardless of
+    /// whether the trailing accessory is plain text, a toggle, a date picker, or a
+    /// tinted chip. The tallest edit control fits within this height, so switching
+    /// modes no longer changes a row's height.
+    private static let rowHeight: CGFloat = 52
+
     @ViewBuilder
     private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
@@ -868,8 +879,8 @@ struct ExpenseInspector: View {
             content()
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 16)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, minHeight: Self.rowHeight, alignment: .leading)
     }
 
     @ViewBuilder
@@ -877,7 +888,7 @@ struct ExpenseInspector: View {
         VStack(spacing: 0) {
             content()
         }
-        .glassyCard()
+        .cardSurface()
     }
     
     @ViewBuilder

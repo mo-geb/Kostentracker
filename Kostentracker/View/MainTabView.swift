@@ -34,13 +34,10 @@ struct MainTabView: View {
         }
         .tabViewStyle(.automatic)
         .background(.thinMaterial)
+        // Only new expenses are presented modally; existing ones are pushed.
         .sheet(item: $ui.activeExpenseSheet) { sheet in
             NavigationStack {
-                switch sheet {
-                case .view(let e): ExpenseInspector(initialState: .view(e))
-                case .new(let d):  ExpenseInspector(initialState: .new(d))
-                case .edit(let e): ExpenseInspector(initialState: .edit(e))
-                }
+                ExpenseInspector(initialState: sheet, isPresentedAsSheet: true)
             }
         }
         .sheet(isPresented: $ui.showingSettings) {

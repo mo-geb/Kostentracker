@@ -28,6 +28,8 @@ struct ListView: View {
     ]) private var unfilteredExpenses: [Expense]
     @Query(sort: \ExpenseCategory.sortOrder) private var categories: [ExpenseCategory]
 
+    @State private var detailRoute: ExpenseDetailRoute?
+
     private var processedGroups: [ProcessedGroup] {
         let filtered = applyFilters(unfilteredExpenses)
         let grouped: [String: [Expense]]
@@ -64,6 +66,7 @@ struct ListView: View {
             mainContent
                 .navigationTitle(navigationTitle)
                 .toolbar { toolbarContent }
+                .expenseDetailDestination($detailRoute)
         }
     }
 
@@ -184,10 +187,10 @@ struct ListView: View {
 
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
             .contentShape(Rectangle())
-            .onTapGesture { ui.viewExpense(expense) }
+            .onTapGesture { detailRoute = ExpenseDetailRoute(expense: expense) }
             .contextMenu {
                 Button {
-                    ui.editExpense(expense)
+                    detailRoute = ExpenseDetailRoute(expense: expense, startInEdit: true)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }

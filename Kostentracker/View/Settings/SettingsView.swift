@@ -6,20 +6,16 @@ struct SettingsView: View {
     @Environment(UIState.self) private var ui
     @State private var isRestoring = false
     @State private var showPaywall = false
+    @State private var linkButtonWidth: CGFloat = 100
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    purchasesSection
-                    generalSection
-                    moreSection
-                    versionInfo
-                }
-                .glassyContainer()
-                .padding()
+            List {
+                purchasesSection
+                generalSection
+                moreSection
             }
-            .background(Color(.systemGroupedBackground))
+            .listStyle(.insetGrouped)
             .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -29,45 +25,27 @@ struct SettingsView: View {
             .paywallSheet(isPresented: $showPaywall)
         }
     }
-    
-    // MARK: - View Components
+
+    // MARK: - Sections
     //  [Color.red, Color.orange, Color.yellow, Color.green, Color.mint, Color.teal, Color.cyan, Color.blue, Color.indigo, Color.purple]
 
     @ViewBuilder
     private var purchasesSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Purchases")
-                .font(.title2.bold())
-                .foregroundStyle(.secondary)
-
+        Section("Purchases") {
             if store.isUnlimited {
-                row(title: String(localized: "Unlimited"),
-                    icon: "checkmark.seal.fill",
-                    iconColor: .green) {
-                    Text(store.isGrandfathered ? String(localized: "Thanks!") : String(localized: "Active"))
+                HStack {
+                    settingsLabel(icon: "checkmark.seal.fill", color: .green, title: "Unlimited")
+                    Spacer()
+                    Text(store.isGrandfathered ? "Thanks!" : "Active")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             } else {
-                Button {
-                    showPaywall = true
-                } label: {
-                    row(title: String(localized: "Upgrade to Unlimited"),
-                        icon: "sparkles",
-                        iconColor: .orange) {
-                        HStack {
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                Button { showPaywall = true } label: {
+                    settingsLabel(icon: "sparkles", color: .orange, title: "Upgrade to Unlimited")
                 }
-                .frame(minHeight: 44)
                 .buttonStyle(.plain)
-            }
 
-            if !store.isUnlimited {
                 Button {
                     Task {
                         isRestoring = true
@@ -75,22 +53,14 @@ struct SettingsView: View {
                         isRestoring = false
                     }
                 } label: {
-                    row(title: String(localized: "Restore Purchases"),
-                        icon: "arrow.clockwise",
-                        iconColor: .blue) {
-                        HStack {
+                    HStack {
+                        settingsLabel(icon: "arrow.clockwise", color: .blue, title: "Restore Purchases")
+                        if isRestoring {
                             Spacer()
-                            if isRestoring {
-                                ProgressView()
-                            } else {
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
+                            ProgressView()
                         }
                     }
                 }
-                .frame(minHeight: 44)
                 .buttonStyle(.plain)
                 .disabled(isRestoring)
             }
@@ -101,169 +71,121 @@ struct SettingsView: View {
     private var generalSection: some View {
         @Bindable var userSettings = userSettings
 
-        VStack(alignment: .leading, spacing: 8) {
-            Text("General")
-                .font(.title2.bold())
-                .foregroundStyle(.secondary)
-            
-            row(title: String(localized: "Currency"), icon: "eurosign", iconColor: .mint) {
+        Section("General") {
+            HStack {
+                settingsLabel(icon: "eurosign", color: .mint, title: "Currency")
+                Spacer()
                 Picker("Currency", selection: $userSettings.currencyCode) {
                     ForEach(Locale.commonISOCurrencyCodes, id: \.self) { code in
                         Text(currencyDisplayName(for: code)).tag(code)
                     }
                 }
+                .labelsHidden()
                 .pickerStyle(.menu)
             }
-            
+
             NavigationLink {
                 CategoriesView()
             } label: {
-                row(title: String(localized: "Categories"), icon: "paintbrush", iconColor: .teal) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                settingsLabel(icon: "paintbrush", color: .teal, title: "Categories")
             }
-            .frame(minHeight: 44)
-            .buttonStyle(.plain)
-            
+
             NavigationLink {
                 AccountsView()
             } label: {
-                row(title: String(localized: "Accounts"), icon: "person.2", iconColor: .cyan) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                settingsLabel(icon: "person.2", color: .cyan, title: "Accounts")
             }
-            .buttonStyle(.plain)
         }
     }
-    
+
     @ViewBuilder
     private var moreSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        Section {
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    linkButton(url: Links.website, icon: "globe", title: "Website")
+                    linkButton(url: Links.terms, icon: "doc.text", title: "Terms")
+                    linkButton(url: Links.privacy, icon: "hand.raised.fill", title: "Privacy")
+                }
+                .background {
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear { linkButtonWidth = (geo.size.width - 24) / 3 }
+                            .onChange(of: geo.size.width) { _, newWidth in
+                                linkButtonWidth = (newWidth - 24) / 3
+                            }
+                    }
+                }
+
+                HStack(spacing: 12) {
+                    linkButton(url: Links.guide, icon: "book", title: "Guide")
+                        .frame(width: linkButtonWidth)
+                    linkButton(url: Links.support, icon: "envelope.fill", title: "Support")
+                        .frame(width: linkButtonWidth)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 20))
+        } header: {
             Text("More")
-                .font(.title2.bold())
-                .foregroundStyle(.secondary)
-            
-            Button {
-                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/") else {
-                    print("Error: Invalid URL string.")
-                    return
-                }
-                UIApplication.shared.open(url)
-            } label: {
-                row(title: String(localized: "Website"), icon: "globe", iconColor: .blue) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .frame(minHeight: 44)
-            .buttonStyle(.plain)
-            
-            Button {
-                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/terms") else {
-                    print("Error: Invalid URL string.")
-                    return
-                }
-                UIApplication.shared.open(url)
-            } label: {
-                row(title: String(localized: "Terms of Service"), icon: "doc.text", iconColor: .indigo) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .frame(minHeight: 44)
-            .buttonStyle(.plain)
-            
-            Button {
-                guard let url = URL(string: "https://mo-geb.com/projects/cost-tracker/guide") else {
-                    print("Error: Invalid URL string.")
-                    return
-                }
-                UIApplication.shared.open(url)
-            } label: {
-                row(title: String(localized: "User Guide"), icon: "book", iconColor: .purple) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .frame(minHeight: 44)
-            .buttonStyle(.plain)
-            
-            Button {
-                let email = "support@mo-geb.com"
-                let subject = "App Feedback - Cost Tracker".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-                let body = "Hi there,...".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-                if let url = URL(string: "mailto:\(email)?subject=\(subject)&body=\(body)") {
-                    UIApplication.shared.open(url)
-                }
-            } label: {
-                row(title: String(localized: "Support"), icon: "wrench.and.screwdriver", iconColor: .red) {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            .frame(minHeight: 44)
-            .buttonStyle(.plain)
+        } footer: {
+            Text(Bundle.main.fullVersionString)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 8)
         }
     }
-    
-    @ViewBuilder
-    var versionInfo: some View {
-        Text(Bundle.main.fullVersionString)
-            .font(.caption)
-            .foregroundStyle(.secondary)
-    }
-    
+
     // MARK: - Helper Views
-    
-    /// A generic row builder to reduce duplication, matching the style of other views.
-    @ViewBuilder
-    private func row<Content: View>(title: String, icon: String, iconColor: Color, @ViewBuilder content: () -> Content) -> some View {
-        HStack {
-            IconTile(icon: icon, color: iconColor)
-            Text(title)
-                .font(.headline)
-                .lineLimit(1)
-                .layoutPriority(1)
-            Spacer()
-            content()
+
+    /// A tappable "little card" for an external link, matching the Cocktails Settings
+    /// look: centered SF Symbol + caption, accent-tinted, on an elevated grouped tile.
+    private func linkButton(url: URL, icon: String, title: LocalizedStringKey) -> some View {
+        Link(destination: url) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title3)
+                Text(title)
+                    .font(.caption)
+            }
+            .foregroundStyle(.tint)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
-        .padding(12)
-        .glassyCard(cornerRadius: 16)
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
     }
-    
+
+    private func settingsLabel(icon: String, color: Color, title: LocalizedStringKey) -> some View {
+        HStack(spacing: 12) {
+            IconTile(icon: icon, color: color, size: 30)
+            Text(title)
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+        }
+    }
+
     private func currencyDisplayName(for code: String) -> String {
-           let locale = Locale(identifier: Locale.identifier(fromComponents: [NSLocale.Key.currencyCode.rawValue: code]))
-           let currencyName = locale.localizedString(forCurrencyCode: code) ?? ""
-           let currencySymbol = locale.currencySymbol ?? ""
-           return "\(currencyName) (\(currencySymbol))"
-   }
+        let locale = Locale(identifier: Locale.identifier(fromComponents: [NSLocale.Key.currencyCode.rawValue: code]))
+        let currencyName = locale.localizedString(forCurrencyCode: code) ?? ""
+        let currencySymbol = locale.currencySymbol ?? ""
+        return "\(currencyName) (\(currencySymbol))"
+    }
+
+    // MARK: - URLs
+
+    private enum Links {
+        static let website = URL(string: "https://mo-geb.com/projects/cost-tracker/")!
+        static let terms   = URL(string: "https://mo-geb.com/projects/cost-tracker/terms")!
+        static let privacy = URL(string: "https://mo-geb.com/projects/cost-tracker/privacy")!
+        static let guide   = URL(string: "https://mo-geb.com/projects/cost-tracker/guide")!
+        static let support: URL = {
+            let email = "support@mo-geb.com"
+            let subject = "App Feedback - Cost Tracker".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+            let body = "Hi there,...".addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+            return URL(string: "mailto:\(email)?subject=\(subject)&body=\(body)")!
+        }()
+    }
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {

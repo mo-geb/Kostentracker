@@ -84,3 +84,34 @@ extension CaseIterable where Self: Equatable {
         self = next == all.endIndex ? all[all.startIndex] : all[next]
     }
 }
+
+// MARK: - Expense detail navigation
+
+/// Push destination for an existing expense. Viewing and editing an expense are
+/// part of the browsing hierarchy, so they push; creating a new expense stays a
+/// sheet (see `ActiveExpenseSheet.new`).
+struct ExpenseDetailRoute: Hashable, Identifiable {
+    let expense: Expense
+    var startInEdit: Bool = false
+
+    var id: PersistentIdentifier { expense.persistentModelID }
+
+    static func == (lhs: ExpenseDetailRoute, rhs: ExpenseDetailRoute) -> Bool {
+        lhs.expense.persistentModelID == rhs.expense.persistentModelID && lhs.startInEdit == rhs.startInEdit
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(expense.persistentModelID)
+        hasher.combine(startInEdit)
+    }
+}
+
+extension View {
+    /// Pushes the expense inspector for the bound route. Pair with a row that sets
+    /// the route on tap (`.view`) or via a context-menu Edit action (`startInEdit`).
+    func expenseDetailDestination(_ route: Binding<ExpenseDetailRoute?>) -> some View {
+        navigationDestination(item: route) { route in
+            ExpenseInspector(initialState: route.startInEdit ? .edit(route.expense) : .view(route.expense))
+        }
+    }
+}

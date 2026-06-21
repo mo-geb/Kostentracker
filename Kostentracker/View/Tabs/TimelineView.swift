@@ -24,6 +24,8 @@ struct TimelineView: View {
     @Query(sort: \Expense.date) private var unfilteredExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
 
+    @State private var detailRoute: ExpenseDetailRoute?
+
     private var monthlyGroups: [MonthlyExpenseGroup] {
         let filtered = applyFilters(unfilteredExpenses)
         let onlyActive = Expense.applyCustomFilters(filtered, filter: .active)
@@ -48,6 +50,7 @@ struct TimelineView: View {
             mainContent
                 .navigationTitle("Timeline")
                 .toolbar { toolbarContent }
+                .expenseDetailDestination($detailRoute)
         }
     }
 
@@ -93,10 +96,10 @@ struct TimelineView: View {
 
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .timeline)
             .contentShape(Rectangle())
-            .onTapGesture { ui.viewExpense(expense) }
+            .onTapGesture { detailRoute = ExpenseDetailRoute(expense: expense) }
             .contextMenu {
                 Button {
-                    ui.editExpense(expense)
+                    detailRoute = ExpenseDetailRoute(expense: expense, startInEdit: true)
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }

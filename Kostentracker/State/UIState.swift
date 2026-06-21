@@ -49,14 +49,8 @@ final class UIState {
         showingPaywall = true
     }
 
-    func editExpense(_ expense: Expense) {
-        activeExpenseSheet = .edit(expense)
-    }
-
-    func viewExpense(_ expense: Expense) {
-        activeExpenseSheet = .view(expense)
-    }
-
+    // Viewing/editing an existing expense pushes via `ExpenseDetailRoute` (handled
+    // per-tab); only creating a new expense is presented modally.
     func createExpense(from draft: ExpenseDraft) {
         activeExpenseSheet = .new(draft)
     }

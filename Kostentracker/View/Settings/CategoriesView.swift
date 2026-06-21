@@ -46,6 +46,7 @@ struct CategoriesView: View {
             listSection
             addButton
         }
+        .background(Color(.systemGroupedBackground))
     }
     
     // MARK: - List Section
@@ -61,6 +62,7 @@ struct CategoriesView: View {
             .onMove(perform: moveCategory)
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
     
     // MARK: - Add Button
@@ -143,9 +145,8 @@ struct CategoriesView: View {
                             .font(.caption2)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(.secondarySystemGroupedBackground))
+                            .background(Color(.tertiarySystemFill), in: Capsule())
                             .foregroundStyle(.secondary)
-                            .cornerRadius(7)
                     }
                 }
             }
@@ -157,7 +158,7 @@ struct CategoriesView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 18)
-        .glassyCard()
+        .cardSurface()
         .frame(minHeight: 44)
         .contentShape(Rectangle())
         .onTapGesture {

@@ -140,7 +140,7 @@ struct CategoryInspector: View {
                 }
             }
             .padding()
-            .glassyCard()
+            .cardSurface()
         }
     }
     
@@ -248,7 +248,7 @@ struct CategoryInspector: View {
             content()
         }
         .padding(12)
-        .glassyCard()
+        .cardSurface()
     }
 
 }

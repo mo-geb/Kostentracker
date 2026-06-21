@@ -90,7 +90,6 @@ struct PaywallView: View {
                 subtitle: String(localized: "Help keep ClutterFree independent and ad-free.")
             )
         }
-        .glassyContainer()
     }
 
     @ViewBuilder
@@ -110,7 +109,7 @@ struct PaywallView: View {
         }
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .glassyCard(cornerRadius: 16)
+        .cardSurface(cornerRadius: 16)
     }
 
     // MARK: - Purchase section

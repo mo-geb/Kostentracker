@@ -127,7 +127,7 @@ struct AccountInspector: View {
                 }
             }
             .padding()
-            .glassyCard()
+            .cardSurface()
         }
     }
     
@@ -235,7 +235,7 @@ struct AccountInspector: View {
             content()
         }
         .padding(12)
-        .glassyCard()
+        .cardSurface()
     }
 
 }

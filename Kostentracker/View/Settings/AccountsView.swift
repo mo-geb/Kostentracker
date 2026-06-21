@@ -212,7 +212,7 @@ struct AccountsView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 18)
-        .glassyCard()
+        .cardSurface()
         .contentShape(Rectangle())
         .onTapGesture {
             ui.editAccount(account)

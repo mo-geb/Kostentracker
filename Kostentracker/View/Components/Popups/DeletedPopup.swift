@@ -14,7 +14,7 @@ struct DeletedPopup: View {
                 .multilineTextAlignment(.center)
         }
         .padding(30)
-        .glassyCard(cornerRadius: 24)
+        .cardSurface(cornerRadius: 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .transition(.scale.combined(with: .opacity))
         .zIndex(99)

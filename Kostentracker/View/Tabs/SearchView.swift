@@ -5,21 +5,22 @@ struct SearchView: View {
     
     // MARK: - Properties
     // Shared
-    @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
 
     // State
     @State private var searchText = ""
+    @State private var detailRoute: ExpenseDetailRoute?
 
     @Query private var allExpenses: [Expense]
 
     // MARK: - Body
-    
+
     var body: some View {
         NavigationStack {
             content
                 .navigationTitle("Search")
                 .searchable(text: $searchText, prompt: "Search by title or notes")
+                .expenseDetailDestination($detailRoute)
         }
     }
     
@@ -121,10 +122,10 @@ struct SearchView: View {
                 .fontDesign(.rounded)
         }
         .padding(16)
-        .glassyCard()
+        .cardSurface()
         .contentShape(Rectangle())
         .onTapGesture {
-            ui.viewExpense(expense)
+            detailRoute = ExpenseDetailRoute(expense: expense)
         }
     }
 }
