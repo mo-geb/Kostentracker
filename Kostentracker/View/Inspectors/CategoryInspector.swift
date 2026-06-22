@@ -13,6 +13,7 @@ struct CategoryInspector: View {
     @State private var category: ExpenseCategory?
     @State private var draft: CategoryDraft
     @State private var showingDeleteAlert = false
+    @State private var successHaptic = 0
     
     // Focus management
     @FocusState private var focusedField: FocusedField?
@@ -60,6 +61,9 @@ struct CategoryInspector: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .sensoryFeedback(.impact(weight: .light), trigger: draft.iconName)
+            .sensoryFeedback(.impact(weight: .medium), trigger: draft.isDefault)
+            .sensoryFeedback(.success, trigger: successHaptic)
             .navigationTitle((category?.name ?? draft.name).isEmpty ? "New Category" : "Edit Category")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -132,10 +136,7 @@ struct CategoryInspector: View {
                             .opacity(draft.iconName == icon ? 1.0 : 0.0)
                     )
                     .onTapGesture {
-                        if draft.iconName != icon {
-                            draft.iconName = icon
-                            HapticManager.impact(.light)
-                        }
+                        if draft.iconName != icon { draft.iconName = icon }
                     }
                 }
             }
@@ -147,10 +148,7 @@ struct CategoryInspector: View {
     @ViewBuilder
     private var defaultButton: some View {
         Button {
-            if !draft.isDefault {
-                draft.isDefault = true
-                HapticManager.impact(.medium)
-            }
+            draft.isDefault = true
         } label: {
             HStack {
                 Image(systemName: draft.isDefault ? "checkmark.seal.fill" : "star")
@@ -181,7 +179,7 @@ struct CategoryInspector: View {
                 if let category = category {
                     category.deleteSafely(from: context)
                 }
-                HapticManager.notification(.success)
+                successHaptic += 1
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -217,7 +215,7 @@ struct CategoryInspector: View {
                 }
                 do {
                     try context.save()
-                    HapticManager.notification(.success)
+                    successHaptic += 1
                 } catch {
                     print("Failed to save category: \(error)")
                 }

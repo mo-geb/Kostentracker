@@ -13,6 +13,7 @@ struct AccountInspector: View {
     @State private var account: ExpenseAccount?
     @State private var draft: AccountDraft
     @State private var showingDeleteAlert = false
+    @State private var successHaptic = 0
     
     // Focus management
     @FocusState private var focusedField: FocusedField?
@@ -56,6 +57,9 @@ struct AccountInspector: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
+            .sensoryFeedback(.impact(weight: .light), trigger: draft.iconName)
+            .sensoryFeedback(.impact(weight: .medium), trigger: draft.isDefault)
+            .sensoryFeedback(.success, trigger: successHaptic)
             .navigationTitle((account?.name ?? draft.name).isEmpty ? "New Account" : "Edit Account")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -119,10 +123,7 @@ struct AccountInspector: View {
                             .opacity(draft.iconName == icon ? 1.0 : 0.0)
                     )
                     .onTapGesture {
-                        if draft.iconName != icon {
-                            draft.iconName = icon
-                            HapticManager.impact(.light)
-                        }
+                        if draft.iconName != icon { draft.iconName = icon }
                     }
                 }
             }
@@ -134,10 +135,7 @@ struct AccountInspector: View {
     @ViewBuilder
     private var defaultButton: some View {
         Button {
-            if !draft.isDefault {
-                draft.isDefault = true
-                HapticManager.impact(.medium)
-            }
+            draft.isDefault = true
         } label: {
             HStack {
                 Image(systemName: draft.isDefault ? "checkmark.seal.fill" : "star")
@@ -168,7 +166,7 @@ struct AccountInspector: View {
                 if let account = account {
                     account.deleteSafely(from: context)
                 }
-                HapticManager.notification(.success)
+                successHaptic += 1
                 dismiss()
             }
             Button("Cancel", role: .cancel) { }
@@ -204,7 +202,7 @@ struct AccountInspector: View {
                 }
                 do {
                     try context.save()
-                    HapticManager.notification(.success)
+                    successHaptic += 1
                 } catch {
                     print("Failed to save account: \(error)")
                 }

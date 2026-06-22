@@ -127,7 +127,6 @@ struct StatisticsView: View {
                 Spacer()
                 Button(action: {
                     withAnimation(.snappy) { ui.displayedCategoryChart.cycleToNext() }
-                    HapticManager.selection()
                 }) {
                     Text(ui.displayedCategoryChart.localizedName)
                         .font(.subheadline)
@@ -139,6 +138,7 @@ struct StatisticsView: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Chart type: \(ui.displayedCategoryChart.localizedName)")
                 .accessibilityHint("Switches between bar chart and pie chart")
+                .sensoryFeedback(.selection, trigger: ui.displayedCategoryChart)
             }
             switch ui.displayedCategoryChart {
             case .barChart: categoryBarChart

@@ -124,7 +124,6 @@ struct ListView: View {
             Spacer()
             Button(action: {
                 ui.selectedDisplayPeriod.cycleToNext()
-                HapticManager.selection()
             }) {
                 HStack(spacing: 8) {
                     Text(ui.selectedDisplayPeriod.periodName)
@@ -146,6 +145,7 @@ struct ListView: View {
             .accessibilityLabel("Change display period from \(ui.selectedDisplayPeriod.periodName). Total: \(groupData.totalCost, format: .currency(code: userSettings.currencyCode))")
             .accessibilityHint("Double tap to cycle through yearly, monthly, weekly, and daily periods")
             .accessibilityValue("\(ui.selectedDisplayPeriod.periodName)")
+            .sensoryFeedback(.selection, trigger: ui.selectedDisplayPeriod)
         }
         .lineLimit(1)
         .textCase(nil)

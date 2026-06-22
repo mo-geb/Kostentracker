@@ -20,6 +20,7 @@ struct ExpenseInspector: View {
     @State private var isEditing: Bool
     @State private var amountText: String = ""
     @State private var showingDeleteAlert = false
+    @State private var successHaptic = 0
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var emojiInput: String = ""
     
@@ -114,6 +115,7 @@ struct ExpenseInspector: View {
                             categoryRowEditing
 
                             if store.accountsAvailable(in: userSettings) {
+                                customDivider
                                 accountRowEditing
                             }
                         }
@@ -203,11 +205,6 @@ struct ExpenseInspector: View {
             default: EmptyView()
             }
         }
-        .overlay {
-            if ui.activePopup == ActivePopup.markedAsPaid(owner: ActivePopup.PopupOwner.inspector) {
-                MarkAsPaidPopup()
-            }
-        }
         .onAppear {
             if case .new(_) = initialState {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -215,6 +212,8 @@ struct ExpenseInspector: View {
                 }
             }
         }
+        .sensoryFeedback(.success, trigger: successHaptic)
+        .sensoryFeedback(.selection, trigger: draft.customImageData)
     }
     
     // MARK: - View Components
@@ -656,7 +655,7 @@ struct ExpenseInspector: View {
                     uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
                 case .recurring:
                     e.advanceDueDate()
-                    uiState.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.inspector)
+                    uiState.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
                 }
                 try? context.save()
             }
@@ -715,7 +714,7 @@ struct ExpenseInspector: View {
                 if let expense = expense {
                     context.delete(expense)
                 }
-                HapticManager.notification(.success)
+                successHaptic += 1
                 dismiss()
                 uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
             }
@@ -780,7 +779,7 @@ struct ExpenseInspector: View {
                     self.initialState = .view(newExpense)
                 }
                 try context.save()
-                HapticManager.notification(.success)
+                successHaptic += 1
                 withAnimation(.snappy) { isEditing = false }
             } catch {
                 print("Failed to save expense: \(error)")
@@ -819,7 +818,6 @@ struct ExpenseInspector: View {
                     draft.customImageData = String(lastChar).data(using: .utf8)
                     
                     focusedField = .none
-                    HapticManager.selection()
                 }
                 
                 emojiInput = ""
