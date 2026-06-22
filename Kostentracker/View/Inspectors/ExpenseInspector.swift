@@ -178,6 +178,7 @@ struct ExpenseInspector: View {
         .background {
             hiddenEmojiTextField
         }
+        .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
         .toolbar {
             toolbarContent
@@ -207,7 +208,8 @@ struct ExpenseInspector: View {
         }
         .onAppear {
             if case .new(_) = initialState {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Task {
+                    try? await Task.sleep(for: .milliseconds(100))
                     focusedField = .expenseDetailTitle
                 }
             }
@@ -900,8 +902,5 @@ struct ExpenseInspector: View {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
         ExpenseInspector(initialState: .edit(SampleData.oneTime))
-            .environment(UIState())
-            .environment(UserSettings())
-            .environment(StoreManager())
     }
 }

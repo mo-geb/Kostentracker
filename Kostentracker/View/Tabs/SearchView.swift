@@ -107,9 +107,5 @@ struct SearchView: View {
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
-    NavigationStack {
-        SearchView()
-            .environment(UIState())
-            .environment(UserSettings())
-    }
+    SearchView()
 }

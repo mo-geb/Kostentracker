@@ -128,22 +128,20 @@ final class UIState {
             self.feedbackTrigger.toggle()
             self.activePopup = .markedAsPaid(owner: owner)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            withAnimation {
-                self.activePopup = nil
-            }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(duration))
+            withAnimation { self?.activePopup = nil }
         }
     }
-    
+
     func showDeletedPopup(owner: ActivePopup.PopupOwner, duration: TimeInterval = 1.5) {
         withAnimation {
             self.feedbackTrigger.toggle()
             self.activePopup = .deleted(owner: owner)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-            withAnimation {
-                self.activePopup = nil
-            }
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(duration))
+            withAnimation { self?.activePopup = nil }
         }
     }
     

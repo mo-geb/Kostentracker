@@ -216,10 +216,5 @@ private extension ListView {
 // MARK: - Preview
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
-    NavigationStack {
-        ListView()
-            .environment(UIState())
-            .environment(UserSettings())
-            .environment(StoreManager())
-    }
+    ListView()
 }

@@ -90,7 +90,7 @@ struct TimelineView: View {
     }
 
     private func expenseRow(for expense: Expense) -> some View {
-        let subtitle = DateFormatter.localizedString(from: expense.date, dateStyle: .medium, timeStyle: .none)
+        let subtitle = expense.date.formatted(date: .abbreviated, time: .omitted)
 
         return ExpenseRow(expense: expense, subtitle: subtitle, tab: .timeline)
             .contentShape(Rectangle())
@@ -173,10 +173,5 @@ private extension TimelineView {
 // MARK: - Preview
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
-    NavigationStack {
-        TimelineView()
-            .environment(UIState())
-            .environment(UserSettings())
-            .environment(StoreManager())
-    }
+    TimelineView()
 }

@@ -60,6 +60,7 @@ struct CategoryInspector: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .background(Color(.systemGroupedBackground))
             .sensoryFeedback(.impact(weight: .light), trigger: draft.iconName)
             .sensoryFeedback(.impact(weight: .medium), trigger: draft.isDefault)
@@ -74,7 +75,8 @@ struct CategoryInspector: View {
             }
             .onAppear {
                 if case .new(_) = initialState {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(100))
                         focusedField = .categoryDetailTitle
                     }
                 }

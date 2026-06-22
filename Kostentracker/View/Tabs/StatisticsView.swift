@@ -49,6 +49,7 @@ struct StatisticsView: View {
     @Environment(\.modelContext) private var context
 
     @Query private var unfilteredExpenses: [Expense]
+    @State private var monthlyChartScrollPosition: String? = "currentMonth"
 
     private var stats: Stats {
         let expenses = applyFilters(unfilteredExpenses)
@@ -237,74 +238,70 @@ struct StatisticsView: View {
         let average = stats.averageMonthlyDisplayed
         let data = stats.monthlyCategoryExpenses
 
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                Chart(data) { item in
-                    RuleMark(y: .value("Average", average))
-                        .foregroundStyle(.gray.opacity(0.4))
-                        .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 5]))
+        ScrollView(.horizontal, showsIndicators: false) {
+            Chart(data) { item in
+                RuleMark(y: .value("Average", average))
+                    .foregroundStyle(.gray.opacity(0.4))
+                    .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 5]))
 
-                    BarMark(
-                        x: .value("Month", item.date, unit: .month),
-                        y: .value("Cost", item.amount),
-                        width: .fixed(28)
-                    )
-                    .foregroundStyle(item.category.color)
-                    .cornerRadius(6)
-                }
-                .chartXAxis {
-                    AxisMarks(preset: .aligned, values: .stride(by: .month)) { value in
-                        if let date = value.as(Date.self) {
-                            let month = Calendar.current.component(.month, from: date)
-                            let isFirstInArray = displayMonths.first.map {
-                                Calendar.current.isDate(date, equalTo: $0, toGranularity: .month)
-                            } ?? false
-                            let showYear = month == 1 || isFirstInArray
+                BarMark(
+                    x: .value("Month", item.date, unit: .month),
+                    y: .value("Cost", item.amount),
+                    width: .fixed(28)
+                )
+                .foregroundStyle(item.category.color)
+                .cornerRadius(6)
+            }
+            .chartXAxis {
+                AxisMarks(preset: .aligned, values: .stride(by: .month)) { value in
+                    if let date = value.as(Date.self) {
+                        let month = Calendar.current.component(.month, from: date)
+                        let isFirstInArray = displayMonths.first.map {
+                            Calendar.current.isDate(date, equalTo: $0, toGranularity: .month)
+                        } ?? false
+                        let showYear = month == 1 || isFirstInArray
 
-                            AxisValueLabel(centered: true) {
-                                VStack(spacing: 1) {
-                                    Text(date, format: .dateTime.month(.abbreviated))
+                        AxisValueLabel(centered: true) {
+                            VStack(spacing: 1) {
+                                Text(date, format: .dateTime.month(.abbreviated))
+                                    .font(.caption2)
+                                if showYear {
+                                    Text(date, format: .dateTime.year(.defaultDigits))
                                         .font(.caption2)
-                                    if showYear {
-                                        Text(date, format: .dateTime.year(.defaultDigits))
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
+                                        .foregroundStyle(.secondary)
                                 }
                             }
                         }
                     }
                 }
-                .chartYAxis {
-                    AxisMarks(position: .leading) { value in
-                        AxisValueLabel {
-                            if let cost = value.as(Double.self) {
-                                Text(cost, format: .number)
-                                    .font(.caption2)
-                                    .fontDesign(.rounded)
-                                    .foregroundStyle(.secondary)
-                                    .padding(.leading)
-                            }
+            }
+            .chartYAxis {
+                AxisMarks(position: .leading) { value in
+                    AxisValueLabel {
+                        if let cost = value.as(Double.self) {
+                            Text(cost, format: .number)
+                                .font(.caption2)
+                                .fontDesign(.rounded)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading)
                         }
                     }
                 }
-                .scrollClipDisabled()
-                .frame(width: CGFloat(displayMonths.count) * 52, height: 200)
-                .overlay(alignment: .leading) {
-                    let currentIndex = displayMonths.firstIndex(where: {
-                        Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
-                    }) ?? 0
-                    Color.clear
-                        .frame(width: 1)
-                        .offset(x: CGFloat(currentIndex) * 52)
-                        .id("currentMonth")
-                }
             }
-            .cardSurface()
-            .onAppear {
-                proxy.scrollTo("currentMonth", anchor: .leading)
+            .scrollClipDisabled()
+            .frame(width: CGFloat(displayMonths.count) * 52, height: 200)
+            .overlay(alignment: .leading) {
+                let currentIndex = displayMonths.firstIndex(where: {
+                    Calendar.current.isDate($0, equalTo: Date(), toGranularity: .month)
+                }) ?? 0
+                Color.clear
+                    .frame(width: 1)
+                    .offset(x: CGFloat(currentIndex) * 52)
+                    .id("currentMonth")
             }
         }
+        .scrollPosition(id: $monthlyChartScrollPosition, anchor: .leading)
+        .cardSurface()
     }
 
     // MARK: - Toolbar

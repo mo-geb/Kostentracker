@@ -57,10 +57,5 @@ struct MainTabView: View {
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
-    NavigationStack {
-        MainTabView()
-            .environment(UIState())
-            .environment(UserSettings())
-            .environment(StoreManager())
-    }
+    MainTabView()
 }
