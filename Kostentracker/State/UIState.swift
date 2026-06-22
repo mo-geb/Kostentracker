@@ -7,7 +7,7 @@ final class UIState {
     // MARK: - Published UI States
     
     // Modals / Sheets
-    var activeExpenseSheet: ActiveExpenseSheet?
+    var newExpenseDraft: ExpenseDraft?
     var activeCategorySheet: ActiveCategorySheet?
     var activeAccountSheet: ActiveAccountSheet?
     var showingSettings: Bool = false
@@ -52,7 +52,7 @@ final class UIState {
     // Viewing/editing an existing expense pushes via `ExpenseDetailRoute` (handled
     // per-tab); only creating a new expense is presented modally.
     func createExpense(from draft: ExpenseDraft) {
-        activeExpenseSheet = .new(draft)
+        newExpenseDraft = draft
     }
 
     func editCategory(_ category: ExpenseCategory) {

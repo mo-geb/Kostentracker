@@ -34,9 +34,9 @@ struct MainTabView: View {
         }
         .tabViewStyle(.automatic)
         // Only new expenses are presented modally; existing ones are pushed.
-        .sheet(item: $ui.activeExpenseSheet) { sheet in
+        .sheet(item: $ui.newExpenseDraft) { draft in
             NavigationStack {
-                ExpenseInspector(initialState: sheet, isPresentedAsSheet: true)
+                ExpenseInspector(initialState: .new(draft), isPresentedAsSheet: true)
             }
         }
         .sheet(isPresented: $ui.showingSettings) {

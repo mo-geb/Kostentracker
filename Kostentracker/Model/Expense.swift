@@ -244,7 +244,8 @@ extension Expense {
 
 // MARK: - Expense Draft struct for creating and editing Expenses
 
-struct ExpenseDraft {
+struct ExpenseDraft: Identifiable {
+    let id = UUID()
     var title: String
     var amount: Double
     var frequencyUnit: FrequencyUnit
