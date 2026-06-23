@@ -8,7 +8,7 @@ struct MarkAsPaidPopup: View {
                 .frame(width: 60, height: 60)
                 .foregroundStyle(.green)
                 .padding(5)
-            Text("Marked Expense\nas Paid")
+            Text("Marked as Paid")
                 .font(.title3)
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
@@ -16,6 +16,7 @@ struct MarkAsPaidPopup: View {
         .padding(30)
         .cardSurface(cornerRadius: 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(false)
         .transition(.scale.combined(with: .opacity))
         .zIndex(99)
     }

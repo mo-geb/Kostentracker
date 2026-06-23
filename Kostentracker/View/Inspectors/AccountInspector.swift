@@ -53,6 +53,13 @@ struct AccountInspector: View {
             .navigationTitle((account?.name ?? draft.name).isEmpty ? "New Account" : "Edit Account")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { focusedField = nil }
+                        .fontWeight(.semibold)
+                }
+            }
             .onAppear {
                 if case .new(_) = initialState {
                     Task {
@@ -83,6 +90,8 @@ struct AccountInspector: View {
                     }
                     .focused($focusedField, equals: .accountDetailTitle)
             }
+            .frame(minHeight: 30)
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
         }
     }
 

@@ -41,9 +41,10 @@ struct TimelineView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
+        let groups = monthlyGroups
+        return NavigationStack {
             List {
-                ForEach(monthlyGroups) { group in
+                ForEach(groups) { group in
                     Section {
                         ForEach(group.expenses) { expense in
                             expenseRow(for: expense)
@@ -63,7 +64,7 @@ struct TimelineView: View {
                     }
                 }
             }
-            .overlay { if monthlyGroups.isEmpty { EmptyExpensesView() } }
+            .overlay { if groups.isEmpty { EmptyExpensesView() } }
             .navigationTitle("Timeline")
             .toolbar { toolbarContent }
             .expenseDetailDestination($detailRoute)
@@ -73,10 +74,12 @@ struct TimelineView: View {
     // MARK: - Row
 
     private func expenseRow(for expense: Expense) -> some View {
-        ExpenseRow(expense: expense, subtitle: expense.date.formatted(date: .abbreviated, time: .omitted), tab: .timeline)
-            .contentShape(Rectangle())
-            .onTapGesture { detailRoute = ExpenseDetailRoute(expense: expense) }
-            .contextMenu {
+        Button { detailRoute = ExpenseDetailRoute(expense: expense) } label: {
+            ExpenseRow(expense: expense, subtitle: expense.date.formatted(date: .abbreviated, time: .omitted), tab: .timeline)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
                 Button {
                     detailRoute = ExpenseDetailRoute(expense: expense, startInEdit: true)
                 } label: {

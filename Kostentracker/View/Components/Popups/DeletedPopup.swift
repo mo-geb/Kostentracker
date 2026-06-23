@@ -16,6 +16,7 @@ struct DeletedPopup: View {
         .padding(30)
         .cardSurface(cornerRadius: 24)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(false)
         .transition(.scale.combined(with: .opacity))
         .zIndex(99)
     }

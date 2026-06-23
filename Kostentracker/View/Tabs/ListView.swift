@@ -158,18 +158,20 @@ struct ListView: View {
         case .oneTime, .recurring: subtitle = expense.frequencyUnit.displayText(for: expense.frequencyValue)
         }
 
-        return ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
-            .contentShape(Rectangle())
-            .onTapGesture { detailRoute = ExpenseDetailRoute(expense: expense) }
-            .contextMenu {
-                Button {
-                    detailRoute = ExpenseDetailRoute(expense: expense, startInEdit: true)
-                } label: {
-                    Label("Edit", systemImage: "pencil")
-                }
-                .accessibilityLabel("Edit expense")
-                .accessibilityHint("Opens expense for editing")
+        return Button { detailRoute = ExpenseDetailRoute(expense: expense) } label: {
+            ExpenseRow(expense: expense, subtitle: subtitle, tab: .list)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button {
+                detailRoute = ExpenseDetailRoute(expense: expense, startInEdit: true)
+            } label: {
+                Label("Edit", systemImage: "pencil")
             }
+            .accessibilityLabel("Edit expense")
+            .accessibilityHint("Opens expense for editing")
+        }
     }
 
     // MARK: - Toolbar

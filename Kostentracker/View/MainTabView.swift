@@ -47,7 +47,7 @@ struct MainTabView: View {
             switch ui.activePopup {
             case .markedAsPaid:
                 MarkAsPaidPopup()
-            case .deleted(.main):
+            case .deleted:
                 DeletedPopup()
             default:
                 EmptyView()

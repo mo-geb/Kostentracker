@@ -57,6 +57,13 @@ struct CategoryInspector: View {
             .navigationTitle((category?.name ?? draft.name).isEmpty ? "New Category" : "Edit Category")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { focusedField = nil }
+                        .fontWeight(.semibold)
+                }
+            }
             .onAppear {
                 if case .new(_) = initialState {
                     Task {
@@ -87,6 +94,8 @@ struct CategoryInspector: View {
                     }
                     .focused($focusedField, equals: .categoryDetailTitle)
             }
+            .frame(minHeight: 30)
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
             HStack {
                 Image(systemName: "paintpalette")
@@ -103,6 +112,8 @@ struct CategoryInspector: View {
                 .labelsHidden()
                 .accessibilityLabel("Category color")
             }
+            .frame(minHeight: 30)
+            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
         }
     }
 
@@ -111,23 +122,28 @@ struct CategoryInspector: View {
             LazyVGrid(columns: iconGridColumns, spacing: 15) {
                 ForEach(sampleIcons, id: \.self) { icon in
                     let color = Color(hex: draft.hexColor)
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(color.opacity(0.3))
-                        Image(systemName: icon)
-                            .font(.title2)
-                            .foregroundStyle(color)
+                    let isSelected = draft.iconName == icon
+                    Button {
+                        if !isSelected { draft.iconName = icon }
+                    } label: {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(color.opacity(0.3))
+                            Image(systemName: icon)
+                                .font(.title2)
+                                .foregroundStyle(color)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(1, contentMode: .fit)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(color, lineWidth: 2.5)
+                                .opacity(isSelected ? 1.0 : 0.0)
+                        )
                     }
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(color, lineWidth: 2.5)
-                            .opacity(draft.iconName == icon ? 1.0 : 0.0)
-                    )
-                    .onTapGesture {
-                        if draft.iconName != icon { draft.iconName = icon }
-                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(icon)
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
                 }
             }
             .listRowInsets(.init(top: 15, leading: 15, bottom: 15, trailing: 15))

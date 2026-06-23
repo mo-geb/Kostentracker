@@ -784,16 +784,7 @@ struct ExpenseInspector: View {
     
     @ViewBuilder
     private var frequencyPicker: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Spacer()
-                Button("Done") {
-                    showFrequencyPicker = false
-                }
-                .fontWeight(.bold)
-            }
-            .padding()
-            
+        NavigationStack {
             HStack(spacing: 0) {
                 Picker("Value", selection: $draft.frequencyValue) {
                     ForEach(draft.frequencyUnit.valueRange, id: \.self) { value in
@@ -801,7 +792,7 @@ struct ExpenseInspector: View {
                     }
                 }
                 .pickerStyle(.wheel)
-                
+
                 Picker("Unit", selection: $draft.frequencyUnit) {
                     ForEach(FrequencyUnit.allCases, id: \.self) { unit in
                         Text(unit.displayName(for: draft.frequencyValue))
@@ -809,6 +800,12 @@ struct ExpenseInspector: View {
                     }
                 }
                 .pickerStyle(.wheel)
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { showFrequencyPicker = false }
+                        .fontWeight(.semibold)
+                }
             }
         }
         .presentationDetents([.height(300)])

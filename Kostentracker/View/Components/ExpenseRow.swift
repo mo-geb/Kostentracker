@@ -20,7 +20,7 @@ struct ExpenseRow: View {
         .padding(.vertical, uiState.selectedViewMode == .compact ? 2 : 4)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(showOverdue ? "\(expense.accessibilityLabel), Overdue" : expense.accessibilityLabel)
-        .accessibilityHint("Double tap to view details")
+        .accessibilityHint("Opens expense details")
     }
 
     // MARK: - Subviews for Normal Mode
