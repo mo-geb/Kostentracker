@@ -14,29 +14,23 @@ private struct MonthlyExpenseGroup: Identifiable, Equatable {
 
 struct TimelineView: View {
 
-    // MARK: - Properties
-
     @Environment(UIState.self) private var ui
     @Environment(UserSettings.self) var userSettings
     @Environment(StoreManager.self) private var store
     @Environment(\.modelContext) private var context
 
     @Query(sort: \Expense.date) private var unfilteredExpenses: [Expense]
-    @Query private var categories: [ExpenseCategory]
-
     @State private var detailRoute: ExpenseDetailRoute?
-    @State private var expenseToDelete: Expense?
 
     private var monthlyGroups: [MonthlyExpenseGroup] {
         let filtered = Expense.applyFilters(unfilteredExpenses, ui: ui, userSettings: userSettings, store: store)
         let onlyActive = Expense.applyCustomFilters(filtered, filter: .active)
         let calendar = Calendar.current
 
-        let groupedByMonth = Dictionary(grouping: onlyActive) { expense in
+        return Dictionary(grouping: onlyActive) { expense in
             calendar.date(from: calendar.dateComponents([.year, .month], from: expense.date))!
         }
-
-        return groupedByMonth.map { (month, expensesInMonth) in
+        .map { month, expensesInMonth in
             let total = expensesInMonth.reduce(0.0) { $0 + $1.totalForMonth(containing: month) }
             let sorted = expensesInMonth.sorted { $0.date < $1.date }
             return MonthlyExpenseGroup(id: month, month: month, expenses: sorted, totalAmount: total)
@@ -48,66 +42,38 @@ struct TimelineView: View {
 
     var body: some View {
         NavigationStack {
-            mainContent
-                .navigationTitle("Timeline")
-                .toolbar { toolbarContent }
-                .expenseDetailDestination($detailRoute)
-        }
-    }
-
-    // MARK: - View Components
-
-    private var mainContent: some View {
-        expenseList
-            .overlay {
-                if monthlyGroups.isEmpty { EmptyExpensesView() }
-            }
-    }
-
-    private var expenseList: some View {
-        let groups = monthlyGroups
-
-        return List {
-            ForEach(groups) { group in
-                Section {
-                    ForEach(group.expenses) { expense in
-                        expenseRow(for: expense)
+            List {
+                ForEach(monthlyGroups) { group in
+                    Section {
+                        ForEach(group.expenses) { expense in
+                            expenseRow(for: expense)
+                        }
+                    } header: {
+                        HStack {
+                            Text(group.month, format: .dateTime.month(.wide).year())
+                                .font(.headline)
+                                .foregroundStyle(.primary)
+                            Spacer()
+                            Text(group.totalAmount, format: .currency(code: userSettings.currencyCode))
+                                .font(.headline)
+                                .fontDesign(.rounded)
+                                .foregroundStyle(.primary)
+                        }
+                        .textCase(nil)
                     }
-                } header: {
-                    HStack {
-                        Text(group.month, format: .dateTime.month(.wide).year())
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                        Spacer()
-                        Text(group.totalAmount, format: .currency(code: userSettings.currencyCode))
-                            .font(.headline)
-                            .fontDesign(.rounded)
-                            .foregroundStyle(.primary)
-                    }
-                    .textCase(nil)
                 }
             }
-        }
-        .alert("Mark as Paid?", isPresented: Binding(
-            get: { expenseToDelete != nil },
-            set: { if !$0 { expenseToDelete = nil } }
-        )) {
-            Button("Delete", role: .destructive) {
-                if let expense = expenseToDelete {
-                    markAsPaidOrDelete(expense)
-                }
-                expenseToDelete = nil
-            }
-            Button("Cancel", role: .cancel) { expenseToDelete = nil }
-        } message: {
-            Text("This expense will be permanently deleted.")
+            .overlay { if monthlyGroups.isEmpty { EmptyExpensesView() } }
+            .navigationTitle("Timeline")
+            .toolbar { toolbarContent }
+            .expenseDetailDestination($detailRoute)
         }
     }
+
+    // MARK: - Row
 
     private func expenseRow(for expense: Expense) -> some View {
-        let subtitle = expense.date.formatted(date: .abbreviated, time: .omitted)
-
-        return ExpenseRow(expense: expense, subtitle: subtitle, tab: .timeline)
+        ExpenseRow(expense: expense, subtitle: expense.date.formatted(date: .abbreviated, time: .omitted), tab: .timeline)
             .contentShape(Rectangle())
             .onTapGesture { detailRoute = ExpenseDetailRoute(expense: expense) }
             .contextMenu {
@@ -116,32 +82,17 @@ struct TimelineView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
-                .accessibilityLabel("Edit expense")
-                .accessibilityHint("Opens expense for editing")
-
                 Button {
-                    confirmOrMarkPaid(expense)
+                    markAsPaid(expense)
                 } label: {
-                    switch expense.type {
-                    case .oneTime, .inactive: Label("Mark as paid", systemImage: "trash")
-                    case .recurring:          Label("Mark as paid", systemImage: "checkmark")
-                    }
+                    Label("Mark as paid", systemImage: "checkmark")
                 }
-                .accessibilityLabel("Mark as paid")
-                .accessibilityHint("Marks this expense as paid")
             }
-            .swipeActions(edge: .leading, allowsFullSwipe: expense.type == .recurring) {
-                Button {
-                    confirmOrMarkPaid(expense)
-                } label: {
-                    switch expense.type {
-                    case .oneTime, .inactive: Label("Paid", systemImage: "trash")
-                    case .recurring:          Label("Paid", systemImage: "checkmark")
-                    }
+            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                Button { markAsPaid(expense) } label: {
+                    Label("Paid", systemImage: "checkmark")
                 }
-                .tint(expense.type == .recurring ? .green : .red)
-                .accessibilityLabel("Mark as paid")
-                .accessibilityHint("Marks this expense as paid")
+                .tint(.green)
             }
     }
 
@@ -152,47 +103,28 @@ struct TimelineView: View {
         ToolbarItem(placement: .topBarLeading) {
             SharedToolbarElements.SettingsButton()
         }
-        ToolbarItem() {
+        ToolbarItem {
             SharedToolbarElements.OptionsMenu {
                 SharedToolbarElements.ViewModePicker()
             }
         }
-        ToolbarItem() {
-            SharedToolbarElements.AccountsButton()
-        }
-        ToolbarItem() {
-            SharedToolbarElements.AddExpenseButton()
-        }
+        ToolbarItem { SharedToolbarElements.AccountsButton() }
+        ToolbarItem { SharedToolbarElements.AddExpenseButton() }
     }
 }
 
-// MARK: - Actions & filtering
+// MARK: - Actions
 
 private extension TimelineView {
-
-
-
-    func confirmOrMarkPaid(_ expense: Expense) {
+    func markAsPaid(_ expense: Expense) {
         switch expense.type {
-        case .oneTime, .inactive: expenseToDelete = expense
-        case .recurring: markAsPaidOrDelete(expense)
+        case .oneTime, .inactive: expense.date = .distantPast
+        case .recurring:          expense.advanceDueDate()
         }
-    }
-
-    func markAsPaidOrDelete(_ expense: Expense) {
-        switch expense.type {
-        case .oneTime, .inactive:
-            context.delete(expense)
-            ui.showDeletedPopup(owner: .main)
-        case .recurring:
-            expense.advanceDueDate()
-            ui.showMarkedAsPaidConfirmation(owner: .main)
-        }
+        ui.showMarkedAsPaidConfirmation(owner: .main)
         try? context.save()
     }
 }
-
-// MARK: - Preview
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
     TimelineView()

@@ -4,16 +4,16 @@ import PhotosUI
 
 struct ExpenseInspector: View {
     // MARK: - Properties
-    // Shared
-    @Environment(UIState.self) private var uiState: UIState
 
-    // SwiftData
-    @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
-    @Query(sort: \ExpenseAccount.sortOrder) var accounts: [ExpenseAccount]
+    @Environment(UIState.self) private var uiState: UIState
+    @Environment(UserSettings.self) var userSettings
+    @Environment(StoreManager.self) private var store
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
-    
-    // State
+
+    @Query(sort: \ExpenseCategory.sortOrder) var categories: [ExpenseCategory]
+    @Query(sort: \ExpenseAccount.sortOrder) var accounts: [ExpenseAccount]
+
     @State private var initialState: ActiveExpenseSheet
     @State private var expense: Expense?
     @State private var draft: ExpenseDraft
@@ -23,16 +23,9 @@ struct ExpenseInspector: View {
     @State private var successHaptic = 0
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var emojiInput: String = ""
-    
-    @State private var showFrequencyPicker: Bool = false
+    @State private var showFrequencyPicker = false
     @State private var showPhotoPicker = false
-    @State private var showPaywall = false
-    
-    // User Settings
-    @Environment(UserSettings.self) var userSettings
-    @Environment(StoreManager.self) private var store
-    
-    // Focus management
+
     @FocusState private var focusedField: FocusedField?
 
     private static let amountParseFormatter: NumberFormatter = {
@@ -180,14 +173,8 @@ struct ExpenseInspector: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
-        .toolbar {
-            toolbarContent
-        }
-        .onTapGesture {
-            focusedField = nil
-        }
+        .toolbar { toolbarContent }
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
-        .paywallSheet(isPresented: $showPaywall)
         .sheet(item: $ui.activeCategorySheet) { sheet in
             switch sheet {
             case .new(let draft):
@@ -328,8 +315,6 @@ struct ExpenseInspector: View {
             .font(.title)
             .bold()
             .multilineTextAlignment(.center)
-            .lineLimit(2)
-            .minimumScaleFactor(0.8)
             .padding(.horizontal)
             .padding(-10)
             .accessibilityLabel("Expense title: \(expense?.title ?? "No title")")
@@ -452,6 +437,7 @@ struct ExpenseInspector: View {
                     .padding(8)
                     .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
+                    .accessibilityHint("Opens frequency picker")
             }
             .sheet(isPresented: $showFrequencyPicker) {
                 frequencyPicker
@@ -491,7 +477,7 @@ struct ExpenseInspector: View {
                         )
                         uiState.createCategory(from: draft)
                     } else {
-                        showPaywall = true
+                        uiState.presentPaywall()
                     }
                 } label: {
                     Label("New Category", systemImage: "plus")
@@ -648,18 +634,18 @@ struct ExpenseInspector: View {
 
     @ViewBuilder
     private var markAsPaidButton: some View {
-        Button() {
+        Button {
             if let e = expense {
                 switch e.type {
                 case .oneTime, .inactive:
-                    context.delete(e)
-                    dismiss()
-                    uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
+                    e.date = .distantPast
+                    draft.date = .distantPast
                 case .recurring:
                     e.advanceDueDate()
-                    uiState.showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner.main)
+                    draft.date = e.date
                 }
                 try? context.save()
+                uiState.showMarkedAsPaidConfirmation(owner: .inspector)
             }
         } label: {
             HStack {
@@ -718,14 +704,12 @@ struct ExpenseInspector: View {
                 }
                 successHaptic += 1
                 dismiss()
-                uiState.showDeletedPopup(owner: ActivePopup.PopupOwner.main)
+                uiState.showDeletedPopup(owner: .main)
             }
-            .accessibilityLabel("Confirm delete")
             Button("Cancel", role: .cancel) { }
-                .accessibilityLabel("Cancel delete")
         } message: {
             if let title = expense?.title, !title.isEmpty {
-                Text(""\(title)" will be permanently deleted.")
+                Text("\"\(title)\" will be permanently deleted.")
             } else {
                 Text("This expense will be permanently deleted.")
             }
@@ -817,6 +801,7 @@ struct ExpenseInspector: View {
             .focused($focusedField, equals: .expenseEmojiKeyboard)
             .opacity(0)
             .frame(width: 0, height: 0)
+            .accessibilityHidden(true)
             .onChange(of: emojiInput) { _, newValue in
                 guard !newValue.isEmpty else { return }
                 
