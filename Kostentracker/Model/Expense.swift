@@ -121,17 +121,7 @@ extension Expense {
     }
     
     func advanceDueDate() {
-        let calendar = Calendar.current
-        var dateComponent: Calendar.Component
-        
-        switch self.frequencyUnit {
-        case .day: dateComponent = .day
-        case .week: dateComponent = .weekOfYear
-        case .month: dateComponent = .month
-        case .year: dateComponent = .year
-        }
-        
-        if let newDate = calendar.date(byAdding: dateComponent, value: Int(self.frequencyValue), to: self.date) {
+        if let newDate = Calendar.current.date(byAdding: frequencyUnit.calendarComponent, value: Int(frequencyValue), to: date) {
             self.date = newDate
         }
     }
@@ -157,15 +147,7 @@ extension Expense {
                 monthTotal += self.amount
             }
 
-            let dateComponent: Calendar.Component
-            switch frequencyUnit {
-            case .day: dateComponent = .day
-            case .week: dateComponent = .weekOfYear
-            case .month: dateComponent = .month
-            case .year: dateComponent = .year
-            }
-
-            guard let nextDate = calendar.date(byAdding: dateComponent, value: Int(frequencyValue), to: currentDate) else { break }
+            guard let nextDate = calendar.date(byAdding: frequencyUnit.calendarComponent, value: Int(frequencyValue), to: currentDate) else { break }
             currentDate = nextDate
         }
 

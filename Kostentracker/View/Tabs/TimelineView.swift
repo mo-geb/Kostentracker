@@ -25,6 +25,7 @@ struct TimelineView: View {
     @Query private var categories: [ExpenseCategory]
 
     @State private var detailRoute: ExpenseDetailRoute?
+    @State private var expenseToDelete: Expense?
 
     private var monthlyGroups: [MonthlyExpenseGroup] {
         let filtered = Expense.applyFilters(unfilteredExpenses, ui: ui, userSettings: userSettings, store: store)
@@ -87,6 +88,20 @@ struct TimelineView: View {
                 }
             }
         }
+        .alert("Mark as Paid?", isPresented: Binding(
+            get: { expenseToDelete != nil },
+            set: { if !$0 { expenseToDelete = nil } }
+        )) {
+            Button("Delete", role: .destructive) {
+                if let expense = expenseToDelete {
+                    markAsPaidOrDelete(expense)
+                }
+                expenseToDelete = nil
+            }
+            Button("Cancel", role: .cancel) { expenseToDelete = nil }
+        } message: {
+            Text("This expense will be permanently deleted.")
+        }
     }
 
     private func expenseRow(for expense: Expense) -> some View {
@@ -105,7 +120,7 @@ struct TimelineView: View {
                 .accessibilityHint("Opens expense for editing")
 
                 Button {
-                    markAsPaidOrDelete(expense)
+                    confirmOrMarkPaid(expense)
                 } label: {
                     switch expense.type {
                     case .oneTime, .inactive: Label("Mark as paid", systemImage: "trash")
@@ -115,9 +130,9 @@ struct TimelineView: View {
                 .accessibilityLabel("Mark as paid")
                 .accessibilityHint("Marks this expense as paid")
             }
-            .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            .swipeActions(edge: .leading, allowsFullSwipe: expense.type == .recurring) {
                 Button {
-                    markAsPaidOrDelete(expense)
+                    confirmOrMarkPaid(expense)
                 } label: {
                     switch expense.type {
                     case .oneTime, .inactive: Label("Paid", systemImage: "trash")
@@ -156,6 +171,13 @@ struct TimelineView: View {
 private extension TimelineView {
 
 
+
+    func confirmOrMarkPaid(_ expense: Expense) {
+        switch expense.type {
+        case .oneTime, .inactive: expenseToDelete = expense
+        case .recurring: markAsPaidOrDelete(expense)
+        }
+    }
 
     func markAsPaidOrDelete(_ expense: Expense) {
         switch expense.type {

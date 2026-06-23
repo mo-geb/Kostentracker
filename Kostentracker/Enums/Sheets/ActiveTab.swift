@@ -1,9 +1,7 @@
-enum ActiveTab: String, CaseIterable, Identifiable {
-    
+enum ActiveTab: String {
+
     case timeline, list, statistics, search
-    
-    var id: String { rawValue }
-    
+
     var title: String {
         switch self {
         case .timeline: return "Timeline"

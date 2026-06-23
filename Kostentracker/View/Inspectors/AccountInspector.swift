@@ -85,7 +85,7 @@ struct AccountInspector: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(spacing: 15) {
-            row(title: String(localized: "Name"), icon: "character.textbox") {
+            inspectorRow(title: String(localized: "Name"), icon: "character.textbox") {
                 TextField("Account Name", text: $draft.name)
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
@@ -112,16 +112,16 @@ struct AccountInspector: View {
                 ForEach(sampleIcons, id: \.self) { icon in
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.blue.opacity(0.15))
+                            .fill(Color.accentColor.opacity(0.15))
                         Image(systemName: icon)
                             .font(.title2)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.tint)
                     }
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fit)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(.blue, lineWidth: 2.5)
+                            .stroke(Color.accentColor, lineWidth: 2.5)
                             .opacity(draft.iconName == icon ? 1.0 : 0.0)
                     )
                     .onTapGesture {
@@ -144,7 +144,7 @@ struct AccountInspector: View {
                 Text(draft.isDefault ? (account?.isDefault == true ? "Default" : "Will be Default") : "Make Default")
                     .fontWeight(.semibold)
             }
-            .tintedActionButton(draft.isDefault ? .gray : .blue)
+            .tintedActionButton(draft.isDefault ? .gray : .accentColor)
         }
         .padding(.vertical, 8)
         .disabled(draft.isDefault)
@@ -163,7 +163,7 @@ struct AccountInspector: View {
             .tintedActionButton(.red)
         }
         .padding(.vertical, 8)
-        .alert("Delete Account?", isPresented: $showingDeleteAlert) {
+        .alert("Delete "\(draft.name)"?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if let account = account {
                     account.deleteSafely(from: context)
@@ -173,7 +173,7 @@ struct AccountInspector: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Are you sure? This action cannot be undone.")
+            Text("Its expenses will be moved to the default account.")
         }
     }
     
@@ -217,27 +217,6 @@ struct AccountInspector: View {
         }
     }
     
-    // MARK: - Helper Views
-    
-    /// A generic row builder to reduce duplication, matching the style of ExpenseDetailView.
-    @ViewBuilder
-    private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
-        HStack {
-            if let icon = icon {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .frame(width: 20)
-            }
-            Text(title)
-                .font(.callout)
-            Spacer()
-            content()
-        }
-        .padding(12)
-        .cardSurface()
-    }
-
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {

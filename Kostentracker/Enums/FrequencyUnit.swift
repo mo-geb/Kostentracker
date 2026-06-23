@@ -59,6 +59,15 @@ extension FrequencyUnit {
         }
     }
     
+    var calendarComponent: Calendar.Component {
+        switch self {
+        case .day: return .day
+        case .week: return .weekOfYear
+        case .month: return .month
+        case .year: return .year
+        }
+    }
+
     var sortOrder: Int {
         switch self {
         case .year: return 0

@@ -50,6 +50,7 @@ struct StatisticsView: View {
 
     @Query private var unfilteredExpenses: [Expense]
     @State private var monthlyChartScrollPosition: String? = "currentMonth"
+    @AppStorage("displayedCategoryChart") private var displayedCategoryChart: CategoryChart = .barChart
 
     private var stats: Stats {
         let expenses = applyFilters(unfilteredExpenses)
@@ -127,9 +128,9 @@ struct StatisticsView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(action: {
-                    withAnimation(.snappy) { ui.displayedCategoryChart.cycleToNext() }
+                    withAnimation(.snappy) { displayedCategoryChart.cycleToNext() }
                 }) {
-                    Text(ui.displayedCategoryChart.localizedName)
+                    Text(displayedCategoryChart.localizedName)
                         .font(.subheadline)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
@@ -137,11 +138,11 @@ struct StatisticsView: View {
                 }
                 .contentShape(Rectangle())
                 .buttonStyle(.plain)
-                .accessibilityLabel("Chart type: \(ui.displayedCategoryChart.localizedName)")
+                .accessibilityLabel("Chart type: \(displayedCategoryChart.localizedName)")
                 .accessibilityHint("Switches between bar chart and pie chart")
-                .sensoryFeedback(.selection, trigger: ui.displayedCategoryChart)
+                .sensoryFeedback(.selection, trigger: displayedCategoryChart)
             }
-            switch ui.displayedCategoryChart {
+            switch displayedCategoryChart {
             case .barChart: categoryBarChart
             case .pieChart: categoryPieChart
             }

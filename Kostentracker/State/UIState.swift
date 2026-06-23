@@ -23,7 +23,6 @@ final class UIState {
     var selectedGroupBy: GroupByOption { didSet { persist(key: "selectedGroupBy", value: selectedGroupBy.rawValue) }}
     var selectedViewMode: ViewMode { didSet { persist(key: "selectedViewMode", value: selectedViewMode.rawValue) }}
     var selectedDisplayPeriod: FrequencyUnit { didSet { persist(key: "selectedDisplayPeriod", value: selectedDisplayPeriod.rawValue) }}
-    var displayedCategoryChart: CategoryChart { didSet { persist(key: "displayedCategoryChart", value: displayedCategoryChart.rawValue) }}
     var selectedAccountIDs: Set<UUID> = [] { didSet { saveAccounts() }}
 
     init() {
@@ -34,8 +33,7 @@ final class UIState {
         self.selectedGroupBy = defaults.getEnum(forKey: "selectedGroupBy", default: .categories)
         self.selectedViewMode = defaults.getEnum(forKey: "selectedViewMode", default: .normal)
         self.selectedDisplayPeriod = defaults.getEnum(forKey: "selectedDisplayPeriod", default: .month)
-        self.displayedCategoryChart = defaults.getEnum(forKey: "displayedCategoryChart", default: .barChart)
-        
+
         loadAccounts()
     }
     
@@ -124,20 +122,17 @@ final class UIState {
     // MARK: - Popup / Transient Feedback
 
     func showMarkedAsPaidConfirmation(owner: ActivePopup.PopupOwner, duration: TimeInterval = 1.5) {
-        withAnimation {
-            self.feedbackTrigger.toggle()
-            self.activePopup = .markedAsPaid(owner: owner)
-        }
-        Task { @MainActor [weak self] in
-            try? await Task.sleep(for: .seconds(duration))
-            withAnimation { self?.activePopup = nil }
-        }
+        showPopup(.markedAsPaid(owner: owner), duration: duration)
     }
 
     func showDeletedPopup(owner: ActivePopup.PopupOwner, duration: TimeInterval = 1.5) {
+        showPopup(.deleted(owner: owner), duration: duration)
+    }
+
+    private func showPopup(_ popup: ActivePopup, duration: TimeInterval) {
         withAnimation {
             self.feedbackTrigger.toggle()
-            self.activePopup = .deleted(owner: owner)
+            self.activePopup = popup
         }
         Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(duration))

@@ -6,7 +6,7 @@ struct MarkAsPaidPopup: View {
             Image(systemName: "checkmark.circle.fill")
                 .resizable()
                 .frame(width: 60, height: 60)
-                .foregroundColor(.green)
+                .foregroundStyle(.green)
                 .padding(5)
             Text("Marked Expense\nas Paid")
                 .font(.title3)

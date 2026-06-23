@@ -124,7 +124,7 @@ extension ExpenseAccount {
 
 // MARK: - Account Draft struct for creating and editing Accounts
 
-struct AccountDraft {
+struct AccountDraft: Equatable {
     var name: String
     var iconName: String
     var isDefault: Bool

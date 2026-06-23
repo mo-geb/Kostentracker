@@ -6,7 +6,7 @@ struct DeletedPopup: View {
             Image(systemName: "trash.circle.fill")
                 .resizable()
                 .frame(width: 60, height: 60)
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
                 .padding(5)
             Text("Expense Deleted")
                 .font(.title3)

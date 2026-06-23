@@ -89,7 +89,7 @@ struct CategoryInspector: View {
     @ViewBuilder
     private var detailsSection: some View {
         VStack(spacing: 15) {
-            row(title: String(localized: "Name"), icon: "character.textbox") {
+            inspectorRow(title:String(localized: "Name"), icon: "character.textbox") {
                 TextField("Category Name", text: $draft.name)
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
@@ -103,12 +103,13 @@ struct CategoryInspector: View {
                     .focused($focusedField, equals: .categoryDetailTitle)
             }
             
-            row(title: String(localized: "Color"), icon: "paintpalette") {
+            inspectorRow(title:String(localized: "Color"), icon: "paintpalette") {
                 ColorPicker("", selection: Binding(
                     get: { Color(hex: draft.hexColor) },
                     set: { draft.hexColor = $0.toHex() ?? "000000" }
                 ))
                 .labelsHidden()
+                .accessibilityLabel("Category color")
             }
         }
     }
@@ -157,7 +158,7 @@ struct CategoryInspector: View {
                 Text(draft.isDefault ? (category?.isDefault == true ? "Default" : "Will be Default") : "Make Default")
                     .fontWeight(.semibold)
             }
-            .tintedActionButton(draft.isDefault ? .gray : .blue)
+            .tintedActionButton(draft.isDefault ? .gray : .accentColor)
         }
         .padding(.vertical, 8)
         .disabled(draft.isDefault)
@@ -176,7 +177,7 @@ struct CategoryInspector: View {
             .tintedActionButton(.red)
         }
         .padding(.vertical, 8)
-        .alert("Delete Category?", isPresented: $showingDeleteAlert) {
+        .alert("Delete "\(draft.name)"?", isPresented: $showingDeleteAlert) {
             Button("Delete", role: .destructive) {
                 if let category = category {
                     category.deleteSafely(from: context)
@@ -186,7 +187,7 @@ struct CategoryInspector: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("Are you sure? This action cannot be undone.")
+            Text("Its expenses will be moved to the default category.")
         }
     }
     
@@ -230,27 +231,6 @@ struct CategoryInspector: View {
         }
     }
     
-    // MARK: - Helper Views
-    
-    /// A generic row builder to reduce duplication, matching the style of ExpenseDetailView.
-    @ViewBuilder
-    private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
-        HStack {
-            if let icon = icon {
-                Image(systemName: icon)
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .frame(width: 20)
-            }
-            Text(title)
-                .font(.callout)
-            Spacer()
-            content()
-        }
-        .padding(12)
-        .cardSurface()
-    }
-
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {

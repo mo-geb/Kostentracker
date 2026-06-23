@@ -114,4 +114,23 @@ extension View {
             ExpenseInspector(initialState: route.startInEdit ? .edit(route.expense) : .view(route.expense))
         }
     }
+
+    /// Shared inspector row: icon + label on the left, arbitrary content on the right.
+    @ViewBuilder
+    func inspectorRow<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
+        HStack {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+                    .frame(width: 20)
+            }
+            Text(title)
+                .font(.callout)
+            Spacer()
+            content()
+        }
+        .padding(12)
+        .cardSurface()
+    }
 }

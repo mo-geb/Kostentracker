@@ -153,7 +153,7 @@ extension ExpenseCategory {
 
 // MARK: - Category Draft struct for creating and editing Categories
 
-struct CategoryDraft {
+struct CategoryDraft: Equatable {
     var name: String
     var iconName: String
     var hexColor: String

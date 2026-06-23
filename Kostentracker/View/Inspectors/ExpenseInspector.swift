@@ -724,10 +724,14 @@ struct ExpenseInspector: View {
             Button("Cancel", role: .cancel) { }
                 .accessibilityLabel("Cancel delete")
         } message: {
-            Text("Are you sure? This action cannot be undone.")
+            if let title = expense?.title, !title.isEmpty {
+                Text(""\(title)" will be permanently deleted.")
+            } else {
+                Text("This expense will be permanently deleted.")
+            }
         }
     }
-    
+
     // MARK: - Toolbar
     
     @ToolbarContentBuilder
@@ -856,7 +860,7 @@ struct ExpenseInspector: View {
             }
         }
         .presentationDetents([.height(300)])
-        .presentationDragIndicator(.hidden)
+        .presentationDragIndicator(.visible)
     }
     
     /// Uniform row height so view and edit rows share one rhythm regardless of
