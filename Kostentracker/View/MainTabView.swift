@@ -45,7 +45,7 @@ struct MainTabView: View {
         .paywallSheet(isPresented: $ui.showingPaywall)
         .overlay {
             switch ui.activePopup {
-            case .markedAsPaid(.main):
+            case .markedAsPaid:
                 MarkAsPaidPopup()
             case .deleted(.main):
                 DeletedPopup()

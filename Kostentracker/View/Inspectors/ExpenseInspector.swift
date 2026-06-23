@@ -73,107 +73,92 @@ struct ExpenseInspector: View {
     
     var body: some View {
         @Bindable var ui = uiState
-        ScrollView {
-            VStack(spacing: 20) {
-                if isEditing {
-                    pictureSectionEditing
-                        .accessibilitySortPriority(1)
-                    titleSectionEditing
-                        .accessibilitySortPriority(2)
-                    
-                    // Details
-                    VStack(spacing: 12) {
-                        rowGroup { amountRowEditing }
+        Form {
+            Section {
+                VStack(spacing: 8) {
+                    if isEditing { pictureSectionEditing } else { pictureSectionShowing }
+                    if isEditing { titleSectionEditing } else { titleSectionShowing }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
 
-                        rowGroup {
-                            activeRowEditing
-                            if draft.type != .inactive {
-                                customDivider
-                                dueRowEditing
-                            }
-                        }
+            if isEditing {
+                Section { amountRowEditing }
 
-                        if draft.type != .inactive {
-                            rowGroup {
-                                repeatRowEditing
+                Section {
+                    activeRowEditing
+                    if draft.type != .inactive { dueRowEditing }
+                }
 
-                                if draft.type == .recurring {
-                                    customDivider
-                                    frequencyRowEditing
-                                }
-                            }
-                        }
-
-                        rowGroup {
-                            categoryRowEditing
-
-                            if store.accountsAvailable(in: userSettings) {
-                                customDivider
-                                accountRowEditing
-                            }
-                        }
-
-                        notesSectionEditing
+                if draft.type != .inactive {
+                    Section {
+                        repeatRowEditing
+                        if draft.type == .recurring { frequencyRowEditing }
                     }
-                    .padding()
-                    .accessibilitySortPriority(3)
-                    
-                    if case .new(_) = initialState { } else {
+                }
+
+                Section {
+                    categoryRowEditing
+                    if store.accountsAvailable(in: userSettings) { accountRowEditing }
+                }
+
+                notesSectionEditing
+
+                if case .new(_) = initialState { } else {
+                    Section {
                         deleteButton
-                            .accessibilitySortPriority(4)
                     }
-                } else {
-                    pictureSectionShowing
-                        .accessibilitySortPriority(1)
-                    titleSectionShowing
-                        .accessibilitySortPriority(2)
-                    
-                    VStack(spacing: 12) {
-                        rowGroup { amountRowShowing }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.init())
+                }
+            } else {
+                Section { amountRowShowing }
 
-                        if draft.type != .inactive {
-                            rowGroup {
-                                dueRowShowing
-
-                                if draft.type == .recurring {
-                                    customDivider
-                                    repeatRowShowing
-                                }
-                            }
-                        }
-
-                        rowGroup {
-                            categoryRowShowing
-
-                            if store.accountsAvailable(in: userSettings) {
-                                customDivider
-                                accountRowShowing
-                            }
-                        }
-
-                        notesSectionShowing
+                if draft.type != .inactive {
+                    Section {
+                        dueRowShowing
+                        if draft.type == .recurring { repeatRowShowing }
                     }
-                    .padding()
-                    .accessibilitySortPriority(3)
-                    
-                    if draft.type == .inactive {
+                }
+
+                Section {
+                    categoryRowShowing
+                    if store.accountsAvailable(in: userSettings) { accountRowShowing }
+                }
+
+                notesSectionShowing
+
+                if draft.type == .inactive {
+                    Section {
                         inactiveInfo
-                            .accessibilitySortPriority(4)
-                    } else {
-                        markAsPaidButton
-                            .accessibilitySortPriority(4)
-                        statisticsSection
-                            .accessibilitySortPriority(5)
                     }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.init())
+                } else {
+                    Section {
+                        markAsPaidButton
+                    }
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(.init())
+
+                    statisticsSection
                 }
             }
         }
-        .background {
-            hiddenEmojiTextField
-        }
+        .listSectionSpacing(20)
+        .contentMargins(.top, 4, for: .scrollContent)
+        .background { hiddenEmojiTextField }
         .scrollDismissesKeyboard(.interactively)
-        .background(Color(.systemGroupedBackground))
         .toolbar { toolbarContent }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { focusedField = nil }
+                    .fontWeight(.semibold)
+            }
+        }
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
         .sheet(item: $ui.activeCategorySheet) { sheet in
             switch sheet {
@@ -283,8 +268,6 @@ struct ExpenseInspector: View {
             }
         }
         .frame(width: 100, height: 100)
-        .offset(y: -10)
-        .padding(-15)
     }
     
     // MARK: Title Section
@@ -296,8 +279,6 @@ struct ExpenseInspector: View {
             .bold()
             .multilineTextAlignment(.center)
             .lineLimit(2)
-            .padding(.horizontal)
-            .padding(-10)
             .focused($focusedField, equals: .expenseDetailTitle)
             .accessibilityLabel("Expense title")
             .accessibilityHint("Enter a title for this expense. Maximum 20 characters.")
@@ -315,8 +296,6 @@ struct ExpenseInspector: View {
             .font(.title)
             .bold()
             .multilineTextAlignment(.center)
-            .padding(.horizontal)
-            .padding(-10)
             .accessibilityLabel("Expense title: \(expense?.title ?? "No title")")
     }
     
@@ -329,7 +308,8 @@ struct ExpenseInspector: View {
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .fixedSize()
-                .padding(8)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                 .focused($focusedField, equals: .expenseDetailAmount)
                 .accessibilityLabel("Expense amount")
@@ -387,6 +367,7 @@ struct ExpenseInspector: View {
                         draft.date = newValue ? Date.now : Date.distantPast
                     }
                 }))
+            .controlSize(.small)
         }
     }
     
@@ -395,6 +376,7 @@ struct ExpenseInspector: View {
         row(title: String(localized: "Next Due"), icon: "calendar") {
             DatePicker("", selection: $draft.date, displayedComponents: [.date])
                 .labelsHidden()
+                .controlSize(.small)
                 .accessibilityLabel("Expense date")
                 .accessibilityHint("Select the date for this expense")
                 .accessibilityValue(draft.date.formatted(date: .abbreviated, time: .omitted))
@@ -424,6 +406,7 @@ struct ExpenseInspector: View {
                         draft.frequencyValue = newValue ? 1 : 0
                     }
                 }))
+            .controlSize(.small)
         }
     }
     
@@ -434,7 +417,8 @@ struct ExpenseInspector: View {
                 showFrequencyPicker = true
             } label: {
                 Text(draft.frequencyUnit.displayText(for: draft.frequencyValue))
-                    .padding(8)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
                     .accessibilityLabel("Frequency: \(draft.frequencyUnit.displayText(for: draft.frequencyValue))")
                     .accessibilityHint("Opens frequency picker")
@@ -484,14 +468,18 @@ struct ExpenseInspector: View {
                 }
             } label: {
                 if let category = draft.category {
-                    Label(category.name, systemImage: category.iconName)
-                        .foregroundStyle(category.color)
+                    HStack(spacing: 4) {
+                        Image(systemName: category.iconName)
+                        Text(category.name)
+                    }
+                    .foregroundStyle(category.color)
                 } else {
                     Text("Select Category")
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(8)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(
                 (draft.category?.color ?? .gray).opacity(0.18),
                 in: RoundedRectangle(cornerRadius: 8)
@@ -507,15 +495,18 @@ struct ExpenseInspector: View {
     private var categoryRowShowing: some View {
         row(title: String(localized: "Category"), icon: "archivebox") {
             if let name = expense?.categoryName, let icon = expense?.categoryIconName {
-                Label(name, systemImage: icon)
-                    .foregroundStyle(expense?.categoryColor ?? .primary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        (expense?.categoryColor ?? .gray).opacity(0.18),
-                        in: RoundedRectangle(cornerRadius: 8)
-                    )
-                    .accessibilityLabel("Category: \(name)")
+                HStack(spacing: 4) {
+                    Image(systemName: icon)
+                    Text(name)
+                }
+                .foregroundStyle(expense?.categoryColor ?? .primary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    (expense?.categoryColor ?? .gray).opacity(0.18),
+                    in: RoundedRectangle(cornerRadius: 8)
+                )
+                .accessibilityLabel("Category: \(name)")
             }
         }
     }
@@ -544,13 +535,17 @@ struct ExpenseInspector: View {
                 }
             } label: {
                 if let account = draft.account {
-                    Label(account.name, systemImage: account.iconName)
+                    HStack(spacing: 4) {
+                        Image(systemName: account.iconName)
+                        Text(account.name)
+                    }
                 } else {
                     Text("Select Account")
                         .foregroundStyle(.secondary)
                 }
             }
-            .padding(8)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
             .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
             .fixedSize(horizontal: false, vertical: true)
             .accessibilityLabel("Expense account")
@@ -563,29 +558,22 @@ struct ExpenseInspector: View {
     private var accountRowShowing: some View {
         row(title: String(localized: "Account"), icon: "person.2") {
             if let name = expense?.account?.name, let icon = expense?.account?.iconName {
-                Label(name, systemImage: icon)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
-                    .accessibilityLabel("Account: \(name)")
+                HStack(spacing: 4) {
+                    Image(systemName: icon)
+                    Text(name)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 8))
+                .accessibilityLabel("Account: \(name)")
             }
         }
     }
     
     // MARK: Notes Section
 
-    @ViewBuilder
     private var notesSectionEditing: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "note.text")
-                    .foregroundStyle(.secondary)
-                    .font(.subheadline)
-                    .frame(width: 20)
-                Text("Notes")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-            }
+        Section("Notes") {
             TextEditor(text: $draft.notes)
                 .frame(minHeight: 100)
                 .scrollContentBackground(.hidden)
@@ -594,29 +582,16 @@ struct ExpenseInspector: View {
                 .accessibilityHint("Add optional notes or details about this expense")
                 .accessibilityValue(draft.notes.isEmpty ? "No notes" : draft.notes)
         }
-        .padding(16)
-        .cardSurface()
     }
 
     @ViewBuilder
     private var notesSectionShowing: some View {
         if let notes = expense?.notes, !notes.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "note.text")
-                        .foregroundStyle(.secondary)
-                        .font(.subheadline)
-                        .frame(width: 20)
-                    Text("Notes")
-                        .font(.headline)
-                        .accessibilityAddTraits(.isHeader)
-                }
+            Section("Notes") {
                 Text(notes)
-                    .accessibilityLabel("Notes: \(notes)")
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel("Notes: \(notes)")
             }
-            .padding(16)
-            .cardSurface()
         }
     }
 
@@ -659,27 +634,18 @@ struct ExpenseInspector: View {
         .accessibilityHint("Mark this expense as paid and update its status")
     }
     
-    @ViewBuilder
     private var statisticsSection: some View {
-        VStack {
-            Divider()
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Statistics")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                
-                HStack {
-                    CostCard(title: String(localized: "Yearly"), amount: expense?.yearlyCost ?? 0)
-                    CostCard(title: String(localized: "Monthly"), amount: expense?.monthlyCost ?? 0)
-                    CostCard(title: String(localized: "Weekly"), amount: expense?.weeklyCost ?? 0)
-                }
-                .accessibilityElement(children: .contain)
-                .accessibilityLabel("Cost breakdown")
+        Section("Statistics") {
+            HStack {
+                CostCard(title: String(localized: "Yearly"), amount: expense?.yearlyCost ?? 0)
+                CostCard(title: String(localized: "Monthly"), amount: expense?.monthlyCost ?? 0)
+                CostCard(title: String(localized: "Weekly"), amount: expense?.weeklyCost ?? 0)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding()
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Cost breakdown")
         }
+        .listRowBackground(Color.clear)
+        .listRowInsets(.init(top: 8, leading: 0, bottom: 8, trailing: 0))
     }
     
     @ViewBuilder
@@ -694,7 +660,6 @@ struct ExpenseInspector: View {
             }
             .tintedActionButton(.red)
         }
-        .padding(.vertical, 8)
         .accessibilityLabel("Delete expense")
         .accessibilityHint("Permanently delete this expense. This action cannot be undone.")
         .alert("Delete Expense?", isPresented: $showingDeleteAlert) {
@@ -848,12 +813,6 @@ struct ExpenseInspector: View {
         .presentationDragIndicator(.visible)
     }
     
-    /// Uniform row height so view and edit rows share one rhythm regardless of
-    /// whether the trailing accessory is plain text, a toggle, a date picker, or a
-    /// tinted chip. The tallest edit control fits within this height, so switching
-    /// modes no longer changes a row's height.
-    private static let rowHeight: CGFloat = 52
-
     @ViewBuilder
     private func row<Content: View>(title: String, icon: String? = nil, @ViewBuilder content: () -> Content) -> some View {
         HStack {
@@ -864,32 +823,17 @@ struct ExpenseInspector: View {
                     .frame(width: 20)
             }
             Text(title)
+                .font(.callout)
             Spacer()
             content()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 6)
-        .frame(maxWidth: .infinity, minHeight: Self.rowHeight, alignment: .leading)
-    }
-
-    @ViewBuilder
-    private func rowGroup<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        VStack(spacing: 0) {
-            content()
-        }
-        .cardSurface()
-    }
-    
-    @ViewBuilder
-    private var customDivider: some View {
-        Divider()
-            .padding(.leading, 44)
-            .padding(.trailing, 20)
+        .frame(minHeight: 30)
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
     }
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
     NavigationStack {
-        ExpenseInspector(initialState: .edit(SampleData.oneTime))
+        ExpenseInspector(initialState: .view(SampleData.oneTime))
     }
 }
