@@ -25,6 +25,7 @@ struct ExpenseInspector: View {
     @State private var emojiInput: String = ""
     @State private var showFrequencyPicker = false
     @State private var showPhotoPicker = false
+    @State private var showPaywall = false
 
     @FocusState private var focusedField: FocusedField?
 
@@ -159,6 +160,7 @@ struct ExpenseInspector: View {
                     .fontWeight(.semibold)
             }
         }
+        .paywallSheet(isPresented: $showPaywall)
         .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhoto, matching: .images)
         .sheet(item: $ui.activeCategorySheet) { sheet in
             switch sheet {
@@ -461,7 +463,7 @@ struct ExpenseInspector: View {
                         )
                         uiState.createCategory(from: draft)
                     } else {
-                        uiState.presentPaywall()
+                        showPaywall = true
                     }
                 } label: {
                     Label("New Category", systemImage: "plus")
