@@ -4798,76 +4798,6 @@
         }
       }
     },
-    "Double tap to view details": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doppeltippen, um Details anzusehen"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doble toque para ver detalles"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Double tape pour voir les détails"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Doppio tocco per vedere i dettagli"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ダブルタップで詳細を表示"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "세부 정보를 보려면 두 번 탭하세요"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dubbel tik om details te bekijken"
-          }
-        },
-        "pl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dotknij dwukrotnie, aby zobaczyć szczegóły"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dvojitým klepnutím zobraz detaily"
-          }
-        },
-        "sv": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dubbeltryck för att se detaljer"
-          }
-        },
-        "uk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Двічі натисни, щоб переглянути деталі"
-          }
-        }
-      }
-    },
     "Edit": {
       "localizations": {
         "de": {
@@ -8648,72 +8578,72 @@
         }
       }
     },
-    "Marked Expense\nas Paid": {
+    "Marked as Paid": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ausgabe als bezahlt markiert"
+            "value": "Als bezahlt markiert"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gasto marcado\ncomo pagado"
+            "value": "Marcado como pagado"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dépense marquée\ncomme payée"
+            "value": "Marqué comme payé"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spesa Segnata\ncome Pagata"
+            "value": "Contrassegnato come pagato"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "支出を支払い済みとしてマーク"
+            "value": "支払い済みとしてマーク"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "지출을\n지불로 표시함"
+            "value": "지불 완료로 표시됨"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uitgave gemarkeerd\nals betaald"
+            "value": "Als betaald gemarkeerd"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Oznaczony wydatek\njako opłacony"
+            "value": "Oznaczone jako opłacone"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Označený výdavok\nako zaplatený"
+            "value": "Označené ako zaplatené"
           }
         },
         "sv": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markerad utgift\nsom betald"
+            "value": "Markerad som betald"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Витрату позначено\nяк оплачену"
+            "value": "Позначено як оплачено"
           }
         }
       }
@@ -10114,6 +10044,76 @@
           "stringUnit": {
             "state": "translated",
             "value": "Відкриває налаштування та вподобання додатку"
+          }
+        }
+      }
+    },
+    "Opens expense details": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnet Ausgabendetails"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abre detalles del gasto"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre les détails de la dépense"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apre i dettagli della spesa"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "経費の詳細を開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지출 세부정보 열기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opent uitgavendetails"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otwiera szczegóły wydatku"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otvára podrobnosti výdavku"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öppnar utgiftsdetaljer"
+          }
+        },
+        "uk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Відкриває деталі витрат"
           }
         }
       }
