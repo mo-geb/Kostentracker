@@ -236,7 +236,7 @@ struct ExpenseInspector: View {
                         .symbolRenderingMode(.multicolor)
                         .font(.title)
                 }
-                .offset(x: 17, y: 17)
+                .offset(x: 10, y: 10)
             }
     }
     
@@ -255,7 +255,7 @@ struct ExpenseInspector: View {
                     Circle()
                         .fill(color.opacity(0.3))
                     Text(emoji)
-                        .font(.system(size: 70))
+                        .font(.system(size: 50))
                 }
                 .accessibilityLabel("Expense emoji: \(emoji)")
             case .icon(let name, let color):
@@ -702,7 +702,7 @@ struct ExpenseInspector: View {
         Button {
             switch initialState {
             case .edit(_), .view(_):
-                withAnimation(.snappy) { isEditing = false }
+                isEditing = false
             case .new:
                 dismiss()
             }
@@ -737,7 +737,7 @@ struct ExpenseInspector: View {
                 }
                 try context.save()
                 successHaptic += 1
-                withAnimation(.snappy) { isEditing = false }
+                isEditing = false
             } catch {
                 print("Failed to save expense: \(error)")
             }
@@ -752,7 +752,7 @@ struct ExpenseInspector: View {
     
     private var editButton: some View {
         Button {
-            withAnimation(.snappy) { isEditing = true }
+             isEditing = true
         } label: {
             Label("Edit", systemImage: "pencil")
         }

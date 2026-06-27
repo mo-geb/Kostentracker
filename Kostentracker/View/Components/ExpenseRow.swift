@@ -14,6 +14,7 @@ struct ExpenseRow: View {
         HStack(spacing: uiState.selectedViewMode == .compact ? 8 : 12) {
             iconSection
             titleSubtitleSection
+                .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] }
             Spacer()
             amountSection
         }

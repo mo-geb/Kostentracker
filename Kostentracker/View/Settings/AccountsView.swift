@@ -121,6 +121,7 @@ struct AccountsView: View {
                 accountRow(for: account)
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
+                    .listRowInsets(.init(top: 8, leading: 0, bottom: 8, trailing: 0))
             }
             .onMove(perform: moveAccount)
         }
@@ -178,10 +179,10 @@ struct AccountsView: View {
     @ViewBuilder
     private func accountRow(for account: ExpenseAccount) -> some View {
         HStack(alignment: .center, spacing: 18) {
-                Image(systemName: account.iconName)
-                    .font(.system(size: 28, weight: .medium))
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .frame(width: 40, height: 40)
+            Image(systemName: account.iconName)
+                .font(.system(size: 28, weight: .medium))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .frame(width: 40, height: 40)
             VStack(alignment: .leading, spacing: 6) {
                 Text(account.name)
                     .font(.system(size: 22, weight: .semibold))
@@ -198,9 +199,8 @@ struct AccountsView: View {
                             .font(.caption2)
                             .padding(.horizontal, 7)
                             .padding(.vertical, 2)
-                            .background(Color(.secondarySystemGroupedBackground))
+                            .background(Color(.tertiarySystemFill), in: Capsule())
                             .foregroundStyle(.secondary)
-                            .cornerRadius(7)
                     }
                 }
             }
@@ -221,10 +221,14 @@ struct AccountsView: View {
 }
 
 #Preview(traits: .modifier(PreviewModelContainer())) {
-    NavigationStack {
+    UserDefaults.standard.set(true, forKey: "store.hasPurchasedUnlimited")
+    let store = StoreManager()
+    let settings = UserSettings()
+    settings.enableAccounts = true
+    return NavigationStack {
         AccountsView()
             .environment(UIState())
-            .environment(UserSettings())
-            .environment(StoreManager())
+            .environment(settings)
+            .environment(store)
     }
 }

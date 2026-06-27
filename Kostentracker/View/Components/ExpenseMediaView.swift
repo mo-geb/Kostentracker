@@ -16,19 +16,19 @@ struct ExpenseMediaView: View {
             ZStack {
                 Circle()
                     .fill(color.opacity(0.3))
-                    .frame(width: size, height: size)
                 Text(emoji)
                     .font(.system(size: size * 0.5))
             }
+            .frame(width: size, height: size)
         case .icon(let symbolName, let color):
             ZStack {
                 Circle()
                     .fill(color.opacity(0.3))
-                    .frame(width: size, height: size)
                 Image(systemName: symbolName)
                     .font(.system(size: size * 0.5))
                     .foregroundStyle(color)
             }
+            .frame(width: size, height: size)
         }
     }
 }
