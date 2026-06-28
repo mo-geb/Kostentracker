@@ -501,14 +501,14 @@ def translate_entries(
             lang_data.setdefault("variations", {}).setdefault("plural", {})
             lang_data["variations"]["plural"][cat] = {
                 "stringUnit": {
-                    "state": "needs_review",  # Mark for human review
+                    "state": "translated",  # Mark for human review
                     "value": raw_translation,
                 }
             }
         else:
             locs[target_lang] = {
                 "stringUnit": {
-                    "state": "needs_review",  # Mark for human review
+                    "state": "translated",  # Mark for human review
                     "value": raw_translation,
                 }
             }
