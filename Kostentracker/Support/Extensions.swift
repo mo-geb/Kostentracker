@@ -66,6 +66,12 @@ extension Character {
     }
 }
 
+extension Calendar {
+    func startOfMonth(for date: Date) -> Date {
+        self.date(from: dateComponents([.year, .month], from: date))!
+    }
+}
+
 extension UserDefaults {
     func getEnum<T: RawRepresentable>(forKey key: String, default: T) -> T where T.RawValue == String {
         guard let rawValue = string(forKey: key),

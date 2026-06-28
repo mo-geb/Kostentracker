@@ -36,11 +36,7 @@ struct TimelineView: View {
     /// one-time expenses) it yields a single collapsed row at the due date. In
     /// "all upcoming" mode it yields one row per occurrence through the horizon.
     private static func occurrences(for expense: Expense, calendar: Calendar, projectFuture: Bool) -> [TimelineOccurrence] {
-        func startOfMonth(_ date: Date) -> Date {
-            calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
-        }
-
-        let dueMonth = startOfMonth(expense.date)
+        let dueMonth = calendar.startOfMonth(for: expense.date)
 
         guard projectFuture, expense.type == .recurring, expense.frequencyValue > 0 else {
             return [TimelineOccurrence(
@@ -54,31 +50,17 @@ struct TimelineView: View {
         }
 
         let horizon = calendar.date(byAdding: .month, value: timelineProjectionMonths,
-                                    to: startOfMonth(Date())) ?? dueMonth
-        let component = expense.frequencyUnit.calendarComponent
-        let step = Int(expense.frequencyValue)
-
-        var rows: [TimelineOccurrence] = []
-        var cursor = expense.date
-        var iterations = 0
-
-        // One row per occurrence from the due date onward. Always include the due
-        // occurrence; continue while the next stays within the horizon.
-        while iterations < 800 {
-            rows.append(TimelineOccurrence(
+                                    to: calendar.startOfMonth(for: Date())) ?? dueMonth
+        return expense.occurrenceDates(through: horizon, calendar: calendar).map { date in
+            TimelineOccurrence(
                 expense: expense,
-                month: startOfMonth(cursor),
-                occurrenceDate: cursor,
+                month: calendar.startOfMonth(for: date),
+                occurrenceDate: date,
                 amount: expense.amount,
-                isCurrentDue: cursor == expense.date,
+                isCurrentDue: date == expense.date,
                 showsMonthlyTotal: false
-            ))
-            guard let next = calendar.date(byAdding: component, value: step, to: cursor), next <= horizon else { break }
-            cursor = next
-            iterations += 1
+            )
         }
-
-        return rows
     }
 
     // MARK: - Body
@@ -201,10 +183,6 @@ private extension TimelineView {
     }
 }
 
-#Preview(traits: .modifier(PreviewModelContainer())) {
-    TimelineView()
-}
-
 // MARK: - Private types
 
 private struct TimelineOccurrence: Identifiable {
@@ -215,7 +193,7 @@ private struct TimelineOccurrence: Identifiable {
     let isCurrentDue: Bool    // the next due occurrence → markable / payable
     let showsMonthlyTotal: Bool // collapsed next-due row shows the "total this month" line
 
-    var id: String { "\(ObjectIdentifier(expense).hashValue)-\(occurrenceDate.timeIntervalSinceReferenceDate)" }
+    var id: String { "\(expense.persistentModelID)-\(occurrenceDate.timeIntervalSinceReferenceDate)" }
 }
 
 private struct MonthlyExpenseGroup: Identifiable {
@@ -226,3 +204,7 @@ private struct MonthlyExpenseGroup: Identifiable {
 }
 
 private let timelineProjectionMonths = 12
+
+#Preview(traits: .modifier(PreviewModelContainer())) {
+    TimelineView()
+}

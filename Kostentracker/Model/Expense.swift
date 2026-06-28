@@ -129,7 +129,7 @@ extension Expense {
     /// Calculates the total cost of this expense for a specific month
     func totalForMonth(containing date: Date) -> Double {
         let calendar = Calendar.current
-        let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        let monthStart = calendar.startOfMonth(for: date)
         let monthEnd = calendar.date(byAdding: .month, value: 1, to: monthStart)!
 
         var currentDate = normalizedDate
@@ -155,6 +155,22 @@ extension Expense {
     }
 
     
+    /// Enumerates all occurrence dates from the due date through `endDate`.
+    /// Capped to prevent runaway loops on pathological inputs.
+    func occurrenceDates(through endDate: Date, calendar: Calendar = .current) -> [Date] {
+        guard type == .recurring, frequencyValue > 0 else { return [date] }
+        var dates: [Date] = []
+        var cursor = date
+        while dates.count < 800 {
+            dates.append(cursor)
+            guard let next = calendar.date(byAdding: frequencyUnit.calendarComponent,
+                                           value: Int(frequencyValue), to: cursor),
+                  next <= endDate else { break }
+            cursor = next
+        }
+        return dates
+    }
+
     /// Returns true if this expense occurs multiple times in the given month
     func hasMultipleOccurrencesInMonth(containing date: Date) -> Bool {
         switch type {
