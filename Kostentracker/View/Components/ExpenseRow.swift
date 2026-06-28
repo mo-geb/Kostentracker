@@ -8,6 +8,9 @@ struct ExpenseRow: View {
     let expense: Expense
     let subtitle: String
     let tab: ActiveTab
+    var occurrenceDate: Date? = nil
+    var isUpcoming: Bool = false
+    var showsMonthlyTotal: Bool = true
 
     // MARK: - View Body
     var body: some View {
@@ -40,32 +43,32 @@ struct ExpenseRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(expense.title)
                     .font(.headline)
-                    .foregroundStyle(isInactive ? .secondary : .primary)
+                    .foregroundStyle(isDimmed ? .secondary : .primary)
                     .lineLimit(2)
                     .minimumScaleFactor(0.8)
                 HStack(spacing: 4) {
                     if showOverdue {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(.caption)
-                            .foregroundStyle(Color.red)
+                            .foregroundStyle(overdueTint)
                             .accessibilityLabel("Overdue")
                     }
                     Text(subtitle)
                         .font(.subheadline)
-                        .foregroundStyle(showOverdue ? Color.red : Color.secondary)
+                        .foregroundStyle(isFullOverdue ? Color.red : Color.secondary)
                 }
             }
         case .compact:
             HStack(spacing: 4) {
                 Text(expense.title)
                     .font(.body)
-                    .foregroundStyle(isInactive ? .secondary : .primary)
+                    .foregroundStyle(isDimmed ? .secondary : .primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 if showOverdue {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.caption2)
-                        .foregroundStyle(Color.red)
+                        .foregroundStyle(overdueTint)
                         .padding(.leading, 4)
                         .accessibilityLabel("Overdue")
                 }
@@ -90,9 +93,9 @@ struct ExpenseRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 // Regular
                 amountText(expense.amount)
-                
-                if expense.hasMultipleOccurrencesInMonth(containing: expense.date) {
-                    Text(expense.totalForMonth(containing: expense.date), format: .currency(code: userSettings.currencyCode))
+
+                if showsMonthlyTotal, expense.hasMultipleOccurrencesInMonth(containing: effectiveDate) {
+                    Text(expense.totalForMonth(containing: effectiveDate), format: .currency(code: userSettings.currencyCode))
                         .font(.subheadline)
                         .fontDesign(.rounded)
                         .foregroundStyle(.secondary)
@@ -144,15 +147,31 @@ struct ExpenseRow: View {
             .font(uiState.selectedViewMode == .normal ? .headline : .body)
             .fontWeight(.medium)
             .fontDesign(.rounded)
-            .foregroundStyle(isInactive ? .secondary : .primary)
+            .foregroundStyle(isDimmed ? .secondary : .primary)
     }
-    
+
+    /// Date this row represents — the projected occurrence, or the stored due date.
+    private var effectiveDate: Date { occurrenceDate ?? expense.date }
+
     private var showOverdue: Bool {
-        tab == .timeline && expense.date < Calendar.current.startOfDay(for: Date())
+        // Any occurrence whose date has already passed is overdue — including a
+        // dimmed upcoming row that happens to fall in the past.
+        tab == .timeline && effectiveDate < Calendar.current.startOfDay(for: Date())
     }
-    
+
+    /// The actionable next-due charge gets the full red treatment; a dimmed future
+    /// preview that has slipped past its date just shows a grey flag — its mere
+    /// presence signals overdue without competing with the real alert.
+    private var isFullOverdue: Bool { showOverdue && !isUpcoming }
+    private var overdueTint: Color { isUpcoming ? .secondary : .red }
+
     private var isInactive: Bool {
         expense.type == .inactive
+    }
+
+    /// Rendered in secondary color: inactive expenses or not-yet-due previews.
+    private var isDimmed: Bool {
+        isInactive || isUpcoming
     }
 }
 

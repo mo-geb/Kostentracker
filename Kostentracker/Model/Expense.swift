@@ -85,10 +85,6 @@ extension Expense {
     }
     
     var normalizedDate: Date { Calendar.current.startOfDay(for: self.date) }
-    /// Row identity for the timeline. It folds in `date` so that paying an expense
-    /// (which changes its date) reads as a remove + insert rather than a single row
-    /// moving across month sections — the latter is what `List` animates badly.
-    var timelineRowID: String { "\(ObjectIdentifier(self).hashValue)-\(date.timeIntervalSinceReferenceDate)" }
     var categoryColor: Color { category?.color ?? .gray }
     var categoryIconName: String { category?.iconName ?? "tag" }
     var categoryName: String { category?.name ?? "Other" }

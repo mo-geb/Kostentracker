@@ -3,12 +3,26 @@ import SwiftData
 
 // MARK: - Private types
 
-private struct MonthlyExpenseGroup: Identifiable, Equatable {
+private struct TimelineOccurrence: Identifiable {
+    let expense: Expense
+    let month: Date          // first day of the month bucket (section)
+    let occurrenceDate: Date // this occurrence's date
+    let amount: Double        // amount contributed to the month's section total
+    let isCurrentDue: Bool    // the next due occurrence → markable / payable
+    let showsMonthlyTotal: Bool // collapsed next-due row shows the "total this month" line
+
+    var id: String { "\(ObjectIdentifier(expense).hashValue)-\(occurrenceDate.timeIntervalSinceReferenceDate)" }
+}
+
+private struct MonthlyExpenseGroup: Identifiable {
     let id: Date
     var month: Date
-    var expenses: [Expense]
+    var occurrences: [TimelineOccurrence]
     var totalAmount: Double
 }
+
+/// How far ahead recurring occurrences are projected in "all upcoming" mode.
+private let timelineProjectionMonths = 12
 
 // MARK: - View
 
@@ -26,16 +40,68 @@ struct TimelineView: View {
         let filtered = Expense.applyFilters(unfilteredExpenses, ui: ui, userSettings: userSettings, store: store)
         let onlyActive = Expense.applyCustomFilters(filtered, filter: .active)
         let calendar = Calendar.current
+        let projectFuture = ui.timelineOccurrenceDisplay == .allUpcoming
 
-        return Dictionary(grouping: onlyActive) { expense in
-            calendar.date(from: calendar.dateComponents([.year, .month], from: expense.date))!
+        let occurrences = onlyActive.flatMap {
+            Self.occurrences(for: $0, calendar: calendar, projectFuture: projectFuture)
         }
-        .map { month, expensesInMonth in
-            let total = expensesInMonth.reduce(0.0) { $0 + $1.totalForMonth(containing: month) }
-            let sorted = expensesInMonth.sorted { $0.date < $1.date }
-            return MonthlyExpenseGroup(id: month, month: month, expenses: sorted, totalAmount: total)
+
+        return Dictionary(grouping: occurrences, by: \.month)
+            .map { month, occurrencesInMonth in
+                let total = occurrencesInMonth.reduce(0.0) { $0 + $1.amount }
+                let sorted = occurrencesInMonth.sorted { $0.occurrenceDate < $1.occurrenceDate }
+                return MonthlyExpenseGroup(id: month, month: month, occurrences: sorted, totalAmount: total)
+            }
+            .sorted { $0.month < $1.month }
+    }
+
+    /// Expands an expense into timeline rows. In "next due only" mode (or for
+    /// one-time expenses) it yields a single collapsed row at the due date. In
+    /// "all upcoming" mode it yields one row per occurrence through the horizon.
+    private static func occurrences(for expense: Expense, calendar: Calendar, projectFuture: Bool) -> [TimelineOccurrence] {
+        func startOfMonth(_ date: Date) -> Date {
+            calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
         }
-        .sorted { $0.month < $1.month }
+
+        let dueMonth = startOfMonth(expense.date)
+
+        guard projectFuture, expense.type == .recurring, expense.frequencyValue > 0 else {
+            return [TimelineOccurrence(
+                expense: expense,
+                month: dueMonth,
+                occurrenceDate: expense.date,
+                amount: expense.totalForMonth(containing: dueMonth),
+                isCurrentDue: true,
+                showsMonthlyTotal: true
+            )]
+        }
+
+        let horizon = calendar.date(byAdding: .month, value: timelineProjectionMonths,
+                                    to: startOfMonth(Date())) ?? dueMonth
+        let component = expense.frequencyUnit.calendarComponent
+        let step = Int(expense.frequencyValue)
+
+        var rows: [TimelineOccurrence] = []
+        var cursor = expense.date
+        var iterations = 0
+
+        // One row per occurrence from the due date onward. Always include the due
+        // occurrence; continue while the next stays within the horizon.
+        while iterations < 800 {
+            rows.append(TimelineOccurrence(
+                expense: expense,
+                month: startOfMonth(cursor),
+                occurrenceDate: cursor,
+                amount: expense.amount,
+                isCurrentDue: cursor == expense.date,
+                showsMonthlyTotal: false
+            ))
+            guard let next = calendar.date(byAdding: component, value: step, to: cursor), next <= horizon else { break }
+            cursor = next
+            iterations += 1
+        }
+
+        return rows
     }
 
     // MARK: - Body
@@ -46,8 +112,8 @@ struct TimelineView: View {
             List {
                 ForEach(groups) { group in
                     Section {
-                        ForEach(group.expenses, id: \.timelineRowID) { expense in
-                            expenseRow(for: expense)
+                        ForEach(group.occurrences) { occurrence in
+                            expenseRow(for: occurrence)
                         }
                     } header: {
                         HStack {
@@ -73,10 +139,18 @@ struct TimelineView: View {
 
     // MARK: - Row
 
-    private func expenseRow(for expense: Expense) -> some View {
-        Button { detailRoute = ExpenseDetailRoute(expense: expense) } label: {
-            ExpenseRow(expense: expense, subtitle: expense.date.formatted(date: .abbreviated, time: .omitted), tab: .timeline)
-                .contentShape(Rectangle())
+    private func expenseRow(for occurrence: TimelineOccurrence) -> some View {
+        let expense = occurrence.expense
+        return Button { detailRoute = ExpenseDetailRoute(expense: expense) } label: {
+            ExpenseRow(
+                expense: expense,
+                subtitle: occurrence.occurrenceDate.formatted(date: .abbreviated, time: .omitted),
+                tab: .timeline,
+                occurrenceDate: occurrence.occurrenceDate,
+                isUpcoming: !occurrence.isCurrentDue,
+                showsMonthlyTotal: occurrence.showsMonthlyTotal
+            )
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -85,21 +159,39 @@ struct TimelineView: View {
                 } label: {
                     Label("Edit", systemImage: "pencil")
                 }
-                Button {
-                    markAsPaid(expense)
-                } label: {
-                    Label("Mark as paid", systemImage: "checkmark")
+                // Only the next-due occurrence is payable; future previews are not.
+                if occurrence.isCurrentDue {
+                    Button {
+                        markAsPaid(expense)
+                    } label: {
+                        Label("Mark as paid", systemImage: "checkmark")
+                    }
                 }
             }
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                Button { markAsPaid(expense) } label: {
-                    Label("Paid", systemImage: "checkmark")
+                if occurrence.isCurrentDue {
+                    Button { markAsPaid(expense) } label: {
+                        Label("Paid", systemImage: "checkmark")
+                    }
+                    .tint(.green)
                 }
-                .tint(.green)
             }
     }
 
     // MARK: - Toolbar
+
+    private var occurrenceDisplayPicker: some View {
+        @Bindable var ui = ui
+        return Picker(selection: $ui.timelineOccurrenceDisplay,
+                      label: Label("Show", systemImage: "calendar.badge.clock")) {
+            ForEach(TimelineOccurrenceDisplay.allCases) { option in
+                Text(option.localizedName).tag(option)
+            }
+        }
+        .pickerStyle(.menu)
+        .accessibilityLabel("Show")
+        .accessibilityHint("Choose whether to show only the next due charge or every occurrence")
+    }
 
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
@@ -108,6 +200,7 @@ struct TimelineView: View {
         }
         ToolbarItem {
             SharedToolbarElements.OptionsMenu {
+                occurrenceDisplayPicker
                 SharedToolbarElements.ViewModePicker()
             }
         }

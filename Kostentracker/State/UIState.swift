@@ -23,6 +23,7 @@ final class UIState {
     var selectedGroupBy: GroupByOption { didSet { persist(key: "selectedGroupBy", value: selectedGroupBy.rawValue) }}
     var selectedViewMode: ViewMode { didSet { persist(key: "selectedViewMode", value: selectedViewMode.rawValue) }}
     var selectedDisplayPeriod: FrequencyUnit { didSet { persist(key: "selectedDisplayPeriod", value: selectedDisplayPeriod.rawValue) }}
+    var timelineOccurrenceDisplay: TimelineOccurrenceDisplay { didSet { persist(key: "timelineOccurrenceDisplay", value: timelineOccurrenceDisplay.rawValue) }}
     var selectedAccountIDs: Set<UUID> = [] { didSet { saveAccounts() }}
 
     init() {
@@ -33,6 +34,7 @@ final class UIState {
         self.selectedGroupBy = defaults.getEnum(forKey: "selectedGroupBy", default: .categories)
         self.selectedViewMode = defaults.getEnum(forKey: "selectedViewMode", default: .normal)
         self.selectedDisplayPeriod = defaults.getEnum(forKey: "selectedDisplayPeriod", default: .month)
+        self.timelineOccurrenceDisplay = defaults.getEnum(forKey: "timelineOccurrenceDisplay", default: .nextDue)
 
         loadAccounts()
     }
