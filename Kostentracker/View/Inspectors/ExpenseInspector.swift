@@ -827,7 +827,6 @@ struct ExpenseInspector: View {
             content()
         }
         .frame(minHeight: 30)
-        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
     }
 }
 

@@ -95,7 +95,6 @@ struct CategoryInspector: View {
                     .focused($focusedField, equals: .categoryDetailTitle)
             }
             .frame(minHeight: 30)
-            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
 
             HStack {
                 Image(systemName: "paintpalette")
@@ -113,7 +112,6 @@ struct CategoryInspector: View {
                 .accessibilityLabel("Category color")
             }
             .frame(minHeight: 30)
-            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
         }
     }
 

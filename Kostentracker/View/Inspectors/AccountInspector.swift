@@ -91,7 +91,6 @@ struct AccountInspector: View {
                     .focused($focusedField, equals: .accountDetailTitle)
             }
             .frame(minHeight: 30)
-            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
         }
     }
 

@@ -13,6 +13,7 @@ struct SettingsView: View {
             List {
                 purchasesSection
                 generalSection
+                customizeSection
                 moreSection
             }
             .listStyle(.insetGrouped)
@@ -34,17 +35,14 @@ struct SettingsView: View {
         Section("Purchases") {
             if store.isUnlimited {
                 HStack {
-                    settingsLabel(icon: "checkmark.seal.fill", color: .green, title: "Unlimited")
+                    settingsLabel(icon: "infinity", color: .green, title: "Unlimited")
                     Spacer()
-                    Text(store.isGrandfathered ? "Thanks!" : "Active")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
                 }
             } else {
                 Button { showPaywall = true } label: {
-                    settingsLabel(icon: "sparkles", color: .orange, title: "Upgrade to Unlimited")
+                    settingsLabel(icon: "infinity", color: .purple, title: "Upgrade to Unlimited")
                 }
-                .buttonStyle(.plain)
 
                 Button {
                     Task {
@@ -54,14 +52,13 @@ struct SettingsView: View {
                     }
                 } label: {
                     HStack {
-                        settingsLabel(icon: "arrow.clockwise", color: .blue, title: "Restore Purchases")
+                        settingsLabel(icon: "arrow.clockwise", color: .gray, title: "Restore Purchases")
                         if isRestoring {
                             Spacer()
                             ProgressView()
                         }
                     }
                 }
-                .buttonStyle(.plain)
                 .disabled(isRestoring)
             }
         }
@@ -83,7 +80,14 @@ struct SettingsView: View {
                 .labelsHidden()
                 .pickerStyle(.menu)
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var customizeSection: some View {
+        @Bindable var userSettings = userSettings
 
+        Section("Customize") {
             NavigationLink {
                 CategoriesView()
             } label: {
@@ -105,7 +109,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     linkButton(url: Links.website, icon: "globe", title: "Website")
                     linkButton(url: Links.terms, icon: "doc.text", title: "Terms")
-                    linkButton(url: Links.privacy, icon: "hand.raised.fill", title: "Privacy")
+                    linkButton(url: Links.privacy, icon: "hand.raised", title: "Privacy")
                 }
                 .background {
                     GeometryReader { geo in
@@ -120,7 +124,7 @@ struct SettingsView: View {
                 HStack(spacing: 12) {
                     linkButton(url: Links.guide, icon: "book", title: "Guide")
                         .frame(width: linkButtonWidth)
-                    linkButton(url: Links.support, icon: "envelope.fill", title: "Support")
+                    linkButton(url: Links.support, icon: "envelope", title: "Support")
                         .frame(width: linkButtonWidth)
                 }
                 .frame(maxWidth: .infinity)
@@ -160,7 +164,7 @@ struct SettingsView: View {
         HStack(spacing: 12) {
             IconTile(icon: icon, color: color, size: 30)
             Text(title)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.primary)
                 .lineLimit(1)
         }
     }
