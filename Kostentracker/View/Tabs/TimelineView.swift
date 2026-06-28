@@ -46,7 +46,7 @@ struct TimelineView: View {
             List {
                 ForEach(groups) { group in
                     Section {
-                        ForEach(group.expenses) { expense in
+                        ForEach(group.expenses, id: \.timelineRowID) { expense in
                             expenseRow(for: expense)
                         }
                     } header: {
@@ -120,12 +120,14 @@ struct TimelineView: View {
 
 private extension TimelineView {
     func markAsPaid(_ expense: Expense) {
-        switch expense.type {
-        case .oneTime, .inactive: expense.date = .distantPast
-        case .recurring:          expense.advanceDueDate()
+        withAnimation {
+            switch expense.type {
+            case .oneTime, .inactive: expense.date = .distantPast
+            case .recurring:          expense.advanceDueDate()
+            }
+            try? context.save()
         }
         ui.showMarkedAsPaidConfirmation(owner: .main)
-        try? context.save()
     }
 }
 
