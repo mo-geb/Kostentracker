@@ -1,29 +1,6 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Private types
-
-private struct TimelineOccurrence: Identifiable {
-    let expense: Expense
-    let month: Date          // first day of the month bucket (section)
-    let occurrenceDate: Date // this occurrence's date
-    let amount: Double        // amount contributed to the month's section total
-    let isCurrentDue: Bool    // the next due occurrence → markable / payable
-    let showsMonthlyTotal: Bool // collapsed next-due row shows the "total this month" line
-
-    var id: String { "\(ObjectIdentifier(expense).hashValue)-\(occurrenceDate.timeIntervalSinceReferenceDate)" }
-}
-
-private struct MonthlyExpenseGroup: Identifiable {
-    let id: Date
-    var month: Date
-    var occurrences: [TimelineOccurrence]
-    var totalAmount: Double
-}
-
-/// How far ahead recurring occurrences are projected in "all upcoming" mode.
-private let timelineProjectionMonths = 12
-
 // MARK: - View
 
 struct TimelineView: View {
@@ -227,3 +204,25 @@ private extension TimelineView {
 #Preview(traits: .modifier(PreviewModelContainer())) {
     TimelineView()
 }
+
+// MARK: - Private types
+
+private struct TimelineOccurrence: Identifiable {
+    let expense: Expense
+    let month: Date          // first day of the month bucket (section)
+    let occurrenceDate: Date // this occurrence's date
+    let amount: Double        // amount contributed to the month's section total
+    let isCurrentDue: Bool    // the next due occurrence → markable / payable
+    let showsMonthlyTotal: Bool // collapsed next-due row shows the "total this month" line
+
+    var id: String { "\(ObjectIdentifier(expense).hashValue)-\(occurrenceDate.timeIntervalSinceReferenceDate)" }
+}
+
+private struct MonthlyExpenseGroup: Identifiable {
+    let id: Date
+    var month: Date
+    var occurrences: [TimelineOccurrence]
+    var totalAmount: Double
+}
+
+private let timelineProjectionMonths = 12
